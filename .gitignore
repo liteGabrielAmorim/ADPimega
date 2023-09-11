@@ -15,6 +15,7 @@ O.*/
 .settings
 .cproject
 external/
+venv_epics_test/
 .tags
 .vscode/c_cpp_properties.json
 .vscode
