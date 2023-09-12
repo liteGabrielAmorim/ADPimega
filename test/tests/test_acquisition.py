@@ -1,30 +1,33 @@
 import pytest
-import numpy as np
-
-from epics import PV
 
 pytestmark = pytest.mark.acquisition
 
-ACQ_PV = {"AcquireTime": None, "AcquireTime_RBV": None}
+
+@pytest.mark.parametrize("acquire_time", [1e-6, 100e-6, 1e-3, 100e-3, 18446744073709551615e-6])
+def test_acquire_time(acq_time, acq_time_rbv, acquire_time):
+    acq_time.put(acquire_time, wait=True)
+    ans = acq_time_rbv.get()
+    print(f"Value set: {acquire_time} | Value read: {ans}")
+    assert ans == acquire_time
 
 
-class Acq():
-    def __init__(self, epics_prefix: str, epics_camera: str) -> None:
-        self.epics_prefix = epics_prefix
-        self.epics_camera = epics_camera
+@pytest.mark.parametrize("acquire_time", [0, -1])
+def test_acquire_time_negative_min(acq_time, acq_time_rbv, acquire_time):
+    expected_value = 1e-06
+    initial_value = 1
+    acq_time.put(initial_value, wait=True)
+    acq_time.put(acquire_time, wait=True)
+    final_value = acq_time_rbv.get()
+    print(f"Expected value: {expected_value} | Final value: {final_value}")
+    assert expected_value == final_value
 
-        self.define_PVs()
 
-    def define_PVs(self):
-        #         for pv in list(ACQ_PV.keys()):
-        #             Pv = PV(self.epics_prefix + self.epics_camera + suffix)
-        #             setattr(self, suffix.replace(":", "_"), Pv)
-
-        # @pytest.mark.parametrize("acquire_time", [1e-6, 100e-6, 1e-3, 100e-3, 18446744073709551615e-6])
-        # def test_numexposures(pimega, acquire_time):
-        #     # Set acquire time
-        #     Acquisition.acq_time.put(acquire_time)
-        #     # Read acquire time
-        #     ans = np.round(Acquisition.acq_time.get("AcquireTime_RBV"), 3)
-        #     print(f"Value set: {acquire_time} | Value read: {ans}")
-        #     assert ans == acquire_time
+@pytest.mark.parametrize("acquire_time", [999999999999999999999999])
+def test_acquire_time_negative_max(acq_time, acq_time_rbv, acquire_time):
+    expected_value = 18446744073709551615e-6
+    initial_value = 1
+    acq_time.put(initial_value, wait=True)
+    acq_time.put(acquire_time, wait=True)
+    final_value = acq_time_rbv.get()
+    print(f"Expected value: {expected_value} | Final value: {final_value}")
+    assert expected_value == final_value

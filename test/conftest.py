@@ -1,14 +1,18 @@
 """Configuration file for AD Pimega tests."""
+import json
 import os
+
 import pytest
+
 from epics import PV
-from pytest import ExitCode
+
+from .PVs.acquisition import *
 
 
 def pytest_addoption(parser):
     """Pytest command line arguments."""
     parser.addini("epics_prefix", help="EPICS Prefix")
-    parser.addini("epics_camera", help="Area Detector Camera id")
+    parser.addini("device_id", help="Area Detector Camera id")
     parser.addini("epics_ip", help="IP Address to connect")
 
 
@@ -25,10 +29,19 @@ def pytest_unconfigure(config):
     """Called before test process is exited."""
 
 
-@pytest.fixture(scope="session", name="pimega")
-def ADPimega_PV(request):
-    """Returns the EPICS prefix to access an equipment.
-    This value is set on pytest.ini.
-    """
-    pimega = PV(request.config.getini("epics_prefix") + ":" + request.config.getini("epics_camera"))
-    yield pimega
+@pytest.fixture(scope="session", autouse=True)
+def init_pv(request):
+    with open("PVs.json", "r", encoding="utf8") as cfg_file:
+        pvs_dict = json.load(cfg_file)
+
+    for ad_type in list(pvs_dict.keys()):
+        for pv_functionality in list(pvs_dict[ad_type].keys()):
+            for pv_method in list(pvs_dict[ad_type][pv_functionality].keys()):
+                pvs_dict[ad_type][pv_functionality][pv_method] = PV(
+                    request.config.getini("epics_prefix") + ":" + ad_type + ":" + pv_method)
+    yield pvs_dict
+
+
+@pytest.fixture(scope="session", name="dev_id")
+def get_detector_epics_id(request):
+    return request.config.getini("device_id")
