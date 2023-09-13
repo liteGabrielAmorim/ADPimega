@@ -31,6 +31,7 @@ def pytest_unconfigure(config):
 
 @pytest.fixture(scope="session", autouse=True)
 def init_pv(request):
+    """ Initialize the EPICS PVs """
     with open("PVs.json", "r", encoding="utf8") as cfg_file:
         pvs_dict = json.load(cfg_file)
 
@@ -44,4 +45,5 @@ def init_pv(request):
 
 @pytest.fixture(scope="session", name="dev_id")
 def get_detector_epics_id(request):
+    """ Get the EPICS device id """
     return request.config.getini("device_id")

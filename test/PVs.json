@@ -1,8 +1,8 @@
 {
-    "cam1": {
-        "acquisition": {
-            "AcquireTime": null,
-            "AcquireTime_RBV": null
-        }
+  "cam1": {
+    "acquisition": {
+      "AcquireTime": null,
+      "AcquireTime_RBV": null
     }
+  }
 }

@@ -10,7 +10,7 @@ pipelines:
             script:
               - pip install pre-commit
               - pip install lizard
-              - pre-commit run /test
+              - pre-commit run --files ./test/*
               - lizard ./test/ -V
             after-script:
               - echo "Finalized CI pipeline!"
