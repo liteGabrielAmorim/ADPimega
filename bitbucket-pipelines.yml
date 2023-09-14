@@ -10,6 +10,8 @@ pipelines:
             script:
               - pip install pre-commit
               - pip install lizard
+              - pip install isort==5.12.0
+              - isort test/
               - pre-commit run --files ./test/*
               - lizard ./test/ -V
             after-script:
