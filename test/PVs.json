@@ -1,8 +1,14 @@
 {
   "cam1": {
     "acquisition": {
+      "AcquirePeriod": null,
+      "AcquirePeriod_RBV": null,
       "AcquireTime": null,
-      "AcquireTime_RBV": null
+      "AcquireTime_RBV": null,
+      "NumCapture": null,
+      "NumCapture_RBV": null,
+      "NumExposures": null,
+      "NumExposures_RBV": null
     }
   }
 }
