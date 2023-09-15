@@ -1,14 +1,49 @@
 {
   "cam1": {
     "acquisition": {
+      "Acquire": null,
       "AcquirePeriod": null,
       "AcquirePeriod_RBV": null,
       "AcquireTime": null,
       "AcquireTime_RBV": null,
+      "Capture": null,
+      "Capture_RBV": null,
+      "FrameProcessMode": null,
       "NumCapture": null,
       "NumCapture_RBV": null,
       "NumExposures": null,
       "NumExposures_RBV": null
+    },
+    "filesystem": {
+      "AcquisitionToSharedMemoryEnable": null,
+      "AutoIncrement": null,
+      "AutoIncrement_RBV": null,
+      "AutoSave": null,
+      "AutoSave_RBV": null,
+      "FileName": null,
+      "FileName_RBV": null,
+      "FileNumber": null,
+      "FileNumber_RBV": null,
+      "FilePath": null,
+      "FilePath_RBV": null,
+      "FileTemplate_RBV": null,
+      "FullFileName_RBV": null
+    },
+    "status": {
+      "Backend_BufferUsed_RBV": null,
+      "DetectorState_RBV": null,
+      "IOCStatusMessage_RBV": null,
+      "NumCaptured_RBV": null,
+      "NumImagesCounter_RBV": null,
+      "ProcessedAcquisitionCounter_RBV": null,
+      "ServerStatusMessage_RBV": null,
+      "TimeRemaining_RBV": null
+    },
+    "system": {
+      "MedipixMode": null,
+      "MedipixMode_RBV": null,
+      "TriggerMode": null,
+      "TriggerMode_RBV": null
     }
   }
 }
