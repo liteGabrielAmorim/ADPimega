@@ -1,10 +1,6 @@
 """Test Acquisition."""
 
-from time import sleep
-
 import pytest
-
-from . import PV_SLEEP
 
 pytestmark = pytest.mark.acquisition
 
@@ -16,7 +12,6 @@ def test_acquire_time(acq_time, acq_period, acq_time_rbv, acquire_time):
     disable_gap = 0
     acq_period.put(disable_gap, wait=True)
     acq_time.put(acquire_time, wait=True)
-    sleep(PV_SLEEP)
     ans = acq_time_rbv.get()
     print(f"Value set: {acquire_time} | Value read: {ans}")
     assert ans == acquire_time
@@ -31,7 +26,6 @@ def test_acquire_time_negative_min(acq_time, acq_period, acq_time_rbv, acquire_t
     acq_period.put(disable_gap, wait=True)
     acq_time.put(initial_value, wait=True)
     acq_time.put(acquire_time, wait=True)
-    sleep(PV_SLEEP)
     final_value = acq_time_rbv.get()
     print(f"Expected value: {expected_value} | Final value: {final_value}")
     assert expected_value == final_value
@@ -46,7 +40,6 @@ def test_acquire_time_negative_max(acq_time, acq_period, acq_time_rbv, acquire_t
     acq_period.put(disable_gap, wait=True)
     acq_time.put(initial_value, wait=True)
     acq_time.put(acquire_time, wait=True)
-    sleep(PV_SLEEP)
     final_value = acq_time_rbv.get()
     print(f"Expected value: {expected_value} | Final value: {final_value}")
     assert expected_value == final_value
@@ -59,7 +52,6 @@ def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period):
     remove_time_blocker = 1e-6
     acq_time.put(remove_time_blocker, wait=True)
     acq_period.put(acquire_period, wait=True)
-    sleep(PV_SLEEP)
     ans = acq_period_rbv.get()
     print(f"Value set: {acquire_period} | Value read: {ans}")
     assert ans == acquire_period
@@ -74,7 +66,6 @@ def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period):
 #     acq_time.put(remove_time_blocker, wait=True)
 #     acq_period.put(initial_value, wait=True)
 #     acq_period.put(acquire_period, wait=True)
-#     sleep(PV_SLEEP)
 #     final_value = acq_period_rbv.get()
 #     print(f"Expected value: {expected_value} | Final value: {final_value}")
 #     assert expected_value == final_value
@@ -89,7 +80,6 @@ def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period):
 #     acq_time.put(remove_time_blocker, wait=True)
 #     acq_period.put(initial_value, wait=True)
 #     acq_period.put(acquire_period, wait=True)
-#     sleep(PV_SLEEP)
 #     final_value = acq_period_rbv.get()
 #     print(f"Expected value: {expected_value} | Final value: {final_value}")
 #     assert expected_value == final_value
@@ -100,7 +90,6 @@ def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period):
 def test_numexp(numexp, numexp_rbv, number_exp):
     """ Test acquisition number of exposures (positive tests) """
     numexp.put(number_exp, wait=True)
-    sleep(PV_SLEEP)
     ans = numexp_rbv.get()
     print(f"Value set: {number_exp} | Value read: {ans}")
     assert ans == number_exp
@@ -113,7 +102,6 @@ def test_numexp_negative_min(numexp, numexp_rbv, number_exp):
     expected_value = 1
     numexp.put(initial_value, wait=True)
     numexp.put(number_exp, wait=True)
-    sleep(PV_SLEEP)
     final_value = numexp_rbv.get()
     print(f"Expected value: {expected_value} | Final value: {final_value}")
     assert expected_value == final_value
@@ -136,8 +124,6 @@ def test_numexp_negative_max(numexp, numexp_rbv, number_exp):
 def test_numcap(numcap, numcap_rbv, number_cap):
     """ Test acquisition number of exposures (positive tests) """
     numcap.put(number_cap, wait=True)
-    sleep(0.01)
-    sleep(PV_SLEEP)
     ans = numcap_rbv.get()
     print(f"Value set: {number_cap} | Value read: {ans}")
     assert ans == number_cap
@@ -150,7 +136,6 @@ def test_numcap_negative_min(numcap, numcap_rbv, number_cap):
     initial_value = 10
     numcap.put(initial_value, wait=True)
     numcap.put(number_cap, wait=True)
-    sleep(PV_SLEEP)
     final_value = numcap_rbv.get()
     print(f"Expected value: {expected_value} | Final value: {final_value}")
     assert expected_value == final_value
@@ -163,7 +148,6 @@ def test_numcap_negative_max(numcap, numcap_rbv, number_cap):
     initial_value = 10
     numcap.put(initial_value, wait=True)
     numcap.put(number_cap, wait=True)
-    sleep(PV_SLEEP)
     final_value = numcap_rbv.get()
     print(f"Expected value: {expected_value} | Final value: {final_value}")
     assert expected_value == final_value

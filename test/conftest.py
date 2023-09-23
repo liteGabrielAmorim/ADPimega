@@ -14,6 +14,7 @@ def pytest_addoption(parser):
     parser.addini("epics_prefix", help="EPICS Prefix")
     parser.addini("device_id", help="Area Detector Camera id")
     parser.addini("epics_ip", help="IP Address to connect")
+    parser.addini("detector_module", help="Detector module")
 
 
 def pytest_configure(config):
