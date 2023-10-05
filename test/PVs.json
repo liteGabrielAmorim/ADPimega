@@ -53,6 +53,18 @@
       "DAC_ThresholdEnergy0_RBV",
       "DAC_ThresholdEnergy1",
       "DAC_ThresholdEnergy1_RBV",
+      "DAC_ThresholdEnergy2",
+      "DAC_ThresholdEnergy2_RBV",
+      "DAC_ThresholdEnergy3",
+      "DAC_ThresholdEnergy3_RBV",
+      "DAC_ThresholdEnergy4",
+      "DAC_ThresholdEnergy4_RBV",
+      "DAC_ThresholdEnergy5",
+      "DAC_ThresholdEnergy5_RBV",
+      "DAC_ThresholdEnergy6",
+      "DAC_ThresholdEnergy6_RBV",
+      "DAC_ThresholdEnergy7",
+      "DAC_ThresholdEnergy7_RBV",
       "SendDAC_Done_RBV"
     ],
     "filesystem": [

@@ -1,7 +1,5 @@
 "Acquisition PVs abstraction "
 
-from time import sleep
-
 import pytest
 
 

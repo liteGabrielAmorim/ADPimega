@@ -7,6 +7,7 @@ import pytest
 from epics import PV
 
 from .pv.acquisition import *
+from .pv.dac import *
 
 
 def pytest_addoption(parser):
