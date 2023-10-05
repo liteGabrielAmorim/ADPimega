@@ -6,7 +6,7 @@ import pytest
 
 from epics import PV
 
-from .pv import *
+from .pv.acquisition import *
 
 
 def pytest_addoption(parser):
@@ -34,13 +34,17 @@ def pytest_unconfigure(config):
 def init_pv(request):
     """ Initialize the EPICS PVs """
     with open("PVs.json", "r", encoding="utf8") as cfg_file:
-        pvs_dict = json.load(cfg_file)
+        pvs_config = json.load(cfg_file)
 
-    for ad_type in list(pvs_dict.keys()):
-        for pv_functionality in list(pvs_dict[ad_type].keys()):
-            for pv_method in list(pvs_dict[ad_type][pv_functionality].keys()):
-                pvs_dict[ad_type][pv_functionality][pv_method] = PV(
-                    request.config.getini("epics_prefix") + ":" + ad_type + ":" + pv_method)
+    epics_prefix = request.config.getini("epics_prefix")
+    pvs_dict= {}
+    for ad_type in pvs_config:
+        pvs_dict[ad_type] = {}
+        for pv_functionality in pvs_config[ad_type]:
+            pvs_dict[ad_type][pv_functionality] = {}
+            for pv_method in pvs_config[ad_type][pv_functionality]:
+                pv_name = "{}:{}:{}".format(epics_prefix, ad_type, pv_method)
+                pvs_dict[ad_type][pv_functionality][pv_method] = PV(pv_name)
     yield pvs_dict
 
 

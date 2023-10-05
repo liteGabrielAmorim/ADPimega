@@ -4,8 +4,6 @@ from time import sleep
 
 import pytest
 
-from . import PV_SLEEP
-
 
 @pytest.fixture()
 def acq_time(init_pv, dev_id):
@@ -16,7 +14,6 @@ def acq_time(init_pv, dev_id):
 @pytest.fixture()
 def acq_time_rbv(init_pv, dev_id):
     """ RBV Acquisition PV """
-    sleep(PV_SLEEP)
     return init_pv[dev_id]["acquisition"]["AcquireTime_RBV"]
 
 
@@ -29,7 +26,6 @@ def acq_period(init_pv, dev_id):
 @pytest.fixture()
 def acq_period_rbv(init_pv, dev_id):
     """ RBV Period PV """
-    sleep(PV_SLEEP)
     return init_pv[dev_id]["acquisition"]["AcquirePeriod_RBV"]
 
 
@@ -48,7 +44,6 @@ def capture(init_pv, dev_id):
 @pytest.fixture()
 def capture_rbv(init_pv, dev_id):
     """ Return of the capture PV """
-    sleep(PV_SLEEP)
     return init_pv[dev_id]["acquisition"]["Capture_RBV"]
 
 
@@ -67,7 +62,6 @@ def numcap(init_pv, dev_id):
 @pytest.fixture()
 def numcap_rbv(init_pv, dev_id):
     """ RBV number of captures PV """
-    sleep(PV_SLEEP)
     return init_pv[dev_id]["acquisition"]["NumCapture_RBV"]
 
 
@@ -80,5 +74,4 @@ def numexp(init_pv, dev_id):
 @pytest.fixture()
 def numexp_rbv(init_pv, dev_id):
     """ RBV numexp PV """
-    sleep(PV_SLEEP)
     return init_pv[dev_id]["acquisition"]["NumExposures_RBV"]
