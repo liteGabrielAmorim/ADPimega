@@ -30,13 +30,13 @@ def test_dac_delay(dac_delay_pv, dac_delay_rbv_pv, dac_delay):
 
 
 @pytest.mark.parametrize("dac_delay", [-1, -255, 256])
-def test_dac_delay_invalid_range(dac_delay_pv, dac_delay_rbv_pv, dac_delay):
+def test_dac_delay_invalid_range_max(dac_delay_pv, dac_delay_rbv_pv, dac_delay):
     """ Test dac_delay (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_delay_rbv_pv.get(use_monitor=False)
     dac_delay_pv.put(dac_delay, wait=True)
     ans = dac_delay_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_delay} | Value read: {ans}")
-    assert ans == min(max(dac_delay, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_disc", [0, 1, 255])
@@ -51,11 +51,11 @@ def test_dac_disc(dac_disc_pv, dac_disc_rbv_pv, dac_disc):
 @pytest.mark.parametrize("dac_disc", [-1, -255, 256])
 def test_dac_disc_invalid_range(dac_disc_pv, dac_disc_rbv_pv, dac_disc):
     """ Test dac_disc (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_disc_rbv_pv.get(use_monitor=False)
     dac_disc_pv.put(dac_disc, wait=True)
     ans = dac_disc_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_disc} | Value read: {ans}")
-    assert ans == min(max(dac_disc, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_disch", [0, 1, 255])
@@ -70,11 +70,11 @@ def test_dac_disch(dac_disch_pv, dac_disch_rbv_pv, dac_disch):
 @pytest.mark.parametrize("dac_disch", [-1, -255, 256])
 def test_dac_disch_invalid_range(dac_disch_pv, dac_disch_rbv_pv, dac_disch):
     """ Test dac_disch (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_disch_rbv_pv.get(use_monitor=False)
     dac_disch_pv.put(dac_disch, wait=True)
     ans = dac_disch_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_disch} | Value read: {ans}")
-    assert ans == min(max(dac_disch, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_discl", [0, 1, 255])
@@ -89,11 +89,11 @@ def test_dac_discl(dac_discl_pv, dac_discl_rbv_pv, dac_discl):
 @pytest.mark.parametrize("dac_discl", [-1, -255, 256])
 def test_dac_discl_invalid_range(dac_discl_pv, dac_discl_rbv_pv, dac_discl):
     """ Test dac_discl (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_discl_rbv_pv.get(use_monitor=False)
     dac_discl_pv.put(dac_discl, wait=True)
     ans = dac_discl_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_discl} | Value read: {ans}")
-    assert ans == min(max(dac_discl, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_discls", [0, 1, 255])
@@ -109,11 +109,11 @@ def test_dac_discls(dac_discls_pv, dac_discls_rbv_pv, dac_discls):
 def test_dac_discls_invalid_range(dac_discls_pv, dac_discls_rbv_pv,
                                   dac_discls):
     """ Test dac_discls (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_discls_rbv_pv.get(use_monitor=False)
     dac_discls_pv.put(dac_discls, wait=True)
     ans = dac_discls_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_discls} | Value read: {ans}")
-    assert ans == min(max(dac_discls, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_fbk", [0, 1, 255])
@@ -128,11 +128,11 @@ def test_dac_fbk(dac_fbk_pv, dac_fbk_rbv_pv, dac_fbk):
 @pytest.mark.parametrize("dac_fbk", [-1, -255, 256])
 def test_dac_fbk_invalid_range(dac_fbk_pv, dac_fbk_rbv_pv, dac_fbk):
     """ Test dac_fbk (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_fbk_rbv_pv.get(use_monitor=False)
     dac_fbk_pv.put(dac_fbk, wait=True)
     ans = dac_fbk_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_fbk} | Value read: {ans}")
-    assert ans == min(max(dac_fbk, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_gnd", [0, 1, 255])
@@ -147,11 +147,11 @@ def test_dac_gnd(dac_gnd_pv, dac_gnd_rbv_pv, dac_gnd):
 @pytest.mark.parametrize("dac_gnd", [-1, -255, 256])
 def test_dac_gnd_invalid_range(dac_gnd_pv, dac_gnd_rbv_pv, dac_gnd):
     """ Test dac_gnd (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_gnd_rbv_pv.get(use_monitor=False)
     dac_gnd_pv.put(dac_gnd, wait=True)
     ans = dac_gnd_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_gnd} | Value read: {ans}")
-    assert ans == min(max(dac_gnd, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_ikrum", [0, 1, 255])
@@ -186,11 +186,11 @@ def test_dac_preamp(dac_preamp_pv, dac_preamp_rbv_pv, dac_preamp):
 def test_dac_preamp_invalid_range(dac_preamp_pv, dac_preamp_rbv_pv,
                                   dac_preamp):
     """ Test dac_preamp (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_preamp_rbv_pv.get(use_monitor=False)
     dac_preamp_pv.put(dac_preamp, wait=True)
     ans = dac_preamp_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_preamp} | Value read: {ans}")
-    assert ans == min(max(dac_preamp, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_rpz", [0, 1, 255])
@@ -205,11 +205,11 @@ def test_dac_rpz(dac_rpz_pv, dac_rpz_rbv_pv, dac_rpz):
 @pytest.mark.parametrize("dac_rpz", [-1, -255, 256])
 def test_dac_rpz_invalid_range(dac_rpz_pv, dac_rpz_rbv_pv, dac_rpz):
     """ Test dac_rpz (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_rpz_rbv_pv.get(use_monitor=False)
     dac_rpz_pv.put(dac_rpz, wait=True)
     ans = dac_rpz_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_rpz} | Value read: {ans}")
-    assert ans == min(max(dac_rpz, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_shaper", [0, 1, 255])
@@ -225,11 +225,11 @@ def test_dac_shaper(dac_shaper_pv, dac_shaper_rbv_pv, dac_shaper):
 def test_dac_shaper_invalid_range(dac_shaper_pv, dac_shaper_rbv_pv,
                                   dac_shaper):
     """ Test dac_shaper (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_shaper_rbv_pv.get(use_monitor=False)
     dac_shaper_pv.put(dac_shaper, wait=True)
     ans = dac_shaper_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_shaper} | Value read: {ans}")
-    assert ans == min(max(dac_shaper, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_tpbufferin", [0, 1, 255])
@@ -246,11 +246,11 @@ def test_dac_tpbufferin(dac_tpbufferin_pv, dac_tpbufferin_rbv_pv,
 def test_dac_tpbufferin_invalid_range(dac_tpbufferin_pv, dac_tpbufferin_rbv_pv,
                                       dac_tpbufferin):
     """ Test dac_tpbufferin (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_tpbufferin_rbv_pv.get(use_monitor=False)
     dac_tpbufferin_pv.put(dac_tpbufferin, wait=True)
     ans = dac_tpbufferin_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_tpbufferin} | Value read: {ans}")
-    assert ans == min(max(dac_tpbufferin, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_tpbufferout", [0, 1, 255])
@@ -268,11 +268,11 @@ def test_dac_tpbufferout_invalid_range(dac_tpbufferout_pv,
                                        dac_tpbufferout_rbv_pv,
                                        dac_tpbufferout):
     """ Test dac_tpbufferout (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_tpbufferout_rbv_pv.get(use_monitor=False)
     dac_tpbufferout_pv.put(dac_tpbufferout, wait=True)
     ans = dac_tpbufferout_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_tpbufferout} | Value read: {ans}")
-    assert ans == min(max(dac_tpbufferout, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_tpref", [0, 1, 511])
@@ -287,11 +287,11 @@ def test_dac_tpref(dac_tpref_pv, dac_tpref_rbv_pv, dac_tpref):
 @pytest.mark.parametrize("dac_tpref", [-1, -511, 512])
 def test_dac_tpref_invalid_range(dac_tpref_pv, dac_tpref_rbv_pv, dac_tpref):
     """ Test dac_tpref (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_tpref_rbv_pv.get(use_monitor=False)
     dac_tpref_pv.put(dac_tpref, wait=True)
     ans = dac_tpref_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_tpref} | Value read: {ans}")
-    assert ans == min(max(dac_tpref, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_tprefa", [0, 1, 511])
@@ -307,11 +307,11 @@ def test_dac_tprefa(dac_tprefa_pv, dac_tprefa_rbv_pv, dac_tprefa):
 def test_dac_tprefa_invalid_range(dac_tprefa_pv, dac_tprefa_rbv_pv,
                                   dac_tprefa):
     """ Test dac_tprefa (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_tprefa_rbv_pv.get(use_monitor=False)
     dac_tprefa_pv.put(dac_tprefa, wait=True)
     ans = dac_tprefa_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_tprefa} | Value read: {ans}")
-    assert ans == min(max(dac_tprefa, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_tprefb", [0, 1, 511])
@@ -327,11 +327,11 @@ def test_dac_tprefb(dac_tprefb_pv, dac_tprefb_rbv_pv, dac_tprefb):
 def test_dac_tprefb_invalid_range(dac_tprefb_pv, dac_tprefb_rbv_pv,
                                   dac_tprefb):
     """ Test dac_tprefb (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_tprefb_rbv_pv.get(use_monitor=False)
     dac_tprefb_pv.put(dac_tprefb, wait=True)
     ans = dac_tprefb_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_tprefb} | Value read: {ans}")
-    assert ans == min(max(dac_tprefb, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_thresholdenergy0", [0, 1, 511])
@@ -350,12 +350,11 @@ def test_dac_thresholdenergy0_invalid_range(dac_thresholdenergy0_pv,
                                             dac_thresholdenergy0_rbv_pv,
                                             dac_thresholdenergy0):
     """ Test dac_thresholdenergy0 (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_thresholdenergy0_rbv_pv.get(use_monitor=False)
     dac_thresholdenergy0_pv.put(dac_thresholdenergy0, wait=True)
     ans = dac_thresholdenergy0_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_thresholdenergy0} | Value read: {ans}")
-    assert ans == min(max(dac_thresholdenergy0, valid_range[0]),
-                      valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_thresholdenergy1", [0, 1, 511])
@@ -373,13 +372,12 @@ def test_dac_thresholdenergy1(dac_thresholdenergy1_pv,
 def test_dac_thresholdenergy1_invalid_range(dac_thresholdenergy1_pv,
                                             dac_thresholdenergy1_rbv_pv,
                                             dac_thresholdenergy1):
-    """ Test dac_thresholdenergy1 (invalid tests) """
-    valid_range = (0, 511)
+    """ Test dac_thresholdenergy0 (invalid tests) """
+    prev_value = dac_thresholdenergy1_rbv_pv.get(use_monitor=False)
     dac_thresholdenergy1_pv.put(dac_thresholdenergy1, wait=True)
     ans = dac_thresholdenergy1_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_thresholdenergy1} | Value read: {ans}")
-    assert ans == min(max(dac_thresholdenergy1, valid_range[0]),
-                      valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_thresholdenergy2", [0, 1, 511])
@@ -398,12 +396,11 @@ def test_dac_thresholdenergy2_invalid_range(dac_thresholdenergy2_pv,
                                             dac_thresholdenergy2_rbv_pv,
                                             dac_thresholdenergy2):
     """ Test dac_thresholdenergy2 (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_thresholdenergy2_rbv_pv.get(use_monitor=False)
     dac_thresholdenergy2_pv.put(dac_thresholdenergy2, wait=True)
     ans = dac_thresholdenergy2_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_thresholdenergy2} | Value read: {ans}")
-    assert ans == min(max(dac_thresholdenergy2, valid_range[0]),
-                      valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_thresholdenergy3", [0, 1, 511])
@@ -422,12 +419,11 @@ def test_dac_thresholdenergy3_invalid_range(dac_thresholdenergy3_pv,
                                             dac_thresholdenergy3_rbv_pv,
                                             dac_thresholdenergy3):
     """ Test dac_thresholdenergy3 (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_thresholdenergy3_rbv_pv.get(use_monitor=False)
     dac_thresholdenergy3_pv.put(dac_thresholdenergy3, wait=True)
     ans = dac_thresholdenergy3_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_thresholdenergy3} | Value read: {ans}")
-    assert ans == min(max(dac_thresholdenergy3, valid_range[0]),
-                      valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_thresholdenergy4", [0, 1, 511])
@@ -446,12 +442,11 @@ def test_dac_thresholdenergy4_invalid_range(dac_thresholdenergy4_pv,
                                             dac_thresholdenergy4_rbv_pv,
                                             dac_thresholdenergy4):
     """ Test dac_thresholdenergy4 (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_thresholdenergy4_rbv_pv.get(use_monitor=False)
     dac_thresholdenergy4_pv.put(dac_thresholdenergy4, wait=True)
     ans = dac_thresholdenergy4_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_thresholdenergy4} | Value read: {ans}")
-    assert ans == min(max(dac_thresholdenergy4, valid_range[0]),
-                      valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_thresholdenergy5", [0, 1, 511])
@@ -470,12 +465,11 @@ def test_dac_thresholdenergy5_invalid_range(dac_thresholdenergy5_pv,
                                             dac_thresholdenergy5_rbv_pv,
                                             dac_thresholdenergy5):
     """ Test dac_thresholdenergy5 (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_thresholdenergy5_rbv_pv.get(use_monitor=False)
     dac_thresholdenergy5_pv.put(dac_thresholdenergy5, wait=True)
     ans = dac_thresholdenergy5_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_thresholdenergy5} | Value read: {ans}")
-    assert ans == min(max(dac_thresholdenergy5, valid_range[0]),
-                      valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_thresholdenergy6", [0, 1, 511])
@@ -494,12 +488,11 @@ def test_dac_thresholdenergy6_invalid_range(dac_thresholdenergy6_pv,
                                             dac_thresholdenergy6_rbv_pv,
                                             dac_thresholdenergy6):
     """ Test dac_thresholdenergy6 (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_thresholdenergy6_rbv_pv.get(use_monitor=False)
     dac_thresholdenergy6_pv.put(dac_thresholdenergy6, wait=True)
     ans = dac_thresholdenergy6_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_thresholdenergy6} | Value read: {ans}")
-    assert ans == min(max(dac_thresholdenergy6, valid_range[0]),
-                      valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_thresholdenergy7", [0, 1, 511])
@@ -518,9 +511,8 @@ def test_dac_thresholdenergy7_invalid_range(dac_thresholdenergy7_pv,
                                             dac_thresholdenergy7_rbv_pv,
                                             dac_thresholdenergy7):
     """ Test dac_thresholdenergy7 (invalid tests) """
-    valid_range = (0, 511)
+    prev_value = dac_thresholdenergy7_rbv_pv.get(use_monitor=False)
     dac_thresholdenergy7_pv.put(dac_thresholdenergy7, wait=True)
     ans = dac_thresholdenergy7_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_thresholdenergy7} | Value read: {ans}")
-    assert ans == min(max(dac_thresholdenergy7, valid_range[0]),
-                      valid_range[1])
+    assert ans == prev_value
