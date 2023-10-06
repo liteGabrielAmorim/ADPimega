@@ -75,7 +75,7 @@ def test_acquire_period_negative_min(acq_time, acq_period, acq_period_rbv, acqui
 
 
 # TODO: fix the error on IOC (disable during test implementation)
-#WARNING: fix the error on ioc
+# WARNING: fix the error on ioc
 @pytest.mark.skip()
 @pytest.mark.parametrize("acquire_period", [999999999999999999999999])
 def test_acquire_period_negative_max(acq_time, acq_period, acq_period_rbv, acquire_period):
