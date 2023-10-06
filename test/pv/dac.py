@@ -88,7 +88,7 @@ def dac_ikrum_rbv_pv(init_pv, dev_id):
 
 @pytest.fixture()
 def dac_ikrum_pv(init_pv, dev_id):
-    return init_pv[dev_id]["dac"]["DAC_Ikrum"]
+    return init_pv[dev_id]["dac"]["DAC_IKrum"]
 
 
 @pytest.fixture()

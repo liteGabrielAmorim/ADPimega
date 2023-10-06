@@ -166,11 +166,11 @@ def test_dac_ikrum(dac_ikrum_pv, dac_ikrum_rbv_pv, dac_ikrum):
 @pytest.mark.parametrize("dac_ikrum", [-1, -255, 256])
 def test_dac_ikrum_invalid_range(dac_ikrum_pv, dac_ikrum_rbv_pv, dac_ikrum):
     """ Test dac_ikrum (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = dac_ikrum_rbv_pv.get(use_monitor=False)
     dac_ikrum_pv.put(dac_ikrum, wait=True)
     ans = dac_ikrum_rbv_pv.get(use_monitor=False)
     print(f"Value set: {dac_ikrum} | Value read: {ans}")
-    assert ans == min(max(dac_ikrum, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("dac_preamp", [0, 1, 255])
@@ -275,7 +275,7 @@ def test_dac_tpbufferout_invalid_range(dac_tpbufferout_pv,
     assert ans == prev_value
 
 
-@pytest.mark.parametrize("dac_tpref", [0, 1, 511])
+@pytest.mark.parametrize("dac_tpref", [0, 1, 255])
 def test_dac_tpref(dac_tpref_pv, dac_tpref_rbv_pv, dac_tpref):
     """ Test dac_tpref (positive tests) """
     dac_tpref_pv.put(dac_tpref, wait=True)

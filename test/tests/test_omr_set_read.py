@@ -38,16 +38,16 @@ def test_counterdepth_invalid_range(counterdepth_pv, counterdepth_rbv_pv, counte
     assert ans == prev_value
 
 
-@pytest.mark.parametrize("discriminator", [0, 1, 255])
+@pytest.mark.parametrize("discriminator", [0, 1])
 def test_discriminator(discriminator_pv, discriminator_rbv_pv, discriminator):
     """ Test discriminator (positive tests) """
     discriminator_pv.put(discriminator, wait=True)
     ans = discriminator_rbv_pv.get(use_monitor=False)
     print(f"Value set: {discriminator}; | Value read: {ans}")
-    assert ans == discriminator
+    assert ans == bool(discriminator)
 
 
-@pytest.mark.parametrize("discriminator", [-1, -255, 256])
+@pytest.mark.parametrize("discriminator", [-1, -2, 2])
 def test_discriminator_invalid_range(discriminator_pv, discriminator_rbv_pv, discriminator):
     """ Test discriminator (invalid tests) """
     prev_value = discriminator_rbv_pv.get(use_monitor=False)
