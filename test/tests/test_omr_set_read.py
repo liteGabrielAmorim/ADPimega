@@ -31,11 +31,11 @@ def test_counterdepth(counterdepth_pv, counterdepth_rbv_pv, counterdepth):
 @pytest.mark.parametrize("counterdepth", [-1, -255, 256])
 def test_counterdepth_invalid_range(counterdepth_pv, counterdepth_rbv_pv, counterdepth):
     """ Test counterdepth (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = counterdepth_rbv_pv.get(use_monitor=False)
     counterdepth_pv.put(counterdepth, wait=True)
     ans = counterdepth_rbv_pv.get(use_monitor=False)
     print(f"Value set: {counterdepth} | Value read: {ans}")
-    assert ans == min(max(counterdepth, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("discriminator", [0, 1, 255])
@@ -50,11 +50,11 @@ def test_discriminator(discriminator_pv, discriminator_rbv_pv, discriminator):
 @pytest.mark.parametrize("discriminator", [-1, -255, 256])
 def test_discriminator_invalid_range(discriminator_pv, discriminator_rbv_pv, discriminator):
     """ Test discriminator (invalid tests) """
-    valid_range = (0, 255)
+    prev_value = discriminator_rbv_pv.get(use_monitor=False)
     discriminator_pv.put(discriminator, wait=True)
     ans = discriminator_rbv_pv.get(use_monitor=False)
     print(f"Value set: {discriminator} | Value read: {ans}")
-    assert ans == min(max(discriminator, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("equalization", [0, 1])
@@ -105,11 +105,11 @@ def test_gainmode(gainmode_pv, gainmode_rbv_pv, gainmode):
 @pytest.mark.parametrize("gainmode", [-1, 4])
 def test_gainmode_invalid_range(gainmode_pv, gainmode_rbv_pv, gainmode):
     """ Test gainmode (invalid tests) """
-    valid_range = (0, 3)
+    prev_value = gainmode_rbv_pv.get(use_monitor=False)
     gainmode_pv.put(gainmode, wait=True)
     ans = gainmode_rbv_pv.get(use_monitor=False)
     print(f"Value set: {gainmode} | Value read: {ans}")
-    assert ans == min(max(gainmode, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("omromselec", [0, 1, 2, 3, 4, 5, 6, 7])
@@ -124,11 +124,11 @@ def test_omromselec(omromselec_pv, omromselec_rbv_pv, omromselec):
 @pytest.mark.parametrize("omromselec", [-1, 8])
 def test_omromselec_invalid_range(omromselec_pv, omromselec_rbv_pv, omromselec):
     """ Test omromselec (invalid tests) """
+    prev_value = omromselec_rbv_pv.get(use_monitor=False)
     omromselec_pv.put(omromselec, wait=True)
-    valid_range = (0, 7)
     ans = omromselec_rbv_pv.get(use_monitor=False)
     print(f"Value set: {omromselec} | Value read: {ans}")
-    assert ans == min(max(omromselec, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("pixelmode", [0, 1])
@@ -143,11 +143,11 @@ def test_pixelmode(pixelmode_pv, pixelmode_rbv_pv, pixelmode):
 @pytest.mark.parametrize("pixelmode", [-1, 2])
 def test_pixelmode_invalid_range(pixelmode_pv, pixelmode_rbv_pv, pixelmode):
     """ Test pixelmode (invalid tests) """
+    prev_value = pixelmode_rbv_pv.get(use_monitor=False)
     pixelmode_pv.put(pixelmode, wait=True)
-    valid_range = (0, 1)
     ans = pixelmode_rbv_pv.get(use_monitor=False)
     print(f"Value set: {pixelmode} | Value read: {ans}")
-    assert ans == min(max(pixelmode, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("polarity", [0, 1])
@@ -163,10 +163,10 @@ def test_polarity(polarity_pv, polarity_rbv_pv, polarity):
 def test_polarity_invalid_range(polarity_pv, polarity_rbv_pv, polarity):
     """ Test polarity (invalid tests) """
     polarity_pv.put(polarity, wait=True) 
-    valid_range = (0, 1)
+    prev_value = polarity_rbv_pv.get(use_monitor=False)
     ans = polarity_rbv_pv.get(use_monitor=False)
     print(f"Value set: {polarity} | Value read: {ans}")
-    assert ans == min(max(polarity, valid_range[0]), valid_range[1])
+    assert ans == prev_value
 
 
 @pytest.mark.parametrize("testpulse", [0, 1])
