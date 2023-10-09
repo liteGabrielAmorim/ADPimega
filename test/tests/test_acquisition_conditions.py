@@ -10,8 +10,10 @@ pytestmark = pytest.mark.acquisition
 @pytest.mark.parametrize("acquire_time", [1e-6, 100e-6, 1e-3, 100e-3, 18446744073709551615e-6])
 @pytest.mark.parametrize("numb_exposures", [1, 10, 1000, 2147483647])
 def test_acquire_time_period_12b(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_mode,
-                                 numexp, numb_exposures, minimal_gap, read_out_counter):
+                                 numexp, numb_exposures, minimal_gap, read_out_counter,
+                                 acq_period_rbv, acquire_mode_rbv):
     """ Test acquisition time for 12 bit mode (positive tests) """
+    acq_mode_dict = {0: "12 bit"}
     acquisition_mode = 0
     numb_exposures = 2
     min_acq_time = 1e-6
@@ -21,38 +23,46 @@ def test_acquire_time_period_12b(acq_time, acq_period, acq_time_rbv, acquire_tim
     numexp.put(numb_exposures, wait=True)
     acq_period.put(acquire_period, wait=True)
     acq_time.put(acquire_time, wait=True)
-    ans = acq_time_rbv.get(use_monitor=False)
+    ans_time = acq_time_rbv.get(use_monitor=False)
+    ans_period = acq_period_rbv.get(use_monitor=False)
+    acq_mode = acquire_mode_rbv.get(use_monitor=False)
     print(
-        "test_acquire_time_period_12b "
-        f"acquire time set: {acquire_time} | acquire time read: {ans} | "
-        f"acquire period read: {acquire_period}")
+        f"test_acquire_time_period_12b acquire time set: {acquire_time} |"
+        f" acquire time read: {ans_time} | acquire period read: {ans_period} |"
+        f" acquire mode: {acq_mode_dict[acq_mode]}")
     assert ans == acquire_time
 
-# TODO (Robert). Conclude this negative test
-# @pytest.mark.parametrize("acquire_time", [1e-6, 100e-6, 18446744073709551615e-6])
-# @pytest.mark.parametrize("numb_exposures", [1, 100, 2147483647])
-# @pytest.mark.parametrize("period_factor", [[0, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 0],
-#                                            [0.5, 1, 0.5], [1, 0.5, 1], [1, 1, 0.5]])
-# def test_acquire_time_period_12b_neg(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_mode,
-#                                      numexp, numb_exposures, minimal_gap, read_out_counter,
-#                                      period_factor):
-#     """ Test acquisition time for 12 bit mode (negative tests) """
-#     acquisition_mode = 0
-#     numb_exposures = 2
-#     min_acq_time = 1e-6
-#     acquire_period = (period_factor[0] * acquire_time + period_factor[1] * minimal_gap
-#                       + period_factor[2] * read_out_counter)
-#     acq_time.put(min_acq_time, wait=True)
-#     acquire_mode.put(acquisition_mode, wait=True)
-#     numexp.put(numb_exposures, wait=True)
-#     acq_period.put(acquire_period, wait=True)
-#     acq_time.put(acquire_time, wait=True)
-#     ans = acq_time_rbv.get(use_monitor=False)
-#     print(
-#         "test_acquire_time_period_12b_neg "
-#         f"acquire time set: {acquire_time} | acquire time read: {ans} | "
-#         f"acquire period read: {acquire_period}")
-#     assert ans == acquire_time
+
+@pytest.mark.parametrize("numb_exposures", [1, 100, 2147483647])
+@pytest.mark.parametrize("period_factor", [[1, 1, 0.5], [0, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 0],
+                                           [0.5, 1, 0.5], [1, 0.5, 1]])
+@pytest.mark.parametrize("acquire_time", [2e-6, 100e-6, 184467370e-6])
+def test_acquire_time_period_12b_neg(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_mode,
+                                     numexp, numb_exposures, minimal_gap, read_out_counter,
+                                     period_factor, acq_period_rbv, acquire_mode_rbv):
+    """ Test acquisition time for 12 bit mode (negative tests) """
+    acq_mode_dict = {0: "12 bit"}
+    acquisition_mode = 0
+    numb_exposures = 2
+    min_acq_time = 1e-6
+    minimal_period = 495e-6
+    acquire_period = (period_factor[0] * acquire_time + period_factor[1] * minimal_gap
+                      + period_factor[2] * read_out_counter)
+    if acquire_period < minimal_period:
+        acquire_period = minimal_period
+    acq_time.put(min_acq_time, wait=True)
+    acquire_mode.put(acquisition_mode, wait=True)
+    numexp.put(numb_exposures, wait=True)
+    acq_period.put(acquire_period, wait=True)
+    acq_time.put(acquire_time, wait=True)
+    ans_time = acq_time_rbv.get(use_monitor=False)
+    ans_period = acq_period_rbv.get(use_monitor=False)
+    acq_mode = acquire_mode_rbv.get(use_monitor=False)
+    print(
+        f"test_acquire_time_period_12b acquire time set: {acquire_time} |"
+        f" acquire time read: {ans_time} | acquire period read: {ans_period} |"
+        f" acquire mode: {acq_mode_dict[acq_mode]}")
+    assert ans_time == min_acq_time
 
 
 # @pytest.mark.parametrize("acquire_time", [0, -1])
