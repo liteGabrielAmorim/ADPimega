@@ -10,6 +10,7 @@ from .pv.acquisition import *
 from .pv.dac import *
 from .pv.omr import *
 from .pv.system import *
+from .pv.filesystem import *
 
 
 def pytest_addoption(parser):
