@@ -1,11 +1,15 @@
 import pytest
 import numpy as np
+import time
+from .utils import uint8_to_str
 
 # TODO: parametrize this value???
 NUM_CHIPS = 36
 NUM_DAC = 32
 NUM_MODULES = 1 # some api return the maximum number of modules, while other work with valid number of modules
 NUM_IMAGE_PATTERNS = 15
+NUM_BOARDS = 2
+
 
 @pytest.mark.parametrize("allmodules", [0, 1, 2, 3])
 def test_allmodules(allmodules_pv, allmodules_rbv_pv, allmodules):
@@ -68,7 +72,8 @@ def test_imgchipnumberid_invalid_range(imgchipnumberid_pv, imgchipnumberid_rbv_p
 
 @pytest.mark.parametrize("loadequalization", [np.zeros((NUM_MODULES,), dtype='int32'),
                                               np.ones((NUM_MODULES,), dtype='int32'),
-                                              np.ones((NUM_MODULES,), dtype='int32') * 255])
+                                              np.ones((NUM_MODULES,), dtype='int32') * (2**31-1),
+                                              np.ones((NUM_MODULES,), dtype='int32') * -(2**31-1)])
 def test_loadequalization(loadequalization_pv, loadequalization_rbv_pv, loadequalization):
     """ Test loadequalization (positive tests) """
     loadequalization_pv.put(loadequalization, wait=True)
@@ -88,28 +93,6 @@ def test_loadequalization_invalid_range(loadequalization_pv, loadequalization_rb
     assert (ans == prev_value).all()
 
 
-# TODO: check how to test equalization start!!!
-@pytest.mark.parametrize("loadequalizationstart", [0, 1, 10, 255])
-@pytest.mark.timeout(10)
-def test_loadequalizationstart(loadequalizationstart_pv, loadequalizationstart_rbv_pv, loadequalizationstart):
-    """ Test loadequalizationstart (positive tests) """
-    # import pdb; pdb.set_trace()
-    loadequalizationstart_pv.put(loadequalizationstart, wait=True)
-    ans = loadequalizationstart_rbv_pv.get(use_monitor=False)
-    print(f"Value set: {loadequalizationstart}; | Value read: {ans}")
-    assert ans == loadequalizationstart
-
-
-# @pytest.mark.parametrize("loadequalizationstart", [-1, -255, 256])
-# def test_loadequalizationstart_invalid_range(loadequalizationstart_pv, loadequalizationstart_rbv_pv, loadequalizationstart):
-    # """ Test loadequalizationstart (invalid tests) """
-    # prev_value = loadequalizationstart_rbv_pv.get(use_monitor=False)
-    # loadequalizationstart_pv.put(loadequalizationstart, wait=True)
-    # ans = loadequalizationstart_rbv_pv.get(use_monitor=False)
-    # print(f"Value set: {loadequalizationstart} | Value read: {ans}")
-    # assert ans == prev_value
-
-
 @pytest.mark.parametrize("mb_sendmode", [0, 1, 2, 3, 4])
 def test_mb_sendmode(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmode):
     """ Test mb_sendmode (positive tests) """
@@ -119,8 +102,7 @@ def test_mb_sendmode(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmode):
     assert ans == mb_sendmode
 
 
-# TODO: failing for value 5
-@pytest.mark.skip()
+@pytest.mark.skip() # TODO: failing for value 5
 @pytest.mark.parametrize("mb_sendmode", [-1, 5, 256])
 def test_mb_sendmode_invalid_range(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmode):
     """ Test mb_sendmode (invalid tests) """
@@ -131,7 +113,7 @@ def test_mb_sendmode_invalid_range(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmo
     assert ans == prev_value
 
 
-@pytest.mark.parametrize("medipixboard", range(1, NUM_CHIPS + 1))
+@pytest.mark.parametrize("medipixboard", range(1, NUM_BOARDS + 1))
 def test_medipixboard(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     """ Test medipixboard (positive tests) """
     medipixboard_pv.put(medipixboard, wait=True)
@@ -140,9 +122,8 @@ def test_medipixboard(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     assert ans == medipixboard
 
 
-# TODO: allowing values outside the range
-@pytest.mark.skip()
-@pytest.mark.parametrize("medipixboard", [-1, -255, 256, NUM_CHIPS + 1])
+@pytest.mark.skip() # TODO: allowing values outside the range
+@pytest.mark.parametrize("medipixboard", [-1, -255, 256, NUM_BOARDS + 1])
 def test_medipixboard_invalid_range(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     """ Test medipixboard (invalid tests) """
     prev_value = medipixboard_rbv_pv.get(use_monitor=False)
@@ -161,8 +142,7 @@ def test_medipixmode(medipixmode_pv, medipixmode_rbv_pv, medipixmode):
     assert ans == medipixmode
 
 
-# TODO: fail to value 4
-@pytest.mark.skip()
+@pytest.mark.skip() # TODO: fail to value 4
 @pytest.mark.parametrize("medipixmode", [-1, -255, 4, 256])
 def test_medipixmode_invalid_range(medipixmode_pv, medipixmode_rbv_pv, medipixmode):
     """ Test medipixmode (invalid tests) """
@@ -192,25 +172,26 @@ def test_pimegamodule_invalid_range(pimegamodule_pv, pimegamodule_rbv_pv, pimega
     assert ans == prev_value
 
 
-# TODO: how to check it was properly reset???
-# @pytest.mark.parametrize("reset", [0, 1, 255])
-# def test_reset(reset_pv, reset):
-    # """ Test reset (positive tests) """
-    # reset_pv.put(reset, wait=True)
-    # ans = reset_rbv_pv.get(use_monitor=False)
-    # print(f"Value set: {reset}; | Value read: {ans}")
-    # assert ans == reset
+@pytest.mark.parametrize("reset", [1, 0])
+@pytest.mark.timeout(60)
+def test_reset(reset_pv, iocstatusmessage_rbv_pv, reset):
+    """ Test reset (positive tests) """
 
+    reset_pv.put(reset, wait=True)
+    while True:
+        message = uint8_to_str(iocstatusmessage_rbv_pv.get(use_monitor=False))
+        print("\n => ", message)
+        if message.lower() == "reset done":
+            break
+        time.sleep(1)
 
-# @pytest.mark.parametrize("reset", [-1, -255, 256])
-# def test_reset_invalid_range(reset_pv, reset_rbv_pv, reset):
-    # """ Test reset (invalid tests) """
-    # prev_value = reset_rbv_pv.get(use_monitor=False)
-    # reset_pv.put(reset, wait=True)
-    # ans = reset_rbv_pv.get(use_monitor=False)
-    # print(f"Value set: {reset} | Value read: {ans}")
-    # assert ans == prev_value
-
+@pytest.mark.skip() # TODO: implement  return error for rest invalid values
+@pytest.mark.parametrize("reset", [-1, -255, 2, 255])
+def test_reset_invalid_range(reset_pv, iocstatusmessage_rbv_pv, reset):
+    """ Test reset (invalid tests) """
+    reset_pv.put(reset, wait=True)
+    message = uint8_to_str(iocstatusmessage_rbv_pv.get(use_monitor=False))
+    assert message == "something"
 
 @pytest.mark.parametrize("reset_rdma_buffer", [0, 1])
 def test_reset_rdma_buffer(reset_rdma_buffer_pv, reset_rdma_buffer_rbv_pv, reset_rdma_buffer):

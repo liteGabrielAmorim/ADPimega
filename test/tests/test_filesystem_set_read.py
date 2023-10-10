@@ -1,13 +1,7 @@
 import pytest
 
-import numpy as np
 from pathlib import Path
-
-
-def uint8_to_str(data: np.ndarray):
-    assert data.dtype == np.uint8
-    bytes_data =  bytes(data).rstrip(b"\x00")
-    return bytes_data.decode("ascii")
+from .utils import uint8_to_str
 
 
 @pytest.mark.parametrize("autoincrement", [0, 1])

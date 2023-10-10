@@ -11,6 +11,7 @@ from .pv.dac import *
 from .pv.omr import *
 from .pv.system import *
 from .pv.filesystem import *
+from .pv.status import *
 
 
 def pytest_addoption(parser):
