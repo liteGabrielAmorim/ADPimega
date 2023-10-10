@@ -16,6 +16,18 @@ def acquire_mode_rbv(init_pv, dev_id):
 
 
 @pytest.fixture()
+def medipixmode_pv(init_pv, dev_id):
+    """ Acquisition mode PV """
+    return init_pv[dev_id]["system"]["MedipixMode"]
+
+
+@pytest.fixture()
+def medipixmode_rbv_pv(init_pv, dev_id):
+    """ RBV Acquisition mode PV """
+    return init_pv[dev_id]["system"]["MedipixMode_RBV"]
+
+
+@pytest.fixture()
 def allmodules_pv(init_pv, dev_id):
     return init_pv[dev_id]["system"]["AllModules"]
 
@@ -56,8 +68,18 @@ def loadequalization_pv(init_pv, dev_id):
 
 
 @pytest.fixture()
+def loadequalization_rbv_pv(init_pv, dev_id):
+    return init_pv[dev_id]["system"]["LoadEqualization_RBV"]
+
+
+@pytest.fixture()
 def loadequalizationstart_pv(init_pv, dev_id):
     return init_pv[dev_id]["system"]["LoadEqualizationStart"]
+
+
+@pytest.fixture()
+def loadequalizationstart_rbv_pv(init_pv, dev_id):
+    return init_pv[dev_id]["system"]["LoadEqualizationStart_RBV"]
 
 
 @pytest.fixture()
@@ -108,6 +130,11 @@ def reset_rdma_buffer_rbv_pv(init_pv, dev_id):
 @pytest.fixture()
 def select_sendimage_pv(init_pv, dev_id):
     return init_pv[dev_id]["system"]["Select_SendImage"]
+
+
+@pytest.fixture()
+def select_sendimage_rbv_pv(init_pv, dev_id):
+    return init_pv[dev_id]["system"]["Select_SendImage_RBV"]
 
 
 @pytest.fixture()
