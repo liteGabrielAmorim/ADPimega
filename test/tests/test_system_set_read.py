@@ -89,14 +89,15 @@ def test_loadequalization_invalid_range(loadequalization_pv, loadequalization_rb
 
 
 # TODO: check how to test equalization start!!!
-# @pytest.mark.parametrize("loadequalizationstart", [0, 1, 255])
-# def test_loadequalizationstart(loadequalizationstart_pv, loadequalizationstart_rbv_pv, loadequalizationstart):
-    # """ Test loadequalizationstart (positive tests) """
+@pytest.mark.parametrize("loadequalizationstart", [0, 1, 10, 255])
+@pytest.mark.timeout(10)
+def test_loadequalizationstart(loadequalizationstart_pv, loadequalizationstart_rbv_pv, loadequalizationstart):
+    """ Test loadequalizationstart (positive tests) """
     # import pdb; pdb.set_trace()
-    # loadequalizationstart_pv.put(loadequalizationstart, wait=True)
-    # ans = loadequalizationstart_rbv_pv.get(use_monitor=False)
-    # print(f"Value set: {loadequalizationstart}; | Value read: {ans}")
-    # assert ans == loadequalizationstart
+    loadequalizationstart_pv.put(loadequalizationstart, wait=True)
+    ans = loadequalizationstart_rbv_pv.get(use_monitor=False)
+    print(f"Value set: {loadequalizationstart}; | Value read: {ans}")
+    assert ans == loadequalizationstart
 
 
 # @pytest.mark.parametrize("loadequalizationstart", [-1, -255, 256])

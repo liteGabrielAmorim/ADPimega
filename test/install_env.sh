@@ -8,6 +8,7 @@ python3 -m venv venv_epics_test
 
 source "venv_epics_test/bin/activate"
 pip3 install pytest>=7
+pip3 install pytest-timeout
 pip3 install pyepics
 
 deactivate
