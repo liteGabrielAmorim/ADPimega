@@ -7,9 +7,11 @@ pytestmark = pytest.mark.acquisition
 
 # ----------- Acquire time -----------
 @pytest.mark.parametrize("acquire_time", [1e-6, 100e-6, 1e-3, 100e-3, 18446744073709551615e-6])
-def test_acquire_time(acq_time, acq_period, acq_time_rbv, acquire_time):
+def test_acquire_time(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_mode):
     """ Test acquisition time (positive tests) """
     disable_gap = 0
+    default_mode = 0
+    acquire_mode.put(default_mode, wait=True)
     acq_period.put(disable_gap, wait=True)
     acq_time.put(acquire_time, wait=True)
     ans = acq_time_rbv.get(use_monitor=False)
@@ -18,11 +20,13 @@ def test_acquire_time(acq_time, acq_period, acq_time_rbv, acquire_time):
 
 
 @pytest.mark.parametrize("acquire_time", [0, -1])
-def test_acquire_time_negative_min(acq_time, acq_period, acq_time_rbv, acquire_time):
+def test_acquire_time_negative_min(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_mode):
     """ Test acquisition time (negative tests for lower values) """
     disable_gap = 0
     expected_value = 1e-06
     initial_value = 1
+    default_mode = 0
+    acquire_mode.put(default_mode, wait=True)
     acq_period.put(disable_gap, wait=True)
     acq_time.put(initial_value, wait=True)
     acq_time.put(acquire_time, wait=True)
@@ -32,11 +36,13 @@ def test_acquire_time_negative_min(acq_time, acq_period, acq_time_rbv, acquire_t
 
 
 @pytest.mark.parametrize("acquire_time", [999999999999999999999999])
-def test_acquire_time_negative_max(acq_time, acq_period, acq_time_rbv, acquire_time):
+def test_acquire_time_negative_max(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_mode):
     """ Test acquisition time (negative tests for higher values) """
     expected_value = 18446744073709551615e-6
     initial_value = 1
     disable_gap = 0
+    default_mode = 0
+    acquire_mode.put(default_mode, wait=True)
     acq_period.put(disable_gap, wait=True)
     acq_time.put(initial_value, wait=True)
     acq_time.put(acquire_time, wait=True)
@@ -47,9 +53,11 @@ def test_acquire_time_negative_max(acq_time, acq_period, acq_time_rbv, acquire_t
 
 # ----------- Acquire period -----------
 @pytest.mark.parametrize("acquire_period", [0, 500e-6, 1e-3, 100e-3, 18446744073709551615e-6])
-def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period):
+def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period, acquire_mode):
     """ Test acquisition period (positive tests) """
     remove_time_blocker = 1e-6
+    default_mode = 0
+    acquire_mode.put(default_mode, wait=True)
     acq_time.put(remove_time_blocker, wait=True)
     acq_period.put(acquire_period, wait=True)
     ans = acq_period_rbv.get(use_monitor=False)
@@ -57,15 +65,18 @@ def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period):
     assert ans == acquire_period
 
 
-# TODO: fix the error on IOC (disable during test implementation)
+# TODO (Lumentum): fix the error on IOC (disable during test implementation)
 # Acquire period is accepting any value
 @pytest.mark.skip()
 @pytest.mark.parametrize("acquire_period", [-0.01, -1])
-def test_acquire_period_negative_min(acq_time, acq_period, acq_period_rbv, acquire_period):
+def test_acquire_period_negative_min(acq_time, acq_period, acq_period_rbv, acquire_period,
+                                     acquire_mode):
     """ Test acquisition period (negative tests for lower values) """
     expected_value = 1e-06
     initial_value = 1
     remove_time_blocker = 1e-6
+    default_mode = 0
+    acquire_mode.put(default_mode, wait=True)
     acq_time.put(remove_time_blocker, wait=True)
     acq_period.put(initial_value, wait=True)
     acq_period.put(acquire_period, wait=True)
@@ -78,11 +89,14 @@ def test_acquire_period_negative_min(acq_time, acq_period, acq_period_rbv, acqui
 # WARNING: fix the error on ioc
 @pytest.mark.skip()
 @pytest.mark.parametrize("acquire_period", [999999999999999999999999])
-def test_acquire_period_negative_max(acq_time, acq_period, acq_period_rbv, acquire_period):
+def test_acquire_period_negative_max(acq_time, acq_period, acq_period_rbv, acquire_period,
+                                     acquire_mode):
     """ Test acquisition period (negative tests for higher values) """
     expected_value = 18446744073709551615e-6
     initial_value = 1
     remove_time_blocker = 1e-6
+    default_mode = 0
+    acquire_mode.put(default_mode, wait=True)
     acq_time.put(remove_time_blocker, wait=True)
     acq_period.put(initial_value, wait=True)
     acq_period.put(acquire_period, wait=True)
