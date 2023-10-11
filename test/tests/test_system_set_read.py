@@ -231,23 +231,37 @@ def test_select_sendimage_invalid_range(select_sendimage_pv, select_sendimage_rb
     assert ans == prev_value
 
 
-# @pytest.mark.parametrize("sendimage", [0, 1, 255])
-# def test_sendimage(sendimage_pv, sendimage_rbv_pv, sendimage):
-    # """ Test sendimage (positive tests) """
-    # sendimage_pv.put(sendimage, wait=True)
-    # ans = sendimage_rbv_pv.get(use_monitor=False)
-    # print(f"Value set: {sendimage}; | Value read: {ans}")
-    # assert ans == sendimage
+@pytest.mark.parametrize("select_sendimage", range(0, NUM_IMAGE_PATTERNS))
+@pytest.mark.parametrize("sendimage", [0, 1, 255])
+@pytest.mark.timeout(60)
+def test_sendimage(select_sendimage_pv, sendimage_pv,
+                   iocstatusmessage_rbv_pv, select_sendimage, sendimage):
+    """ Test sendimage (positive tests) """
+
+    select_sendimage_pv.put(select_sendimage, wait=True)
+    sendimage_pv.put(sendimage, wait=True)
+
+    while True:
+        message = uint8_to_str(iocstatusmessage_rbv_pv.get(use_monitor=False))
+        print("\n => ", message)
+        if message.lower() == "sending image done":
+            break
+        time.sleep(0.1)
 
 
-# @pytest.mark.parametrize("sendimage", [-1, -255, 256])
-# def test_sendimage_invalid_range(sendimage_pv, sendimage_rbv_pv, sendimage):
-    # """ Test sendimage (invalid tests) """
-    # prev_value = sendimage_rbv_pv.get(use_monitor=False)
-    # sendimage_pv.put(sendimage, wait=True)
-    # ans = sendimage_rbv_pv.get(use_monitor=False)
-    # print(f"Value set: {sendimage} | Value read: {ans}")
-    # assert ans == prev_value
+@pytest.mark.skip() # TODO: which values are valid???
+@pytest.mark.parametrize("sendimage", [-1, 2, 255])
+@pytest.mark.timeout(60)
+def test_sendimage_invalid_range(sendimage_pv, iocstatusmessage_rbv_pv, sendimage):
+    """ Test sendimage (positive tests) """
+    sendimage_pv.put(sendimage, wait=True)
+
+    while True:
+        message = uint8_to_str(iocstatusmessage_rbv_pv.get(use_monitor=False))
+        print("\n => ", message)
+        if message.lower() == "sending image done":
+            break
+        time.sleep(0.1)
 
 
 @pytest.mark.parametrize("sensedacsel", range(0, NUM_DAC))
