@@ -1,6 +1,7 @@
 """Configuration file for AD Pimega tests."""
 import json
 import os
+from types import SimpleNamespace
 
 import pytest
 
@@ -23,6 +24,44 @@ def pytest_addoption(parser):
     parser.addini("minimal_gap", help="Minimal gap for the acquisition")
 
 
+def get_detector_read_out_by_counter(config):
+    """ Get the detector read out for one counter"""
+    basic_read_out = 492e-6
+    if config.getini("detector_model") in ("135D", "135DL", "540D"):
+        return basic_read_out
+    else:
+        return basic_read_out * 2
+
+def number_of_mbs():
+    return 2
+
+
+def number_of_boards():
+    return 2
+
+
+def number_of_chips(config):
+    if config.getini("detector_model") in ("135D", "135DL", "540D"):
+        return 36
+    else:
+        return 36 * 2
+
+def number_of_dacs():
+    return 32
+
+def number_of_modules(config):
+    model = config.getini("detector_model")
+
+    if model in ("135D", "135DL"):
+        return 1
+    elif model == "540D":
+        return 4
+    else:
+        return 10
+
+def number_of_image_patterns():
+    return 15
+
 def pytest_configure(config):
     """Allow plugins and conftest files to perform initial configuration.
        Configure the Pytest environment before test starts."""
@@ -30,6 +69,17 @@ def pytest_configure(config):
         os.environ["EPICS_CA_ADDR_LIST"] += " " + config.getini("epics_ip")
     else:
         os.environ["EPICS_CA_ADDR_LIST"] = config.getini("epics_ip")
+
+    # using the alternative to the deprecated pytest_namespace
+    # https://docs.pytest.org/en/latest/deprecations.html#pytest-namespace
+    pytest.config = SimpleNamespace()
+    pytest.config.readout = get_detector_read_out_by_counter(config)
+    pytest.config.mbs_total = number_of_mbs()
+    pytest.config.chips_total = number_of_chips(config)
+    pytest.config.modules_total = number_of_modules(config)
+    pytest.config.dacs_total = number_of_dacs()
+    pytest.config.boards_total = number_of_boards()
+    pytest.config.images_patterns_total = number_of_image_patterns()
 
 
 def pytest_unconfigure(config):
@@ -69,12 +119,3 @@ def get_detector_minimal_gap(request):
     api_conditional_increment = 1e-6
     return float(request.config.getini("minimal_gap")) + api_conditional_increment
 
-
-@pytest.fixture(scope="session", name="read_out_counter")
-def get_detector_read_out_by_counter(request):
-    """ Get the detector read out for one counter"""
-    basic_read_out = 492e-6
-    if request.config.getini("detector_model") in ("135D", "135DL", "540D"):
-        return basic_read_out
-    else:
-        return basic_read_out * 2
