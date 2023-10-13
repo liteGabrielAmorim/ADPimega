@@ -2040,8 +2040,14 @@ asynStatus pimegaDetector::numExposures(unsigned number) {
 
 asynStatus pimegaDetector::acqTime(double acquire_time_s) {
   int rc = 0;
+  double acquire_time_min = 1e-6;
+  double acquire_time_max = 18446744073709551615e-6;
+  // TODO (Lumentum): Check why the pimega.template is not blocking invalid values
+  if ((acquire_time_s < acquire_time_min) || (acquire_time_s > acquire_time_max)) {
+    error("Invalid acquire time: %lf\n", acquire_time_s);
+    return asynError;
+  }
   uint64_t acquire_time_us = (uint64_t)(acquire_time_s * 1e6);
-  
   rc = set_acquireTime(pimega, acquire_time_us);
   if (rc != PIMEGA_SUCCESS) {
     error("Invalid acquire time: %s\n", pimega_error_string(rc));
@@ -2056,12 +2062,20 @@ asynStatus pimegaDetector::acqTime(double acquire_time_s) {
 
 asynStatus pimegaDetector::acqPeriod(double period_time_s) {
   int rc = 0;
+  double acquire_period_min = 1e-6;
+  double acquire_period_max = 18446744073709551615e-6;
+  // TODO (Lumentum): Check why the pimega.template is not blocking invalid values
+  if ((period_time_s < acquire_period_min) || (period_time_s > acquire_period_max)) {
+    error("Invalid acquire period: %lf\n", period_time_s);
+    return asynError;
+  }
   uint64_t period_time_us = (uint64_t)(period_time_s * 1e6);
   rc = set_periodTime(pimega, period_time_us);
   if (rc != PIMEGA_SUCCESS) {
     error("Invalid period time: %s\n", pimega_error_string(rc));
     return asynError;
   } else {
+    get_acquire_period(pimega);
     double acq_period_s_rbv = pimega->acquireParam.acquirePeriod;
     setParameter(ADAcquirePeriod, acq_period_s_rbv);
     return asynSuccess;
