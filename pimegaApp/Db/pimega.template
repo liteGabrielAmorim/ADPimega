@@ -127,7 +127,7 @@ record(longout, "$(P)$(R)NumExposures")
 record(ao, "$(P)$(R)PeriodTime")
 {
 	field(DRVH, "18446744073709551615e-6")
-	field(DRVL, "1e-6")
+	field(DRVL, "0")
 	field(PREC, 6)
 }
 

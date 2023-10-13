@@ -2065,7 +2065,8 @@ asynStatus pimegaDetector::acqPeriod(double period_time_s) {
   double acquire_period_min = 1e-6;
   double acquire_period_max = 18446744073709551615e-6;
   // TODO (Lumentum): Check why the pimega.template is not blocking invalid values
-  if ((period_time_s < acquire_period_min) || (period_time_s > acquire_period_max)) {
+  if (((period_time_s < acquire_period_min) || (period_time_s > acquire_period_max))
+      && period_time_s != 0) {
     error("Invalid acquire period: %lf\n", period_time_s);
     return asynError;
   }
