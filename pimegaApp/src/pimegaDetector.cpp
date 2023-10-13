@@ -2029,7 +2029,6 @@ asynStatus pimegaDetector::imgChipID(uint8_t chip_id) {
 
 asynStatus pimegaDetector::numExposures(unsigned number) {
   int rc = 0;
-
   rc = set_numberExposures(pimega, number);
   if (rc != PIMEGA_SUCCESS) {
     error("Invalid number of exposures: %s\n", pimega_error_string(rc));
@@ -2063,7 +2062,8 @@ asynStatus pimegaDetector::acqPeriod(double period_time_s) {
     error("Invalid period time: %s\n", pimega_error_string(rc));
     return asynError;
   } else {
-    setParameter(ADAcquirePeriod, period_time_s);
+    double acq_period_s_rbv = pimega->acquireParam.acquirePeriod;
+    setParameter(ADAcquirePeriod, acq_period_s_rbv);
     return asynSuccess;
   }
 }
