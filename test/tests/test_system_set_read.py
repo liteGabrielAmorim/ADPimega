@@ -1,7 +1,7 @@
 import pytest
-import numpy as np
 import time
-from .utils import uint8_to_str
+from ..utils import uint8_to_str
+import numpy as np
 
 
 @pytest.mark.parametrize("allmodules", [0, 1, 2])
@@ -73,17 +73,6 @@ def test_loadequalization(loadequalization_pv, loadequalization_rbv_pv, loadequa
     ans = loadequalization_rbv_pv.get(use_monitor=False)
     print(f"Value set: {loadequalization}; | Value read: {ans}")
     assert (ans == loadequalization).all()
-
-
-# TODO: check if there is any invalid value for equalization
-@pytest.mark.parametrize("loadequalization", [])
-def test_loadequalization_invalid_range(loadequalization_pv, loadequalization_rbv_pv, loadequalization):
-    """ Test loadequalization (invalid tests) """
-    prev_value = loadequalization_rbv_pv.get(use_monitor=False)
-    loadequalization_pv.put(loadequalization, wait=True)
-    ans = loadequalization_rbv_pv.get(use_monitor=False)
-    print(f"Value set: {loadequalization} | Value read: {ans}")
-    assert (ans == prev_value).all()
 
 
 @pytest.mark.parametrize("mb_sendmode", [0, 1, 2, 3, 4])

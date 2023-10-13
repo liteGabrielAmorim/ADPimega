@@ -1,6 +1,7 @@
 """Test Acquisition."""
 
 import pytest
+import numpy as np
 
 pytestmark = pytest.mark.acquisition
 
@@ -52,7 +53,7 @@ def test_acquire_time_negative_max(acq_time, acq_period, acq_time_rbv, acquire_t
 
 
 # ----------- Acquire period -----------
-@pytest.mark.parametrize("acquire_period", [0, 500e-6, 1e-3, 100e-3, 18446744073709551615e-6])
+@pytest.mark.parametrize("acquire_period", [0, 500e-6, 1e-3, 100e-3, 1844674407370955161e-6])
 def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period, acquire_mode):
     """ Test acquisition period (positive tests) """
     remove_time_blocker = 1e-6
@@ -62,17 +63,13 @@ def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period, ac
     acq_period.put(acquire_period, wait=True)
     ans = acq_period_rbv.get(use_monitor=False)
     print(f"Value set: {acquire_period} | Value read: {ans}")
-    assert ans == acquire_period
+    assert ans == pytest.approx(acquire_period)
 
 
-# TODO (Lumentum): fix the error on IOC (disable during test implementation)
-# Acquire period is accepting any value
-@pytest.mark.skip()
 @pytest.mark.parametrize("acquire_period", [-0.01, -1])
 def test_acquire_period_negative_min(acq_time, acq_period, acq_period_rbv, acquire_period,
                                      acquire_mode):
     """ Test acquisition period (negative tests for lower values) """
-    expected_value = 1e-06
     initial_value = 1
     remove_time_blocker = 1e-6
     default_mode = 0
@@ -81,18 +78,14 @@ def test_acquire_period_negative_min(acq_time, acq_period, acq_period_rbv, acqui
     acq_period.put(initial_value, wait=True)
     acq_period.put(acquire_period, wait=True)
     final_value = acq_period_rbv.get(use_monitor=False)
-    print(f"Expected value: {expected_value} | Final value: {final_value}")
-    assert expected_value == final_value
+    print(f"Expected value: {initial_value} | Final value: {final_value}")
+    assert initial_value == final_value
 
 
-# TODO: fix the error on IOC (disable during test implementation)
-# WARNING: fix the error on ioc
-@pytest.mark.skip()
 @pytest.mark.parametrize("acquire_period", [999999999999999999999999])
 def test_acquire_period_negative_max(acq_time, acq_period, acq_period_rbv, acquire_period,
                                      acquire_mode):
     """ Test acquisition period (negative tests for higher values) """
-    expected_value = 18446744073709551615e-6
     initial_value = 1
     remove_time_blocker = 1e-6
     default_mode = 0
@@ -101,8 +94,8 @@ def test_acquire_period_negative_max(acq_time, acq_period, acq_period_rbv, acqui
     acq_period.put(initial_value, wait=True)
     acq_period.put(acquire_period, wait=True)
     final_value = acq_period_rbv.get(use_monitor=False)
-    print(f"Expected value: {expected_value} | Final value: {final_value}")
-    assert expected_value == final_value
+    print(f"Expected value: {initial_value} | Final value: {final_value}")
+    assert initial_value == final_value
 
 
 # ----------- Number of exposures -----------

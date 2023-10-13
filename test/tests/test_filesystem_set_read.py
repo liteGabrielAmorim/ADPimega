@@ -1,7 +1,7 @@
 import pytest
 
 from pathlib import Path
-from .utils import uint8_to_str
+from ..utils import uint8_to_str
 
 
 @pytest.mark.parametrize("autoincrement", [0, 1])
@@ -73,7 +73,7 @@ def test_filenumber(filenumber_pv, filenumber_rbv_pv, filenumber):
     assert ans == filenumber
 
 
-# TODO: fix this implementation, the api is accepting any value (inclusing negative numbers)
+# TODO: fix this implementation, EPICS is accepting any value (inclusing negative numbers)
 @pytest.mark.skip()
 @pytest.mark.parametrize("filenumber", [-1, -255])
 def test_filenumber_invalid_range(filenumber_pv, filenumber_rbv_pv,
@@ -86,10 +86,7 @@ def test_filenumber_invalid_range(filenumber_pv, filenumber_rbv_pv,
     assert ans == prev_value
 
 
-# TODO: we need to improve the input of values here.
-# also, our limit for string size is quite small, only 255 characters
-@pytest.mark.skip()
-@pytest.mark.parametrize("filepath", ["/somepath", "/somelongerpath/" * 100])
+@pytest.mark.parametrize("filepath", ["/somepath", "/somelongerpath/" * 15])
 def test_filepath(filepath_pv, filepath_rbv_pv, filepath):
     """ Test filepath (positive tests) """
     filepath_pv.put(filepath, wait=True)

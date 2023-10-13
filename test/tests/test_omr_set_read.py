@@ -103,9 +103,8 @@ def test_gainmode(gainmode_pv, gainmode_rbv_pv, gainmode):
 
 
 # TODO (@Lumentum): fix gain mode for wrong values, result is different for lower and higher values
-@pytest.mark.skip()
-@pytest.mark.parametrize("gainmode", [-1, 4])
-def test_gainmode_invalid_range(gainmode_pv, gainmode_rbv_pv, gainmode):
+@pytest.mark.parametrize("gainmode", [-1, -4])
+def test_gainmode_invalid_range_lower(gainmode_pv, gainmode_rbv_pv, gainmode):
     """ Test gainmode (invalid tests) """
     initial_value = 2
     gainmode_pv.put(initial_value, wait=True)
@@ -114,6 +113,19 @@ def test_gainmode_invalid_range(gainmode_pv, gainmode_rbv_pv, gainmode):
     ans = gainmode_rbv_pv.get(use_monitor=False)
     print(f"Value set: {gainmode} | Value read: {ans}")
     assert ans == prev_value
+
+
+# As the record uses mbbo, values between 8 and 15 will be 0
+@pytest.mark.parametrize("gainmode", [4, 5])
+def test_gainmode_invalid_range_higher(gainmode_pv, gainmode_rbv_pv, gainmode):
+    """ Test gainmode (invalid tests) """
+    initial_value = 2
+    invalid_value = 0
+    gainmode_pv.put(initial_value, wait=True)
+    gainmode_pv.put(gainmode, wait=True)
+    ans = gainmode_rbv_pv.get(use_monitor=False)
+    print(f"Value set: {gainmode} | Value read: {ans}")
+    assert ans == invalid_value
 
 
 @pytest.mark.parametrize("omromselec", [0, 1, 2, 3, 4, 5, 6, 7])
@@ -125,10 +137,21 @@ def test_omromselec(omromselec_pv, omromselec_rbv_pv, omromselec):
     assert ans == omromselec
 
 
-# TODO (@Lumentum): fix omr select for wrong values, result is different for lower and higher values
-@pytest.mark.skip()
-@pytest.mark.parametrize("omromselec", [-1, 8])
-def test_omromselec_invalid_range(omromselec_pv, omromselec_rbv_pv, omromselec):
+# As the record uses mbbo, values between 8 and 15 will be 0
+@pytest.mark.parametrize("omromselec", range(8, 16))
+def test_omromselec_invalid_range_higher(omromselec_pv, omromselec_rbv_pv, omromselec):
+    """ Test omromselec (invalid tests) """
+    initial_value = 2
+    invalid_value = 0
+    omromselec_pv.put(initial_value, wait=True)
+    omromselec_pv.put(omromselec, wait=True)
+    ans = omromselec_rbv_pv.get(use_monitor=False)
+    print(f"Value set: {omromselec} | Value read: {ans}")
+    assert ans == invalid_value
+
+
+@pytest.mark.parametrize("omromselec", [-1, -20])
+def test_omromselec_invalid_range_lower(omromselec_pv, omromselec_rbv_pv, omromselec):
     """ Test omromselec (invalid tests) """
     initial_value = 2
     omromselec_pv.put(initial_value, wait=True)
