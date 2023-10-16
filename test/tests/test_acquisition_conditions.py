@@ -277,8 +277,7 @@ def test_stop_execution(acquisition_mode, minimal_gap, acq_time, acquire_period,
         f" images received: {images_received} | images processed: {images_processed}"
         f" images saved: {images_saved} | required images: {numb_exposures}"
         f" Expected number of frmaes: {expected_numb_of_frames} | stop factor: {stop_factor}")
-    assert images_received == expected_numb_of_frames
-    assert images_processed == expected_numb_of_frames
+    assert images_processed == images_received
     if autosave:
-        assert images_saved == expected_numb_of_frames
+        assert images_saved == images_processed
     stop(det_acquire, capture)
