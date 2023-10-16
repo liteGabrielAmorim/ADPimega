@@ -20,6 +20,7 @@ test/=7
 .tags
 .vscode/c_cpp_properties.json
 .vscode
+*/*.html
 core
 envPaths*
 __pycache__

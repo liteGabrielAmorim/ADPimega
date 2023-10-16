@@ -10,5 +10,6 @@ source "venv_epics_test/bin/activate"
 pip3 install pytest>=7
 pip3 install pytest-timeout
 pip3 install pyepics
+pip install pytest-html
 
 deactivate

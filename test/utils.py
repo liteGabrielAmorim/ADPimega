@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 
 def uint8_to_str(data: np.ndarray):
@@ -6,7 +7,7 @@ def uint8_to_str(data: np.ndarray):
     if data is None:
         return ''
     assert data.dtype == np.uint8
-    bytes_data =  bytes(data).rstrip(b"\x00")
+    bytes_data = bytes(data).rstrip(b"\x00")
     return bytes_data.decode("ascii")
 
 
@@ -55,3 +56,28 @@ def number_of_modules(config):
 def number_of_image_patterns():
     """ Return the number of image patterns """
     return 15
+
+
+# ----------- Specific commands -----------
+def acquire(det_acquire, capture, capture_rbv):
+    """ acquire command """
+    start_acq = 1
+    counter = 0
+    success = 0
+    fail = 1
+    timeout_s = 5
+    capture.put(start_acq, wait=True)
+    while capture_rbv.get(as_string=True, use_monitor=False) != "Capturing":
+        counter += 1
+        if counter > timeout_s:
+            return fail
+        time.sleep(1)
+    det_acquire.put(start_acq, wait=True)
+    return success
+
+
+def stop(det_acquire, capture):
+    """ acquire command """
+    stop_acq = 0
+    capture.put(stop_acq, wait=True)
+    det_acquire.put(stop_acq, wait=True)

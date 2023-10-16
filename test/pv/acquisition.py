@@ -28,7 +28,7 @@ def acq_period_rbv(init_pv, dev_id):
 
 
 @pytest.fixture()
-def acquire(init_pv, dev_id):
+def det_acquire(init_pv, dev_id):
     """ Start acquisition (detector side) PV """
     return init_pv[dev_id]["acquisition"]["Acquire"]
 
