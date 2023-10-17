@@ -583,7 +583,6 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     if (value) status |= loadEqualization(pimega->loadEqCFG);
     strcat(ok_str, "Equalization Finished");
   }
-
   else if (function == PimegaCheckSensors) {
     UPDATEIOCSTATUS("Checking sensors. Please Wait");
     if (value) status |= checkSensors();
@@ -641,6 +640,11 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
   } else if (function == PimegaGain) {
     status |= setOMRValue(OMR_Gain_Mode, value, function);
     strcat(ok_str, "Gain set");
+  } else if (function == PimegaAllModules) {
+    if ((value < PIMEGA_SEND_ONE_CHIP_ONE_MODULE) || (value > PIMEGA_SEND_ALL_CHIPS_ALL_MODULES)) {
+      error("Invalid value: %d\n", value);
+      return asynError;
+    }
   } else if (function == PimegaExtBgSel) {
     status |= setOMRValue(OMR_Ext_BG_Sel, value, function);
     strcat(ok_str, "BG select set");
@@ -1816,6 +1820,11 @@ asynStatus pimegaDetector::selectModule(uint8_t module) {
 
 asynStatus pimegaDetector::triggerMode(ioc_trigger_mode_t trigger) {
   int rc = 0;
+  if ((trigger < IOC_TRIGGER_MODE_INTERNAL) || (trigger > IOC_TRIGGER_MODE_ALIGNMENT)) {
+    error("Invalid value: %d\n", trigger);
+    return asynError;
+  }
+
   switch (trigger) {
     case IOC_TRIGGER_MODE_INTERNAL:
       rc = configure_trigger(pimega, TRIGGER_MODE_IN_INTERNAL_OUT_ACQ);
@@ -1873,7 +1882,6 @@ asynStatus pimegaDetector::setDACValue(pimega_dac_t dac, int value, int paramete
 asynStatus pimegaDetector::setOMRValue(pimega_omr_t omr, int value, int parameter) {
   int rc = 0;
   int all_modules;
-
   getParameter(PimegaAllModules, &all_modules);
   rc = set_omr(pimega, omr, (unsigned)value, (pimega_send_to_all_t)all_modules);
   if (rc != PIMEGA_SUCCESS) {
