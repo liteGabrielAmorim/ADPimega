@@ -1,6 +1,10 @@
 import pytest
 
 
+pytestmark = pytest.mark.unit_test
+
+
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("continuousrw", [0, 1])
 def test_continuousrw(continuousrw_pv, continuousrw_rbv_pv, continuousrw):
     """ Test continuousrw (positive tests) """
@@ -10,6 +14,7 @@ def test_continuousrw(continuousrw_pv, continuousrw_rbv_pv, continuousrw):
     assert ans == bool(continuousrw)
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("continuousrw", [-1, 2])
 def test_continuousrw_invalid_range(continuousrw_pv, continuousrw_rbv_pv, continuousrw):
     """ Test continuousrw (invalid tests) """
@@ -19,6 +24,7 @@ def test_continuousrw_invalid_range(continuousrw_pv, continuousrw_rbv_pv, contin
     assert ans == bool(continuousrw)
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("counterdepth", [0, 1, 2, 3])
 def test_counterdepth(counterdepth_pv, counterdepth_rbv_pv, counterdepth):
     """ Test counterdepth (positive tests) """
@@ -28,6 +34,7 @@ def test_counterdepth(counterdepth_pv, counterdepth_rbv_pv, counterdepth):
     assert ans == counterdepth
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("counterdepth", [-1, -255, 256])
 def test_counterdepth_invalid_range(counterdepth_pv, counterdepth_rbv_pv, counterdepth):
     """ Test counterdepth (invalid tests) """
@@ -38,6 +45,7 @@ def test_counterdepth_invalid_range(counterdepth_pv, counterdepth_rbv_pv, counte
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("discriminator", [0, 1])
 def test_discriminator(discriminator_pv, discriminator_rbv_pv, discriminator):
     """ Test discriminator (positive tests) """
@@ -47,6 +55,7 @@ def test_discriminator(discriminator_pv, discriminator_rbv_pv, discriminator):
     assert ans == bool(discriminator)
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("discriminator", [-1, -2, 2])
 def test_discriminator_invalid_range(discriminator_pv, discriminator_rbv_pv, discriminator):
     """ Test discriminator (invalid tests) """
@@ -57,6 +66,7 @@ def test_discriminator_invalid_range(discriminator_pv, discriminator_rbv_pv, dis
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("equalization", [0, 1])
 def test_equalization(equalization_pv, equalization_rbv_pv, equalization):
     """ Test equalization (positive tests) """
@@ -66,6 +76,7 @@ def test_equalization(equalization_pv, equalization_rbv_pv, equalization):
     assert ans == bool(equalization)
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("equalization", [-1, -255, 256])
 def test_equalization_invalid_range(equalization_pv, equalization_rbv_pv, equalization):
     """ Test equalization (invalid tests) """
@@ -75,6 +86,7 @@ def test_equalization_invalid_range(equalization_pv, equalization_rbv_pv, equali
     assert ans == bool(equalization)
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("extbgsel", [0, 1])
 def test_extbgsel(extbgsel_pv, extbgsel_rbv_pv, extbgsel):
     """ Test extbgsel (positive tests) """
@@ -84,6 +96,7 @@ def test_extbgsel(extbgsel_pv, extbgsel_rbv_pv, extbgsel):
     assert ans == bool(extbgsel)
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("extbgsel", [-1, 2])
 def test_extbgsel_invalid_range(extbgsel_pv, extbgsel_rbv_pv, extbgsel):
     """ Test extbgsel (invalid tests) """
@@ -93,6 +106,7 @@ def test_extbgsel_invalid_range(extbgsel_pv, extbgsel_rbv_pv, extbgsel):
     assert ans == bool(extbgsel)
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("gainmode", [0, 1, 2, 3])
 def test_gainmode(gainmode_pv, gainmode_rbv_pv, gainmode):
     """ Test gainmode (positive tests) """
@@ -102,9 +116,9 @@ def test_gainmode(gainmode_pv, gainmode_rbv_pv, gainmode):
     assert ans == gainmode
 
 
-# TODO (@Lumentum): fix gain mode for wrong values, result is different for lower and higher values
-@pytest.mark.parametrize("gainmode", [-1, -4])
-def test_gainmode_invalid_range_lower(gainmode_pv, gainmode_rbv_pv, gainmode):
+@pytest.mark.unit_test_omr
+@pytest.mark.parametrize("gainmode", [-1, -4, 4, 5])
+def test_gainmode_invalid_range(gainmode_pv, gainmode_rbv_pv, gainmode):
     """ Test gainmode (invalid tests) """
     initial_value = 2
     gainmode_pv.put(initial_value, wait=True)
@@ -115,19 +129,7 @@ def test_gainmode_invalid_range_lower(gainmode_pv, gainmode_rbv_pv, gainmode):
     assert ans == prev_value
 
 
-# As the record uses mbbo, values between 8 and 15 will be 0
-@pytest.mark.parametrize("gainmode", [4, 5])
-def test_gainmode_invalid_range_higher(gainmode_pv, gainmode_rbv_pv, gainmode):
-    """ Test gainmode (invalid tests) """
-    initial_value = 2
-    invalid_value = 0
-    gainmode_pv.put(initial_value, wait=True)
-    gainmode_pv.put(gainmode, wait=True)
-    ans = gainmode_rbv_pv.get(use_monitor=False)
-    print(f"Value set: {gainmode} | Value read: {ans}")
-    assert ans == invalid_value
-
-
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("omromselec", [0, 1, 2, 3, 4, 5, 6, 7])
 def test_omromselec(omromselec_pv, omromselec_rbv_pv, omromselec):
     """ Test omromselec (positive tests) """
@@ -137,21 +139,9 @@ def test_omromselec(omromselec_pv, omromselec_rbv_pv, omromselec):
     assert ans == omromselec
 
 
-# As the record uses mbbo, values between 8 and 15 will be 0
-@pytest.mark.parametrize("omromselec", range(8, 16))
-def test_omromselec_invalid_range_higher(omromselec_pv, omromselec_rbv_pv, omromselec):
-    """ Test omromselec (invalid tests) """
-    initial_value = 2
-    invalid_value = 0
-    omromselec_pv.put(initial_value, wait=True)
-    omromselec_pv.put(omromselec, wait=True)
-    ans = omromselec_rbv_pv.get(use_monitor=False)
-    print(f"Value set: {omromselec} | Value read: {ans}")
-    assert ans == invalid_value
-
-
-@pytest.mark.parametrize("omromselec", [-1, -20])
-def test_omromselec_invalid_range_lower(omromselec_pv, omromselec_rbv_pv, omromselec):
+@pytest.mark.unit_test_omr
+@pytest.mark.parametrize("omromselec", [-1, -20, 8, 15, 500])
+def test_omromselec_invalid_range(omromselec_pv, omromselec_rbv_pv, omromselec):
     """ Test omromselec (invalid tests) """
     initial_value = 2
     omromselec_pv.put(initial_value, wait=True)
@@ -161,6 +151,7 @@ def test_omromselec_invalid_range_lower(omromselec_pv, omromselec_rbv_pv, omroms
     assert ans == initial_value
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("pixelmode", [0, 1])
 def test_pixelmode(pixelmode_pv, pixelmode_rbv_pv, pixelmode):
     """ Test pixelmode (positive tests) """
@@ -170,6 +161,7 @@ def test_pixelmode(pixelmode_pv, pixelmode_rbv_pv, pixelmode):
     assert ans == pixelmode
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("pixelmode", [-1, 2])
 def test_pixelmode_invalid_range(pixelmode_pv, pixelmode_rbv_pv, pixelmode):
     """ Test pixelmode (invalid tests) """
@@ -180,6 +172,7 @@ def test_pixelmode_invalid_range(pixelmode_pv, pixelmode_rbv_pv, pixelmode):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("polarity", [0, 1])
 def test_polarity(polarity_pv, polarity_rbv_pv, polarity):
     """ Test polarity (positive tests) """
@@ -189,6 +182,7 @@ def test_polarity(polarity_pv, polarity_rbv_pv, polarity):
     assert ans == polarity
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("polarity", [-1, 2])
 def test_polarity_invalid_range(polarity_pv, polarity_rbv_pv, polarity):
     """ Test polarity (invalid tests) """
@@ -199,6 +193,7 @@ def test_polarity_invalid_range(polarity_pv, polarity_rbv_pv, polarity):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("testpulse", [0, 1])
 def test_testpulse(testpulse_pv, testpulse_rbv_pv, testpulse):
     """ Test testpulse (positive tests) """
@@ -208,6 +203,7 @@ def test_testpulse(testpulse_pv, testpulse_rbv_pv, testpulse):
     assert ans == bool(testpulse)
 
 
+@pytest.mark.unit_test_omr
 @pytest.mark.parametrize("testpulse", [-1, 2])
 def test_testpulse_invalid_range(testpulse_pv, testpulse_rbv_pv, testpulse):
     """ Test testpulse (invalid tests) """

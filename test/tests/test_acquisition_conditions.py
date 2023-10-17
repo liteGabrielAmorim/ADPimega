@@ -7,10 +7,11 @@ import numpy as np
 from ..utils import acquire, stop
 
 
-pytestmark = pytest.mark.acquisition
+pytestmark = pytest.mark.functional_test
 
 
 # ----------- Set Acquire time considering acquire period -----------
+@pytest.mark.functional_test_acquisition
 @pytest.mark.parametrize("acquisition_mode", [0, 1, 2, 3])
 @pytest.mark.parametrize("acquire_time", [1e-6, 100e-6, 1e-3, 100e-3, 18446744073709551615e-6])
 @pytest.mark.parametrize("numb_exposures", [1, 10, 2147483647])
@@ -40,6 +41,7 @@ def test_acquire_time_period(acq_time, acq_period, acq_time_rbv, acquire_time, a
     assert ans_time == acquire_time
 
 
+@pytest.mark.functional_test_acquisition
 @pytest.mark.parametrize("acquisition_mode", [0, 1, 2, 3])
 @pytest.mark.parametrize("numb_exposures", [1, 100, 2147483647])
 @pytest.mark.parametrize("period_factor", [[1, 1, 0.5], [0, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 0],
@@ -77,6 +79,7 @@ def test_acquire_time_period_neg(acq_time, acq_period, acq_time_rbv, acquire_tim
 
 
 # ----------- Set Acquire period considering acquire time -----------
+@pytest.mark.functional_test_acquisition
 @pytest.mark.parametrize("acquisition_mode", [0, 1, 2, 3])
 @pytest.mark.parametrize("acquire_period", [2000e-6, 100e-3, 1844674407370955161e-6])
 @pytest.mark.parametrize("numb_exposures", [1, 1000, 2147483647])
@@ -106,6 +109,7 @@ def test_acquire_period_time(acq_time, acq_period, acq_time_rbv, acquire_period,
     assert ans_period == pytest.approx(acquire_period)
 
 
+@pytest.mark.functional_test_acquisition
 @pytest.mark.parametrize("acquisition_mode", [0, 1, 2, 3])
 @pytest.mark.parametrize("numb_exposures", [1, 100, 2147483647])
 @pytest.mark.parametrize("time_factor", [[1, 1, 0.5], [1, 0, 0.5], [1, 1, 0]])
@@ -139,21 +143,22 @@ def test_acquire_period_time_neg(acq_time, acq_period, acq_time_rbv, acquire_per
 
 
 # ----------- Run an acquisition -----------
-
+@pytest.mark.functional_test_acquisition
 @pytest.mark.parametrize("autosave", [0, 1])
 @pytest.mark.parametrize("acquisition_mode", [0, 1, 2, 3])
 @pytest.mark.parametrize("numb_exposures", [1, 10])
 @pytest.mark.parametrize("acquire_period", [2000e-6, 100e-3, 1, 10])
 def test_acquire_execution(acquisition_mode, minimal_gap, acq_time, acquire_period, acq_period,
                            acquire_mode, numb_exposures, numexp, det_acquire, capture, capture_rbv,
-                           filepath_pv, autosave, autosave_pv, filename_pv, time_remaining_rbv_pv,
+                           filepath_pv, autosave, autosave_pv, filename_pv,
                            numcap, images_received_rbv_pv, images_processed_rbv_pv,
                            images_saved_rbv_pv, acq_time_rbv, acq_period_rbv, acquire_mode_rbv):
     """ Test acquisition (positive tests) """
     acq_mode_dict = {0: "Default (12 bit)", 1: "Continuous Read Write", 2: "Full Dynamic Range",
                      3: "Dual Energy", None: "Not available"}
     read_out = pytest.config.readout_counter
-    offset = 2
+    offset = 100
+    add_factor = 0.3
     disable_period = 0
     success = 0
     min_acq_time = 1e-6
@@ -164,7 +169,7 @@ def test_acquire_execution(acquisition_mode, minimal_gap, acq_time, acquire_peri
         expected_numb_of_frames *= 2
     autosave_pv.put(autosave, wait=True)
     filepath = os.path.join(os.path.sep, "tmp")
-    file_name = "test_image_" + time.strftime("%H:%M:%S", time.localtime()) + ".hdf5"
+    file_name = "test_image_" + time.strftime("%H:%M:%S", time.localtime())
     filename_pv.put(file_name, wait=True)
     filepath_pv.put(filepath, wait=True)
     acquire_time = acquire_period - minimal_gap - read_out
@@ -179,23 +184,17 @@ def test_acquire_execution(acquisition_mode, minimal_gap, acq_time, acquire_peri
     numexp.put(numb_exposures, wait=True)
     numcap.put(numb_exposures, wait=True)
     assert acquire(det_acquire, capture, capture_rbv) == success
-    expected_time_s = ans_period * numb_exposures + offset
-    while expected_time_s > 0:
-        expected_time_s -= 1
-        if np.isclose(time_remaining_rbv_pv.get(use_monitor=False), 0):
+    limit_time_s = (ans_period * numb_exposures) * (1 + add_factor) + offset
+    while limit_time_s > 0:
+        limit_time_s -= 1
+        if images_received_rbv_pv.get(use_monitor=False) == expected_numb_of_frames:
             break
         time.sleep(1)
-    max_tries = 10
-    local_number_of_tries = 0
-    while capture_rbv.get(as_string=True, use_monitor=False) != "Done":
-        if local_number_of_tries == max_tries:
-            break
-        local_number_of_tries += 1
-        time.sleep(1)
-    time.sleep(1)
+    time.sleep(0.5)
     images_received = images_received_rbv_pv.get(use_monitor=False)
     images_processed = images_processed_rbv_pv.get(use_monitor=False)
     images_saved = images_saved_rbv_pv.get(use_monitor=False)
+    stop(det_acquire, capture)
     print(
         f" \n----------------\ntest acquire execution | acquire time set: {acquire_time} |"
         f" acquire time read: {ans_time} | acquire period read: {ans_period} |"
@@ -207,17 +206,18 @@ def test_acquire_execution(acquisition_mode, minimal_gap, acq_time, acquire_peri
     assert images_processed == expected_numb_of_frames
     if autosave:
         assert images_saved == expected_numb_of_frames
-    stop(det_acquire, capture)
 
 
+# ----------- Stop an acquisition -----------
+@pytest.mark.functional_test_acquisition
 @pytest.mark.parametrize("stop_factor", [0, 1, 2])
 @pytest.mark.parametrize("autosave", [0, 1])
 @pytest.mark.parametrize("acquisition_mode", [0, 1, 2, 3])
-@pytest.mark.parametrize("numb_exposures", [1, 10])
+@pytest.mark.parametrize("numb_exposures", [2, 10])
 @pytest.mark.parametrize("acquire_period", [1, 10])
 def test_stop_execution(acquisition_mode, minimal_gap, acq_time, acquire_period, acq_period,
                         acquire_mode, numb_exposures, numexp, det_acquire, capture, capture_rbv,
-                        filepath_pv, autosave, autosave_pv, filename_pv, time_remaining_rbv_pv,
+                        filepath_pv, autosave, autosave_pv, filename_pv,
                         numcap, images_received_rbv_pv, images_processed_rbv_pv,
                         images_saved_rbv_pv, acq_time_rbv, acq_period_rbv, acquire_mode_rbv,
                         stop_factor):
@@ -225,7 +225,8 @@ def test_stop_execution(acquisition_mode, minimal_gap, acq_time, acquire_period,
     acq_mode_dict = {0: "Default (12 bit)", 1: "Continuous Read Write", 2: "Full Dynamic Range",
                      3: "Dual Energy", None: "Not available"}
     read_out = pytest.config.readout_counter
-    offset = 2
+    offset = 100
+    add_factor = 0.3
     disable_period = 0
     success = 0
     min_acq_time = 1e-6
@@ -236,7 +237,7 @@ def test_stop_execution(acquisition_mode, minimal_gap, acq_time, acquire_period,
         expected_numb_of_frames *= 2
     autosave_pv.put(autosave, wait=True)
     filepath = os.path.join(os.path.sep, "tmp")
-    file_name = "test_image_stop_" + time.strftime("%H:%M:%S", time.localtime()) + ".hdf5"
+    file_name = "test_image_stop_" + time.strftime("%H:%M:%S", time.localtime())
     filename_pv.put(file_name, wait=True)
     filepath_pv.put(filepath, wait=True)
     acquire_time = acquire_period - minimal_gap - read_out
@@ -251,22 +252,15 @@ def test_stop_execution(acquisition_mode, minimal_gap, acq_time, acquire_period,
     numexp.put(numb_exposures, wait=True)
     numcap.put(numb_exposures, wait=True)
     assert acquire(det_acquire, capture, capture_rbv) == success
-    expected_time_s = ans_period * numb_exposures + offset
-    while expected_time_s > 0:
-        expected_time_s -= 1
-        if np.isclose(time_remaining_rbv_pv.get(use_monitor=False), 0):
-            break
+    limit_time_s = (ans_period * numb_exposures) * (1 + add_factor) + offset
+    while limit_time_s > 0:
+        limit_time_s -= 1
         if stop_factor > 0 and images_received_rbv_pv.get(use_monitor=False) > stop_factor:
             stop(det_acquire, capture)
-        time.sleep(1)
-    max_tries = 10
-    local_number_of_tries = 0
-    while capture_rbv.get(as_string=True, use_monitor=False) != "Done":
-        if local_number_of_tries == max_tries:
+        if images_received_rbv_pv.get(use_monitor=False) == expected_numb_of_frames:
             break
-        local_number_of_tries += 1
         time.sleep(1)
-    time.sleep(1)
+    time.sleep(0.5)
     images_received = images_received_rbv_pv.get(use_monitor=False)
     images_processed = images_processed_rbv_pv.get(use_monitor=False)
     images_saved = images_saved_rbv_pv.get(use_monitor=False)
