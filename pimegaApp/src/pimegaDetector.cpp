@@ -614,6 +614,10 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     status |= medipixBoard(value);
     strcat(ok_str, "ConfigDiscL set");
   } else if (function == PimegaMedipixChip) {
+    if (value < 1) {
+      error("Invalid value: %d\n", value);
+      return asynError;
+    }
     status |= imgChipID(value);
     strcat(ok_str, "Chip selected");
   } else if (function == PimegaPixelMode) {
@@ -645,6 +649,11 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
       error("Invalid value: %d\n", value);
       return asynError;
     }
+  } else if (function == PimegaMBSendMode) {
+    if ((value < 0) || (value > 4)) {
+      error("Invalid value: %d\n", value);
+      return asynError;
+  }
   } else if (function == PimegaExtBgSel) {
     status |= setOMRValue(OMR_Ext_BG_Sel, value, function);
     strcat(ok_str, "BG select set");
@@ -2190,8 +2199,9 @@ asynStatus pimegaDetector::senseDacSel(u_int8_t dac) {
   if (rc != PIMEGA_SUCCESS) return asynError;
   rc = get_dac_out_sense(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
+  SenseDacSel_RBV(pimega);
   setParameter(PimegaDacOutSense, pimega->pimegaParam.dacOutput);
-  setParameter(PimegaSenseDacSel, dac);
+  setParameter(PimegaSenseDacSel, pimega->omr.sense_dacSel);
   return asynSuccess;
 }
 
