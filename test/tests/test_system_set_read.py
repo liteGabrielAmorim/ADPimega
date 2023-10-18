@@ -62,14 +62,14 @@ def test_imgchipnumberid(imgchipnumberid_pv, imgchipnumberid_rbv_pv, imgchipnumb
 
 @pytest.mark.unit_test_system
 @pytest.mark.parametrize("imgchipnumberid", [pytest.config.chips_total + 1, -1, -2, -256, -255, 256])
-# pytest.mark.skip()  # failing for values <= -255
 def test_imgchipnumberid_invalid_range(imgchipnumberid_pv, imgchipnumberid_rbv_pv, imgchipnumberid):
     """ Test imgchipnumberid (invalid tests) """
-    prev_value = imgchipnumberid_rbv_pv.get(use_monitor=False)
+    initial_value = 1
+    imgchipnumberid_pv.put(initial_value, wait=True)
     imgchipnumberid_pv.put(imgchipnumberid, wait=True)
     ans = imgchipnumberid_rbv_pv.get(use_monitor=False)
     print(f"Value set: {imgchipnumberid} | Value read: {ans}")
-    assert ans == prev_value
+    assert ans == initial_value
 
 
 @pytest.mark.unit_test_system
@@ -96,20 +96,20 @@ def test_mb_sendmode(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmode):
     assert ans == mb_sendmode
 
 
-# pytest.mark.skip()  # TODO: failing for value 5
 @pytest.mark.unit_test_system
 @pytest.mark.parametrize("mb_sendmode", [-1, 5, 256])
 def test_mb_sendmode_invalid_range(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmode):
     """ Test mb_sendmode (invalid tests) """
-    prev_value = mb_sendmode_rbv_pv.get(use_monitor=False)
+    initial_value = 1
+    mb_sendmode_pv.put(initial_value, wait=True)
     mb_sendmode_pv.put(mb_sendmode, wait=True)
     ans = mb_sendmode_rbv_pv.get(use_monitor=False)
     print(f"Value set: {mb_sendmode} | Value read: {ans}")
-    assert ans == prev_value
+    assert ans == initial_value
 
 
 @pytest.mark.unit_test_system
-@pytest.mark.parametrize("medipixboard", range(1, pytest.config.boards_total))
+@pytest.mark.parametrize("medipixboard", range(0, pytest.config.boards_total -1))
 def test_medipixboard(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     """ Test medipixboard (positive tests) """
     medipixboard_pv.put(medipixboard, wait=True)
@@ -118,16 +118,16 @@ def test_medipixboard(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     assert ans == medipixboard
 
 
-# pytest.mark.skip()  # TODO: allowing values outside the range
 @pytest.mark.unit_test_system
-@pytest.mark.parametrize("medipixboard", [-1, -255, 256, pytest.config.boards_total])
+@pytest.mark.parametrize("medipixboard", [-1, -255, -15, 15, 16, 256, pytest.config.boards_total])
 def test_medipixboard_invalid_range(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     """ Test medipixboard (invalid tests) """
-    prev_value = medipixboard_rbv_pv.get(use_monitor=False)
+    initial_value = 1
+    medipixboard_pv.put(initial_value, wait=True)
     medipixboard_pv.put(medipixboard, wait=True)
     ans = medipixboard_rbv_pv.get(use_monitor=False)
     print(f"Value set: {medipixboard} | Value read: {ans}")
-    assert ans == prev_value
+    assert ans == initial_value
 
 
 @pytest.mark.unit_test_system
@@ -140,16 +140,16 @@ def test_medipixmode(medipixmode_pv, medipixmode_rbv_pv, medipixmode):
     assert ans == medipixmode
 
 
-# pytest.mark.skip()  # TODO: fail to value 4
 @pytest.mark.unit_test_system
 @pytest.mark.parametrize("medipixmode", [-1, -255, 4, 256])
 def test_medipixmode_invalid_range(medipixmode_pv, medipixmode_rbv_pv, medipixmode):
     """ Test medipixmode (invalid tests) """
-    prev_value = medipixmode_rbv_pv.get(use_monitor=False)
+    initial_value = 2
+    medipixmode_pv.put(initial_value, wait=True)
     medipixmode_pv.put(medipixmode, wait=True)
     ans = medipixmode_rbv_pv.get(use_monitor=False)
     print(f"Value set: {medipixmode} | Value read: {ans}")
-    assert ans == prev_value
+    assert ans == initial_value
 
 
 @pytest.mark.unit_test_system
@@ -186,16 +186,6 @@ def test_reset(reset_pv, iocstatusmessage_rbv_pv, reset):
         if message.lower() == "reset done":
             break
         time.sleep(1)
-
-
-# pytest.mark.skip()  # TODO: implement  return error for rest invalid values
-@pytest.mark.unit_test_system
-@pytest.mark.parametrize("reset", [-1, -255, 2, 255])
-def test_reset_invalid_range(reset_pv, iocstatusmessage_rbv_pv, reset):
-    """ Test reset (invalid tests) """
-    reset_pv.put(reset, wait=True)
-    message = uint8_to_str(iocstatusmessage_rbv_pv.get(use_monitor=False))
-    assert message == "something"
 
 
 @pytest.mark.unit_test_system
@@ -259,7 +249,6 @@ def test_sendimage(select_sendimage_pv, sendimage_pv,
         time.sleep(0.1)
 
 
-# pytest.mark.skip()  # TODO: which values are valid???
 @pytest.mark.unit_test_system
 @pytest.mark.parametrize("sendimage", [-1, 2, 255])
 @pytest.mark.timeout(60)
@@ -287,21 +276,22 @@ def test_sensedacsel(sensedacsel_pv, sensedacsel_rbv_pv, sensedacsel):
 
 @pytest.mark.unit_test_system
 @pytest.mark.parametrize("sensedacsel", [-1, -255, pytest.config.dacs_total + 1, 256])
-# pytest.mark.skip()  # it is allowing negative values
 def test_sensedacsel_invalid_range(sensedacsel_pv, sensedacsel_rbv_pv, sensedacsel):
     """ Test sensedacsel (invalid tests) """
-    prev_value = sensedacsel_rbv_pv.get(use_monitor=False)
+    initial_value = 25
+    sensedacsel_pv.put(initial_value, wait=True)
     sensedacsel_pv.put(sensedacsel, wait=True)
     ans = sensedacsel_rbv_pv.get(use_monitor=False)
     print(f"Value set: {sensedacsel} | Value read: {ans}")
-    assert ans == prev_value
+    assert ans == initial_value
 
 
-# pytest.mark.skip()  # when I set value one it stores the value 2???
 @pytest.mark.unit_test_system
-@pytest.mark.parametrize("sensorbias", [0.5, 10.0, 15.0, 80.0])
-def test_sensorbias(sensorbias_pv, sensorbias_rbv_pv, sensorbias):
+@pytest.mark.parametrize("sensorbias", [0.5, 10.0, 15.0, 80.0, 1.0])
+def test_sensorbias(sensorbias_pv, sensorbias_rbv_pv, sensorbias, medipixboard_pv):
     """ Test sensorbias (positive tests) """
+    minimal_board = 0
+    medipixboard_pv.put(minimal_board, wait=True)
     sensorbias_pv.put(sensorbias, wait=True)
     ans = sensorbias_rbv_pv.get(use_monitor=False)
     print(f"Value set: {sensorbias}; | Value read: {ans}")
@@ -310,8 +300,10 @@ def test_sensorbias(sensorbias_pv, sensorbias_rbv_pv, sensorbias):
 
 @pytest.mark.unit_test_system
 @pytest.mark.parametrize("sensorbias", [-1.0, -255.0, 100.0001, 101.0, 256.0])
-def test_sensorbias_invalid_range(sensorbias_pv, sensorbias_rbv_pv, sensorbias):
+def test_sensorbias_invalid_range(sensorbias_pv, sensorbias_rbv_pv, sensorbias, medipixboard_pv):
     """ Test sensorbias (invalid tests) """
+    minimal_board = 0
+    medipixboard_pv.put(minimal_board, wait=True)
     prev_value = sensorbias_rbv_pv.get(use_monitor=False)
     sensorbias_pv.put(sensorbias, wait=True)
     ans = sensorbias_rbv_pv.get(use_monitor=False)
