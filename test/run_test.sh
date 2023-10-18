@@ -11,9 +11,10 @@ Help()
   echo " usage: ./run_test.sh [option]"
   echo
   echo " option:"
-  echo "      --unit       or -u : Install the CLI with common user commands"
-  echo "      --functional or -f : Install the CLI with advanced user commands"
-  echo "      --production or -p : Install the CLI with production commands"
+  echo "      --all        or -a : Run all the tests"
+  echo "      --unit       or -u : Run the unit tests"
+  echo "      --functional or -f : Run the functional tests"
+  echo "      --production or -p : Run the production tests"
   echo "      --help       or -h : Show help information"
 }
 
@@ -30,6 +31,6 @@ elif [ $@ == "--functional" ] || [ $@ == "-f" ]; then
     pytest -m unit_functional
 elif [ $@ == "--production" ] || [ $@ == "-p" ]; then
     pytest -m unit_production
-else
+elif [ $@ == "--all" ] || [ $@ == "-a" ]; then
     pytest
 fi

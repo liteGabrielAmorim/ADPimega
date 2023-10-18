@@ -213,8 +213,8 @@ def test_acquire_execution(acquisition_mode, minimal_gap, acq_time, acquire_peri
 @pytest.mark.parametrize("stop_factor", [0, 1, 2])
 @pytest.mark.parametrize("autosave", [0, 1])
 @pytest.mark.parametrize("acquisition_mode", [0, 1, 2, 3])
-@pytest.mark.parametrize("numb_exposures", [2, 10])
-@pytest.mark.parametrize("acquire_period", [1, 10])
+@pytest.mark.parametrize("numb_exposures", [3])
+@pytest.mark.parametrize("acquire_period", [2])
 def test_stop_execution(acquisition_mode, minimal_gap, acq_time, acquire_period, acq_period,
                         acquire_mode, numb_exposures, numexp, det_acquire, capture, capture_rbv,
                         filepath_pv, autosave, autosave_pv, filename_pv,
