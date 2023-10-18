@@ -1,12 +1,13 @@
 """Test Acquisition."""
 
 import pytest
-import numpy as np
 
-pytestmark = pytest.mark.acquisition
+
+pytestmark = pytest.mark.unit_test
 
 
 # ----------- Acquire time -----------
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("acquire_time", [1e-6, 100e-6, 1e-3, 100e-3, 18446744073709551615e-6])
 def test_acquire_time(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_mode):
     """ Test acquisition time (positive tests) """
@@ -20,6 +21,7 @@ def test_acquire_time(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_
     assert ans == acquire_time
 
 
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("acquire_time", [0, -1])
 def test_acquire_time_negative_min(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_mode):
     """ Test acquisition time (negative tests for lower values) """
@@ -36,6 +38,7 @@ def test_acquire_time_negative_min(acq_time, acq_period, acq_time_rbv, acquire_t
     assert expected_value == final_value
 
 
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("acquire_time", [999999999999999999999999])
 def test_acquire_time_negative_max(acq_time, acq_period, acq_time_rbv, acquire_time, acquire_mode):
     """ Test acquisition time (negative tests for higher values) """
@@ -53,6 +56,7 @@ def test_acquire_time_negative_max(acq_time, acq_period, acq_time_rbv, acquire_t
 
 
 # ----------- Acquire period -----------
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("acquire_period", [0, 500e-6, 1e-3, 100e-3, 1844674407370955161e-6])
 def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period, acquire_mode):
     """ Test acquisition period (positive tests) """
@@ -66,6 +70,7 @@ def test_acquire_period(acq_time, acq_period, acq_period_rbv, acquire_period, ac
     assert ans == pytest.approx(acquire_period)
 
 
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("acquire_period", [-0.01, -1])
 def test_acquire_period_negative_min(acq_time, acq_period, acq_period_rbv, acquire_period,
                                      acquire_mode):
@@ -82,6 +87,7 @@ def test_acquire_period_negative_min(acq_time, acq_period, acq_period_rbv, acqui
     assert initial_value == final_value
 
 
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("acquire_period", [999999999999999999999999])
 def test_acquire_period_negative_max(acq_time, acq_period, acq_period_rbv, acquire_period,
                                      acquire_mode):
@@ -99,6 +105,7 @@ def test_acquire_period_negative_max(acq_time, acq_period, acq_period_rbv, acqui
 
 
 # ----------- Number of exposures -----------
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("number_exp", [1, 10, 100, 1000, 2147483647])
 def test_numexp(numexp, numexp_rbv, number_exp):
     """ Test acquisition number of exposures (positive tests) """
@@ -108,6 +115,7 @@ def test_numexp(numexp, numexp_rbv, number_exp):
     assert ans == number_exp
 
 
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("number_exp", [0, -1])
 def test_numexp_negative_min(numexp, numexp_rbv, number_exp):
     """ Test acquisition number of exposures (negative tests for lower values) """
@@ -120,6 +128,7 @@ def test_numexp_negative_min(numexp, numexp_rbv, number_exp):
     assert expected_value == final_value
 
 
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("number_exp", [999999999999999999999999])
 def test_numexp_negative_max(numexp, numexp_rbv, number_exp):
     """ Test acquisition number of exposures (negative tests for higher values) """
@@ -133,6 +142,7 @@ def test_numexp_negative_max(numexp, numexp_rbv, number_exp):
 
 
 # ----------- Number of captures (backend) -----------
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("number_cap", [0, 1, 10, 100, 1000, 2147483647])
 def test_numcap(numcap, numcap_rbv, number_cap):
     """ Test acquisition number of exposures (positive tests) """
@@ -142,6 +152,7 @@ def test_numcap(numcap, numcap_rbv, number_cap):
     assert ans == number_cap
 
 
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("number_cap", [-1])
 def test_numcap_negative_min(numcap, numcap_rbv, number_cap):
     """ Test acquisition number of exposures (negative tests for lower values) """
@@ -154,6 +165,7 @@ def test_numcap_negative_min(numcap, numcap_rbv, number_cap):
     assert expected_value == final_value
 
 
+@pytest.mark.unit_test_acquisition
 @pytest.mark.parametrize("number_cap", [999999999999999999999999])
 def test_numcap_negative_max(numcap, numcap_rbv, number_cap):
     """ Test acquisition number of exposures (negative tests for higher values) """

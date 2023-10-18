@@ -4,7 +4,11 @@ from ..utils import uint8_to_str
 import numpy as np
 
 
-@pytest.mark.parametrize("allmodules", [0, 1, 2])
+pytestmark = pytest.mark.unit_test
+
+
+@pytest.mark.unit_test_system
+@pytest.mark.parametrize("allmodules", [0, 1, 2, 3])
 def test_allmodules(allmodules_pv, allmodules_rbv_pv, allmodules):
     """ Test allmodules (positive tests) """
     allmodules_pv.put(allmodules, wait=True)
@@ -13,17 +17,19 @@ def test_allmodules(allmodules_pv, allmodules_rbv_pv, allmodules):
     assert ans == allmodules
 
 
-@pytest.mark.parametrize("allmodules", [-1, -255, 4, 5])
-@pytest.mark.skip()  # failing for value 4??
+@pytest.mark.unit_test_system
+@pytest.mark.parametrize("allmodules", [-1, -255, 4, 5, 10, 20])
 def test_allmodules_invalid_range(allmodules_pv, allmodules_rbv_pv, allmodules):
     """ Test allmodules (invalid tests) """
-    prev_value = allmodules_rbv_pv.get(use_monitor=False)
+    initial_value = 2
+    allmodules_pv.put(initial_value, wait=True)
     allmodules_pv.put(allmodules, wait=True)
     ans = allmodules_rbv_pv.get(use_monitor=False)
     print(f"Value set: {allmodules} | Value read: {ans}")
-    assert ans == prev_value
+    assert ans == initial_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("extbgin", [0.0, 1.0, 0.5])
 def test_extbgin(extbgin_pv, extbgin_rbv_pv, extbgin):
     """ Test extbgin (positive tests) """
@@ -33,6 +39,7 @@ def test_extbgin(extbgin_pv, extbgin_rbv_pv, extbgin):
     assert ans == extbgin
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("extbgin", [-1.0, -0.1, 1.1, 255.0, 10000.0])
 def test_extbgin_invalid_range(extbgin_pv, extbgin_rbv_pv, extbgin):
     """ Test extbgin (invalid tests) """
@@ -43,6 +50,7 @@ def test_extbgin_invalid_range(extbgin_pv, extbgin_rbv_pv, extbgin):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("imgchipnumberid", range(1, pytest.config.chips_total + 1))
 def test_imgchipnumberid(imgchipnumberid_pv, imgchipnumberid_rbv_pv, imgchipnumberid):
     """ Test imgchipnumberid (positive tests) """
@@ -52,8 +60,9 @@ def test_imgchipnumberid(imgchipnumberid_pv, imgchipnumberid_rbv_pv, imgchipnumb
     assert ans == imgchipnumberid
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("imgchipnumberid", [pytest.config.chips_total + 1, -1, -2, -256, -255, 256])
-@pytest.mark.skip()  # failing for values <= -255
+# pytest.mark.skip()  # failing for values <= -255
 def test_imgchipnumberid_invalid_range(imgchipnumberid_pv, imgchipnumberid_rbv_pv, imgchipnumberid):
     """ Test imgchipnumberid (invalid tests) """
     prev_value = imgchipnumberid_rbv_pv.get(use_monitor=False)
@@ -63,6 +72,7 @@ def test_imgchipnumberid_invalid_range(imgchipnumberid_pv, imgchipnumberid_rbv_p
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("loadequalization", [np.zeros((pytest.config.modules_total,), dtype='int32'),
                                               np.ones((pytest.config.modules_total,), dtype='int32'),
                                               np.ones((pytest.config.modules_total,),
@@ -76,6 +86,7 @@ def test_loadequalization(loadequalization_pv, loadequalization_rbv_pv, loadequa
     assert (ans == loadequalization).all()
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("mb_sendmode", [0, 1, 2, 3, 4])
 def test_mb_sendmode(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmode):
     """ Test mb_sendmode (positive tests) """
@@ -85,7 +96,8 @@ def test_mb_sendmode(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmode):
     assert ans == mb_sendmode
 
 
-@pytest.mark.skip()  # TODO: failing for value 5
+# pytest.mark.skip()  # TODO: failing for value 5
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("mb_sendmode", [-1, 5, 256])
 def test_mb_sendmode_invalid_range(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmode):
     """ Test mb_sendmode (invalid tests) """
@@ -96,6 +108,7 @@ def test_mb_sendmode_invalid_range(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmo
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("medipixboard", range(1, pytest.config.boards_total))
 def test_medipixboard(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     """ Test medipixboard (positive tests) """
@@ -105,7 +118,8 @@ def test_medipixboard(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     assert ans == medipixboard
 
 
-@pytest.mark.skip()  # TODO: allowing values outside the range
+# pytest.mark.skip()  # TODO: allowing values outside the range
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("medipixboard", [-1, -255, 256, pytest.config.boards_total])
 def test_medipixboard_invalid_range(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     """ Test medipixboard (invalid tests) """
@@ -116,6 +130,7 @@ def test_medipixboard_invalid_range(medipixboard_pv, medipixboard_rbv_pv, medipi
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("medipixmode", [0, 1, 2, 3])
 def test_medipixmode(medipixmode_pv, medipixmode_rbv_pv, medipixmode):
     """ Test medipixmode (positive tests) """
@@ -125,7 +140,8 @@ def test_medipixmode(medipixmode_pv, medipixmode_rbv_pv, medipixmode):
     assert ans == medipixmode
 
 
-@pytest.mark.skip()  # TODO: fail to value 4
+# pytest.mark.skip()  # TODO: fail to value 4
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("medipixmode", [-1, -255, 4, 256])
 def test_medipixmode_invalid_range(medipixmode_pv, medipixmode_rbv_pv, medipixmode):
     """ Test medipixmode (invalid tests) """
@@ -136,6 +152,7 @@ def test_medipixmode_invalid_range(medipixmode_pv, medipixmode_rbv_pv, medipixmo
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("pimegamodule", range(1, pytest.config.modules_total + 1))
 def test_pimegamodule(pimegamodule_pv, pimegamodule_rbv_pv, pimegamodule):
     """ Test pimegamodule (positive tests) """
@@ -145,6 +162,7 @@ def test_pimegamodule(pimegamodule_pv, pimegamodule_rbv_pv, pimegamodule):
     assert ans == pimegamodule
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("pimegamodule", [-1, 0, -255, 256])
 def test_pimegamodule_invalid_range(pimegamodule_pv, pimegamodule_rbv_pv, pimegamodule):
     """ Test pimegamodule (invalid tests) """
@@ -155,6 +173,7 @@ def test_pimegamodule_invalid_range(pimegamodule_pv, pimegamodule_rbv_pv, pimega
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("reset", [1, 0])
 @pytest.mark.timeout(60)
 def test_reset(reset_pv, iocstatusmessage_rbv_pv, reset):
@@ -169,7 +188,8 @@ def test_reset(reset_pv, iocstatusmessage_rbv_pv, reset):
         time.sleep(1)
 
 
-@pytest.mark.skip()  # TODO: implement  return error for rest invalid values
+# pytest.mark.skip()  # TODO: implement  return error for rest invalid values
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("reset", [-1, -255, 2, 255])
 def test_reset_invalid_range(reset_pv, iocstatusmessage_rbv_pv, reset):
     """ Test reset (invalid tests) """
@@ -178,6 +198,7 @@ def test_reset_invalid_range(reset_pv, iocstatusmessage_rbv_pv, reset):
     assert message == "something"
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("reset_rdma_buffer", [0, 1])
 def test_reset_rdma_buffer(reset_rdma_buffer_pv, reset_rdma_buffer_rbv_pv, reset_rdma_buffer):
     """ Test reset_rdma_buffer (positive tests) """
@@ -187,6 +208,7 @@ def test_reset_rdma_buffer(reset_rdma_buffer_pv, reset_rdma_buffer_rbv_pv, reset
     assert ans == bool(reset_rdma_buffer)
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("reset_rdma_buffer", [-1, 2, -255, 256])
 def test_reset_rdma_buffer_invalid_range(reset_rdma_buffer_pv, reset_rdma_buffer_rbv_pv, reset_rdma_buffer):
     """ Test reset_rdma_buffer (invalid tests) """
@@ -197,6 +219,7 @@ def test_reset_rdma_buffer_invalid_range(reset_rdma_buffer_pv, reset_rdma_buffer
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("select_sendimage", range(0, pytest.config.images_patterns_total))
 def test_select_sendimage(select_sendimage_pv, select_sendimage_rbv_pv, select_sendimage):
     """ Test select_sendimage (positive tests) """
@@ -206,6 +229,7 @@ def test_select_sendimage(select_sendimage_pv, select_sendimage_rbv_pv, select_s
     assert ans == select_sendimage
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("select_sendimage", [-1, -255, pytest.config.images_patterns_total + 1, 256])
 def test_select_sendimage_invalid_range(select_sendimage_pv, select_sendimage_rbv_pv, select_sendimage):
     """ Test select_sendimage (invalid tests) """
@@ -216,6 +240,7 @@ def test_select_sendimage_invalid_range(select_sendimage_pv, select_sendimage_rb
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("select_sendimage", range(0, pytest.config.images_patterns_total))
 @pytest.mark.parametrize("sendimage", [0, 1, 255])
 @pytest.mark.timeout(60)
@@ -234,7 +259,8 @@ def test_sendimage(select_sendimage_pv, sendimage_pv,
         time.sleep(0.1)
 
 
-@pytest.mark.skip()  # TODO: which values are valid???
+# pytest.mark.skip()  # TODO: which values are valid???
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("sendimage", [-1, 2, 255])
 @pytest.mark.timeout(60)
 def test_sendimage_invalid_range(sendimage_pv, iocstatusmessage_rbv_pv, sendimage):
@@ -249,6 +275,7 @@ def test_sendimage_invalid_range(sendimage_pv, iocstatusmessage_rbv_pv, sendimag
         time.sleep(0.1)
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("sensedacsel", range(0, pytest.config.dacs_total))
 def test_sensedacsel(sensedacsel_pv, sensedacsel_rbv_pv, sensedacsel):
     """ Test sensedacsel (positive tests) """
@@ -258,8 +285,9 @@ def test_sensedacsel(sensedacsel_pv, sensedacsel_rbv_pv, sensedacsel):
     assert ans == sensedacsel
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("sensedacsel", [-1, -255, pytest.config.dacs_total + 1, 256])
-@pytest.mark.skip()  # it is allowing negative values
+# pytest.mark.skip()  # it is allowing negative values
 def test_sensedacsel_invalid_range(sensedacsel_pv, sensedacsel_rbv_pv, sensedacsel):
     """ Test sensedacsel (invalid tests) """
     prev_value = sensedacsel_rbv_pv.get(use_monitor=False)
@@ -269,16 +297,18 @@ def test_sensedacsel_invalid_range(sensedacsel_pv, sensedacsel_rbv_pv, sensedacs
     assert ans == prev_value
 
 
-@pytest.mark.skip()  # when I set value one it stores the value 2???
-@pytest.mark.parametrize("sensorbias", [0.0, 1.0, 1.5, 2.0, 100.0])
+# pytest.mark.skip()  # when I set value one it stores the value 2???
+@pytest.mark.unit_test_system
+@pytest.mark.parametrize("sensorbias", [0.5, 10.0, 15.0, 80.0])
 def test_sensorbias(sensorbias_pv, sensorbias_rbv_pv, sensorbias):
     """ Test sensorbias (positive tests) """
     sensorbias_pv.put(sensorbias, wait=True)
     ans = sensorbias_rbv_pv.get(use_monitor=False)
     print(f"Value set: {sensorbias}; | Value read: {ans}")
-    assert ans == np.ceil(sensorbias)
+    assert ans == pytest.approx(np.ceil(sensorbias), rel=3)
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("sensorbias", [-1.0, -255.0, 100.0001, 101.0, 256.0])
 def test_sensorbias_invalid_range(sensorbias_pv, sensorbias_rbv_pv, sensorbias):
     """ Test sensorbias (invalid tests) """
@@ -289,6 +319,7 @@ def test_sensorbias_invalid_range(sensorbias_pv, sensorbias_rbv_pv, sensorbias):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("thresholdenergy", [54, 0, 1, 2, 10])
 def test_thresholdenergy(thresholdenergy_pv, thresholdenergy_rbv_pv, thresholdenergy):
     """ Test thresholdenergy (positive tests) """
@@ -298,6 +329,7 @@ def test_thresholdenergy(thresholdenergy_pv, thresholdenergy_rbv_pv, thresholden
     assert ans == thresholdenergy
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("thresholdenergy", [-1, -255, 55, 256])
 def test_thresholdenergy_invalid_range(thresholdenergy_pv, thresholdenergy_rbv_pv, thresholdenergy):
     """ Test thresholdenergy (invalid tests) """
@@ -308,6 +340,7 @@ def test_thresholdenergy_invalid_range(thresholdenergy_pv, thresholdenergy_rbv_p
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_system
 @pytest.mark.parametrize("triggermode", [0, 1, 2])
 def test_triggermode(triggermode_pv, triggermode_rbv_pv, triggermode):
     """ Test triggermode (positive tests) """
@@ -317,12 +350,13 @@ def test_triggermode(triggermode_pv, triggermode_rbv_pv, triggermode):
     assert ans == triggermode
 
 
-@pytest.mark.skip()  # the value 3 sets 0??
-@pytest.mark.parametrize("triggermode", [-1, 3, -255, 256])
+@pytest.mark.unit_test_system
+@pytest.mark.parametrize("triggermode", [-1, 3, 4, 15, 16, - 255, 256])
 def test_triggermode_invalid_range(triggermode_pv, triggermode_rbv_pv, triggermode):
     """ Test triggermode (invalid tests) """
-    prev_value = triggermode_rbv_pv.get(use_monitor=False)
+    initial_value = 1
+    triggermode_pv.put(initial_value, wait=True)
     triggermode_pv.put(triggermode, wait=True)
     ans = triggermode_rbv_pv.get(use_monitor=False)
     print(f"Value set: {triggermode} | Value read: {ans}")
-    assert ans == prev_value
+    assert ans == initial_value

@@ -1,6 +1,10 @@
 import pytest
 
 
+pytestmark = pytest.mark.unit_test
+
+
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_cas", [0, 1, 255])
 def test_dac_cas(dac_cas_pv, dac_cas_rbv_pv, dac_cas):
     """ Test dac_cas (positive tests) """
@@ -10,6 +14,7 @@ def test_dac_cas(dac_cas_pv, dac_cas_rbv_pv, dac_cas):
     assert ans == dac_cas
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_cas", [-1, -255, 256])
 def test_dac_cas_invalid_range(dac_cas_pv, dac_cas_rbv_pv, dac_cas):
     """ Test dac_cas (invalid tests) """
@@ -20,6 +25,7 @@ def test_dac_cas_invalid_range(dac_cas_pv, dac_cas_rbv_pv, dac_cas):
     assert ans == min(max(dac_cas, valid_range[0]), valid_range[1])
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_delay", [0, 1, 255])
 def test_dac_delay(dac_delay_pv, dac_delay_rbv_pv, dac_delay):
     """ Test dac_delay (positive tests) """
@@ -29,6 +35,7 @@ def test_dac_delay(dac_delay_pv, dac_delay_rbv_pv, dac_delay):
     assert ans == dac_delay
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_delay", [-1, -255, 256])
 def test_dac_delay_invalid_range_max(dac_delay_pv, dac_delay_rbv_pv, dac_delay):
     """ Test dac_delay (invalid tests) """
@@ -39,6 +46,7 @@ def test_dac_delay_invalid_range_max(dac_delay_pv, dac_delay_rbv_pv, dac_delay):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_disc", [0, 1, 255])
 def test_dac_disc(dac_disc_pv, dac_disc_rbv_pv, dac_disc):
     """ Test dac_disc (positive tests) """
@@ -48,6 +56,7 @@ def test_dac_disc(dac_disc_pv, dac_disc_rbv_pv, dac_disc):
     assert ans == dac_disc
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_disc", [-1, -255, 256])
 def test_dac_disc_invalid_range(dac_disc_pv, dac_disc_rbv_pv, dac_disc):
     """ Test dac_disc (invalid tests) """
@@ -58,6 +67,7 @@ def test_dac_disc_invalid_range(dac_disc_pv, dac_disc_rbv_pv, dac_disc):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_disch", [0, 1, 255])
 def test_dac_disch(dac_disch_pv, dac_disch_rbv_pv, dac_disch):
     """ Test dac_disch (positive tests) """
@@ -67,6 +77,7 @@ def test_dac_disch(dac_disch_pv, dac_disch_rbv_pv, dac_disch):
     assert ans == dac_disch
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_disch", [-1, -255, 256])
 def test_dac_disch_invalid_range(dac_disch_pv, dac_disch_rbv_pv, dac_disch):
     """ Test dac_disch (invalid tests) """
@@ -77,6 +88,7 @@ def test_dac_disch_invalid_range(dac_disch_pv, dac_disch_rbv_pv, dac_disch):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_discl", [0, 1, 255])
 def test_dac_discl(dac_discl_pv, dac_discl_rbv_pv, dac_discl):
     """ Test dac_discl (positive tests) """
@@ -86,6 +98,7 @@ def test_dac_discl(dac_discl_pv, dac_discl_rbv_pv, dac_discl):
     assert ans == dac_discl
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_discl", [-1, -255, 256])
 def test_dac_discl_invalid_range(dac_discl_pv, dac_discl_rbv_pv, dac_discl):
     """ Test dac_discl (invalid tests) """
@@ -96,6 +109,7 @@ def test_dac_discl_invalid_range(dac_discl_pv, dac_discl_rbv_pv, dac_discl):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_discls", [0, 1, 255])
 def test_dac_discls(dac_discls_pv, dac_discls_rbv_pv, dac_discls):
     """ Test dac_discls (positive tests) """
@@ -105,6 +119,7 @@ def test_dac_discls(dac_discls_pv, dac_discls_rbv_pv, dac_discls):
     assert ans == dac_discls
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_discls", [-1, -255, 256])
 def test_dac_discls_invalid_range(dac_discls_pv, dac_discls_rbv_pv,
                                   dac_discls):
@@ -116,6 +131,7 @@ def test_dac_discls_invalid_range(dac_discls_pv, dac_discls_rbv_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_fbk", [0, 1, 255])
 def test_dac_fbk(dac_fbk_pv, dac_fbk_rbv_pv, dac_fbk):
     """ Test dac_fbk (positive tests) """
@@ -125,6 +141,7 @@ def test_dac_fbk(dac_fbk_pv, dac_fbk_rbv_pv, dac_fbk):
     assert ans == dac_fbk
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_fbk", [-1, -255, 256])
 def test_dac_fbk_invalid_range(dac_fbk_pv, dac_fbk_rbv_pv, dac_fbk):
     """ Test dac_fbk (invalid tests) """
@@ -135,6 +152,7 @@ def test_dac_fbk_invalid_range(dac_fbk_pv, dac_fbk_rbv_pv, dac_fbk):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_gnd", [0, 1, 255])
 def test_dac_gnd(dac_gnd_pv, dac_gnd_rbv_pv, dac_gnd):
     """ Test dac_gnd (positive tests) """
@@ -144,6 +162,7 @@ def test_dac_gnd(dac_gnd_pv, dac_gnd_rbv_pv, dac_gnd):
     assert ans == dac_gnd
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_gnd", [-1, -255, 256])
 def test_dac_gnd_invalid_range(dac_gnd_pv, dac_gnd_rbv_pv, dac_gnd):
     """ Test dac_gnd (invalid tests) """
@@ -154,6 +173,7 @@ def test_dac_gnd_invalid_range(dac_gnd_pv, dac_gnd_rbv_pv, dac_gnd):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_ikrum", [0, 1, 255])
 def test_dac_ikrum(dac_ikrum_pv, dac_ikrum_rbv_pv, dac_ikrum):
     """ Test dac_ikrum (positive tests) """
@@ -163,6 +183,7 @@ def test_dac_ikrum(dac_ikrum_pv, dac_ikrum_rbv_pv, dac_ikrum):
     assert ans == dac_ikrum
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_ikrum", [-1, -255, 256])
 def test_dac_ikrum_invalid_range(dac_ikrum_pv, dac_ikrum_rbv_pv, dac_ikrum):
     """ Test dac_ikrum (invalid tests) """
@@ -173,6 +194,7 @@ def test_dac_ikrum_invalid_range(dac_ikrum_pv, dac_ikrum_rbv_pv, dac_ikrum):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_preamp", [0, 1, 255])
 def test_dac_preamp(dac_preamp_pv, dac_preamp_rbv_pv, dac_preamp):
     """ Test dac_preamp (positive tests) """
@@ -182,6 +204,7 @@ def test_dac_preamp(dac_preamp_pv, dac_preamp_rbv_pv, dac_preamp):
     assert ans == dac_preamp
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_preamp", [-1, -255, 256])
 def test_dac_preamp_invalid_range(dac_preamp_pv, dac_preamp_rbv_pv,
                                   dac_preamp):
@@ -193,6 +216,7 @@ def test_dac_preamp_invalid_range(dac_preamp_pv, dac_preamp_rbv_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_rpz", [0, 1, 255])
 def test_dac_rpz(dac_rpz_pv, dac_rpz_rbv_pv, dac_rpz):
     """ Test dac_rpz (positive tests) """
@@ -202,6 +226,7 @@ def test_dac_rpz(dac_rpz_pv, dac_rpz_rbv_pv, dac_rpz):
     assert ans == dac_rpz
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_rpz", [-1, -255, 256])
 def test_dac_rpz_invalid_range(dac_rpz_pv, dac_rpz_rbv_pv, dac_rpz):
     """ Test dac_rpz (invalid tests) """
@@ -212,6 +237,7 @@ def test_dac_rpz_invalid_range(dac_rpz_pv, dac_rpz_rbv_pv, dac_rpz):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_shaper", [0, 1, 255])
 def test_dac_shaper(dac_shaper_pv, dac_shaper_rbv_pv, dac_shaper):
     """ Test dac_shaper (positive tests) """
@@ -221,6 +247,7 @@ def test_dac_shaper(dac_shaper_pv, dac_shaper_rbv_pv, dac_shaper):
     assert ans == dac_shaper
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_shaper", [-1, -255, 256])
 def test_dac_shaper_invalid_range(dac_shaper_pv, dac_shaper_rbv_pv,
                                   dac_shaper):
@@ -232,6 +259,7 @@ def test_dac_shaper_invalid_range(dac_shaper_pv, dac_shaper_rbv_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tpbufferin", [0, 1, 255])
 def test_dac_tpbufferin(dac_tpbufferin_pv, dac_tpbufferin_rbv_pv,
                         dac_tpbufferin):
@@ -242,6 +270,7 @@ def test_dac_tpbufferin(dac_tpbufferin_pv, dac_tpbufferin_rbv_pv,
     assert ans == dac_tpbufferin
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tpbufferin", [-1, -255, 256])
 def test_dac_tpbufferin_invalid_range(dac_tpbufferin_pv, dac_tpbufferin_rbv_pv,
                                       dac_tpbufferin):
@@ -253,6 +282,7 @@ def test_dac_tpbufferin_invalid_range(dac_tpbufferin_pv, dac_tpbufferin_rbv_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tpbufferout", [0, 1, 255])
 def test_dac_tpbufferout(dac_tpbufferout_pv, dac_tpbufferout_rbv_pv,
                          dac_tpbufferout):
@@ -263,6 +293,7 @@ def test_dac_tpbufferout(dac_tpbufferout_pv, dac_tpbufferout_rbv_pv,
     assert ans == dac_tpbufferout
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tpbufferout", [-1, -255, 256])
 def test_dac_tpbufferout_invalid_range(dac_tpbufferout_pv,
                                        dac_tpbufferout_rbv_pv,
@@ -275,6 +306,7 @@ def test_dac_tpbufferout_invalid_range(dac_tpbufferout_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tpref", [0, 1, 255])
 def test_dac_tpref(dac_tpref_pv, dac_tpref_rbv_pv, dac_tpref):
     """ Test dac_tpref (positive tests) """
@@ -284,6 +316,7 @@ def test_dac_tpref(dac_tpref_pv, dac_tpref_rbv_pv, dac_tpref):
     assert ans == dac_tpref
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tpref", [-1, -511, 512])
 def test_dac_tpref_invalid_range(dac_tpref_pv, dac_tpref_rbv_pv, dac_tpref):
     """ Test dac_tpref (invalid tests) """
@@ -294,6 +327,7 @@ def test_dac_tpref_invalid_range(dac_tpref_pv, dac_tpref_rbv_pv, dac_tpref):
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tprefa", [0, 1, 511])
 def test_dac_tprefa(dac_tprefa_pv, dac_tprefa_rbv_pv, dac_tprefa):
     """ Test dac_tprefa (positive tests) """
@@ -303,6 +337,7 @@ def test_dac_tprefa(dac_tprefa_pv, dac_tprefa_rbv_pv, dac_tprefa):
     assert ans == dac_tprefa
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tprefa", [-1, -511, 512])
 def test_dac_tprefa_invalid_range(dac_tprefa_pv, dac_tprefa_rbv_pv,
                                   dac_tprefa):
@@ -314,6 +349,7 @@ def test_dac_tprefa_invalid_range(dac_tprefa_pv, dac_tprefa_rbv_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tprefb", [0, 1, 511])
 def test_dac_tprefb(dac_tprefb_pv, dac_tprefb_rbv_pv, dac_tprefb):
     """ Test dac_tprefb (positive tests) """
@@ -323,6 +359,7 @@ def test_dac_tprefb(dac_tprefb_pv, dac_tprefb_rbv_pv, dac_tprefb):
     assert ans == dac_tprefb
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_tprefb", [-1, -511, 512])
 def test_dac_tprefb_invalid_range(dac_tprefb_pv, dac_tprefb_rbv_pv,
                                   dac_tprefb):
@@ -334,6 +371,7 @@ def test_dac_tprefb_invalid_range(dac_tprefb_pv, dac_tprefb_rbv_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy0", [0, 1, 511])
 def test_dac_thresholdenergy0(dac_thresholdenergy0_pv,
                               dac_thresholdenergy0_rbv_pv,
@@ -345,6 +383,7 @@ def test_dac_thresholdenergy0(dac_thresholdenergy0_pv,
     assert ans == dac_thresholdenergy0
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy0", [-1, -511, 512])
 def test_dac_thresholdenergy0_invalid_range(dac_thresholdenergy0_pv,
                                             dac_thresholdenergy0_rbv_pv,
@@ -357,6 +396,7 @@ def test_dac_thresholdenergy0_invalid_range(dac_thresholdenergy0_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy1", [0, 1, 511])
 def test_dac_thresholdenergy1(dac_thresholdenergy1_pv,
                               dac_thresholdenergy1_rbv_pv,
@@ -368,6 +408,7 @@ def test_dac_thresholdenergy1(dac_thresholdenergy1_pv,
     assert ans == dac_thresholdenergy1
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy1", [-1, -511, 512])
 def test_dac_thresholdenergy1_invalid_range(dac_thresholdenergy1_pv,
                                             dac_thresholdenergy1_rbv_pv,
@@ -380,6 +421,7 @@ def test_dac_thresholdenergy1_invalid_range(dac_thresholdenergy1_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy2", [0, 1, 511])
 def test_dac_thresholdenergy2(dac_thresholdenergy2_pv,
                               dac_thresholdenergy2_rbv_pv,
@@ -391,6 +433,7 @@ def test_dac_thresholdenergy2(dac_thresholdenergy2_pv,
     assert ans == dac_thresholdenergy2
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy2", [-1, -511, 512])
 def test_dac_thresholdenergy2_invalid_range(dac_thresholdenergy2_pv,
                                             dac_thresholdenergy2_rbv_pv,
@@ -403,6 +446,7 @@ def test_dac_thresholdenergy2_invalid_range(dac_thresholdenergy2_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy3", [0, 1, 511])
 def test_dac_thresholdenergy3(dac_thresholdenergy3_pv,
                               dac_thresholdenergy3_rbv_pv,
@@ -414,6 +458,7 @@ def test_dac_thresholdenergy3(dac_thresholdenergy3_pv,
     assert ans == dac_thresholdenergy3
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy3", [-1, -511, 512])
 def test_dac_thresholdenergy3_invalid_range(dac_thresholdenergy3_pv,
                                             dac_thresholdenergy3_rbv_pv,
@@ -426,6 +471,7 @@ def test_dac_thresholdenergy3_invalid_range(dac_thresholdenergy3_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy4", [0, 1, 511])
 def test_dac_thresholdenergy4(dac_thresholdenergy4_pv,
                               dac_thresholdenergy4_rbv_pv,
@@ -437,6 +483,7 @@ def test_dac_thresholdenergy4(dac_thresholdenergy4_pv,
     assert ans == dac_thresholdenergy4
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy4", [-1, -511, 512])
 def test_dac_thresholdenergy4_invalid_range(dac_thresholdenergy4_pv,
                                             dac_thresholdenergy4_rbv_pv,
@@ -449,6 +496,7 @@ def test_dac_thresholdenergy4_invalid_range(dac_thresholdenergy4_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy5", [0, 1, 511])
 def test_dac_thresholdenergy5(dac_thresholdenergy5_pv,
                               dac_thresholdenergy5_rbv_pv,
@@ -460,6 +508,7 @@ def test_dac_thresholdenergy5(dac_thresholdenergy5_pv,
     assert ans == dac_thresholdenergy5
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy5", [-1, -511, 512])
 def test_dac_thresholdenergy5_invalid_range(dac_thresholdenergy5_pv,
                                             dac_thresholdenergy5_rbv_pv,
@@ -472,6 +521,7 @@ def test_dac_thresholdenergy5_invalid_range(dac_thresholdenergy5_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy6", [0, 1, 511])
 def test_dac_thresholdenergy6(dac_thresholdenergy6_pv,
                               dac_thresholdenergy6_rbv_pv,
@@ -483,6 +533,7 @@ def test_dac_thresholdenergy6(dac_thresholdenergy6_pv,
     assert ans == dac_thresholdenergy6
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy6", [-1, -511, 512])
 def test_dac_thresholdenergy6_invalid_range(dac_thresholdenergy6_pv,
                                             dac_thresholdenergy6_rbv_pv,
@@ -495,6 +546,7 @@ def test_dac_thresholdenergy6_invalid_range(dac_thresholdenergy6_pv,
     assert ans == prev_value
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy7", [0, 1, 511])
 def test_dac_thresholdenergy7(dac_thresholdenergy7_pv,
                               dac_thresholdenergy7_rbv_pv,
@@ -506,6 +558,7 @@ def test_dac_thresholdenergy7(dac_thresholdenergy7_pv,
     assert ans == dac_thresholdenergy7
 
 
+@pytest.mark.unit_test_dac
 @pytest.mark.parametrize("dac_thresholdenergy7", [-1, -511, 512])
 def test_dac_thresholdenergy7_invalid_range(dac_thresholdenergy7_pv,
                                             dac_thresholdenergy7_rbv_pv,
