@@ -15,9 +15,12 @@ O.*/
 .settings
 .cproject
 external/
+venv_epics_test/
+test/=7
 .tags
 .vscode/c_cpp_properties.json
 .vscode
+*/*.html
 core
 envPaths*
 __pycache__
