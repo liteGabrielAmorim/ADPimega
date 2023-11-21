@@ -10,4 +10,3 @@ export EPICS_LOCAL=/usr/local/epics/local
 export EPICS_CONFIG=/usr/local/epics/apps/config
 export EPICS_HOSTNAME=$(hostname | /usr/bin/cut -f1 -d'-')
 export LINUX_HOSTNAME=$(hostname)
-

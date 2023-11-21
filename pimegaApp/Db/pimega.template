@@ -67,7 +67,7 @@ record(ai, "$(P)$(R)TimeRemaining_RBV")
 record(longout, "$(P)$(R)NumCapture")
 {
 	field(DRVH, "2147483647")
-	field(DRVL, "0")	
+	field(DRVL, "0")
 }
 
 
@@ -79,7 +79,7 @@ record(mbbo,"$(P)$(R)TriggerMode") {
     field(ONVL,"1")
     field(ONST,"External")
     field(TWVL,"2")
-    field(TWST,"Alignment")	
+    field(TWST,"Alignment")
 	field(THVL, "3")
 	field(THST, "INVALID")
 	field(FRVL, "4")
@@ -529,7 +529,7 @@ record(ai,"$(P)$(R)M1:MB_AvgTemperature_RBV") {
     field(SCAN, "I/O Intr")
 	field(PREC, "2")
 	field(EGU, "°C")
-	
+
 }
 
 record(waveform, "$(P)$(R)M2:MB_Temperature_RBV") {
@@ -1406,7 +1406,7 @@ record(mbbo,"$(P)$(R)Select_SendImage") {
 	field(DTYP, "asynInt32")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SEL_SEND_IMAGE")
 	field(DESC, "OMR operation mode selection")
-    field(DESC, "Send Image")  
+    field(DESC, "Send Image")
    	field(ZRST, "Mask-bit square")						field(ZRVL, "0")
     field(ONST, "Pi-Tecnologa logo")					field(ONVL, "1")
     field(TWST, "Column counter 16-inc")				field(TWVL, "2")
@@ -1428,7 +1428,7 @@ record(mbbo,"$(P)$(R)Select_SendImage") {
 record(mbbi,"$(P)$(R)Select_SendImage_RBV") {
    	field(DTYP, "asynInt32")
    	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SEL_SEND_IMAGE")
-    field(DESC, "Send Image readback")  
+    field(DESC, "Send Image readback")
    	field(ZRST, "Mask-bit square")						field(ZRVL, "0")
     field(ONST, "Pi-Tecnologa logo")					field(ONVL, "1")
     field(TWST, "Column counter 16-inc")				field(TWVL, "2")
@@ -1634,7 +1634,7 @@ record(mbbi,"$(P)$(R)MB_SendMode_RBV") {
 	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MB_SEND_MODE")
     field(ZRST, "One MB low flex") 	  field(ZRVL, "0")
 	field(ONST, "One MB high flex") 	  field(ONVL, "1")
-	field(TWST, "One MB all flex") 	  field(TWVL, "2")	
+	field(TWST, "One MB all flex") 	  field(TWVL, "2")
 	field(THST, "All flex one module")	  field(THVL, "3")
 	field(FRST, "All flex all modules")   field(FRVL, "4")
 	field(SCAN, "I/O Intr")
@@ -1643,7 +1643,7 @@ record(mbbi,"$(P)$(R)MB_SendMode_RBV") {
 record(mbbo,"$(P)$(R)BulkProcessing") {
 	field(DESC,"Bulk Processing Configuration")
 	field(DTYP, "asynInt32")
-	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ENABLE_BULK_PROCESSING")	
+	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ENABLE_BULK_PROCESSING")
     field(ZRVL,"0")
     field(ZRST,"Automatic")
     field(ONVL,"1")
@@ -1651,7 +1651,7 @@ record(mbbo,"$(P)$(R)BulkProcessing") {
     field(TWVL,"2")
     field(TWST,"Disable Bulk Processing")
 	field(VAL,  "2")
-	field(PINI, "YES")	
+	field(PINI, "YES")
 }
 
 record(waveform, "$(P)$(R)IndexDestinationID")
@@ -1667,7 +1667,7 @@ record(bo, "$(P)$(R)IndexEnable") {
 	field(DESC, "Enable Index Visualization")
 	field(VAL,  "0")
 	field(ZNAM, "No")
-	field(ONAM, "Yes")	
+	field(ONAM, "Yes")
 	field(PINI, "YES")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INDEX_ENABLE")
 }
@@ -1677,7 +1677,7 @@ record(bo, "$(P)$(R)AcquisitionToSharedMemoryEnable") {
 	field(DESC, "Write Acquisition to shared memory")
 	field(VAL,  "0")
 	field(ZNAM, "No")
-	field(ONAM, "Yes")	
+	field(ONAM, "Yes")
 	field(PINI, "YES")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))ACQ_TO_SHMEM_ENABLE")
 }
@@ -1686,13 +1686,13 @@ record(bo, "$(P)$(R)AcquisitionToSharedMemoryEnable") {
 record(mbbo,"$(P)$(R)IndexSendMode") {
 	field(DESC,"Index Send Mode")
 	field(DTYP, "asynInt32")
-	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INDEX_SEND_MODE")	
+	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))INDEX_SEND_MODE")
     field(ZRVL,"0")
     field(ZRST,"Send Frames")
     field(ONVL,"1")
     field(ONST,"Send Volume")
 	field(VAL,  "0")
-	field(PINI, "YES")	
+	field(PINI, "YES")
 }
 
 

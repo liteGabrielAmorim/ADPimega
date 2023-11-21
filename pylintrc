@@ -152,7 +152,8 @@ disable=abstract-method,
         W0613, "Unused argument - Not usefull for the pylint tests
         W0614, #Unused import - Not usefull for the pylint tests
         W0614, #Unused import(s) - Not usefull for the pylint tests
-        W0621, #redefined-outer-name
+        W0621, #redefined-outer-name,
+        C0209, # f-string
 
 
 

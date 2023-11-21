@@ -1,8 +1,13 @@
-import pytest
-import time
-from ..utils import uint8_to_str
-import numpy as np
+"""
+Write and Read system tests
+"""
 
+import time
+
+import numpy as np
+import pytest
+
+from ..utils import uint8_to_str
 
 pytestmark = pytest.mark.unit_test
 
@@ -61,7 +66,8 @@ def test_imgchipnumberid(imgchipnumberid_pv, imgchipnumberid_rbv_pv, imgchipnumb
 
 
 @pytest.mark.unit_test_system
-@pytest.mark.parametrize("imgchipnumberid", [pytest.config.chips_total + 1, -1, -2, -256, -255, 256])
+@pytest.mark.parametrize("imgchipnumberid",
+                         [pytest.config.chips_total + 1, -1, -2, -256, -255, 256])
 def test_imgchipnumberid_invalid_range(imgchipnumberid_pv, imgchipnumberid_rbv_pv, imgchipnumberid):
     """ Test imgchipnumberid (invalid tests) """
     initial_value = 1
@@ -73,11 +79,11 @@ def test_imgchipnumberid_invalid_range(imgchipnumberid_pv, imgchipnumberid_rbv_p
 
 
 @pytest.mark.unit_test_system
-@pytest.mark.parametrize("loadequalization", [np.zeros((pytest.config.modules_total,), dtype='int32'),
-                                              np.ones((pytest.config.modules_total,), dtype='int32'),
-                                              np.ones((pytest.config.modules_total,),
-                                                      dtype='int32') * (2**31-1),
-                                              np.ones((pytest.config.modules_total,), dtype='int32') * -(2**31-1)])
+@pytest.mark.parametrize("loadequalization",
+                         [np.zeros((pytest.config.modules_total,), dtype="int32"),
+                          np.ones((pytest.config.modules_total,), dtype="int32"),
+                          np.ones((pytest.config.modules_total,), dtype="int32") * (2**31 - 1),
+                          np.ones((pytest.config.modules_total,), dtype="int32") * -(2**31 - 1)])
 def test_loadequalization(loadequalization_pv, loadequalization_rbv_pv, loadequalization):
     """ Test loadequalization (positive tests) """
     loadequalization_pv.put(loadequalization, wait=True)
@@ -109,7 +115,7 @@ def test_mb_sendmode_invalid_range(mb_sendmode_pv, mb_sendmode_rbv_pv, mb_sendmo
 
 
 @pytest.mark.unit_test_system
-@pytest.mark.parametrize("medipixboard", range(0, pytest.config.boards_total -1))
+@pytest.mark.parametrize("medipixboard", range(0, pytest.config.boards_total - 1))
 def test_medipixboard(medipixboard_pv, medipixboard_rbv_pv, medipixboard):
     """ Test medipixboard (positive tests) """
     medipixboard_pv.put(medipixboard, wait=True)
@@ -200,7 +206,8 @@ def test_reset_rdma_buffer(reset_rdma_buffer_pv, reset_rdma_buffer_rbv_pv, reset
 
 @pytest.mark.unit_test_system
 @pytest.mark.parametrize("reset_rdma_buffer", [-1, 2, -255, 256])
-def test_reset_rdma_buffer_invalid_range(reset_rdma_buffer_pv, reset_rdma_buffer_rbv_pv, reset_rdma_buffer):
+def test_reset_rdma_buffer_invalid_range(reset_rdma_buffer_pv,
+                                         reset_rdma_buffer_rbv_pv, reset_rdma_buffer):
     """ Test reset_rdma_buffer (invalid tests) """
     prev_value = reset_rdma_buffer_rbv_pv.get(use_monitor=False)
     reset_rdma_buffer_pv.put(reset_rdma_buffer, wait=True)
@@ -220,8 +227,10 @@ def test_select_sendimage(select_sendimage_pv, select_sendimage_rbv_pv, select_s
 
 
 @pytest.mark.unit_test_system
-@pytest.mark.parametrize("select_sendimage", [-1, -255, pytest.config.images_patterns_total + 1, 256])
-def test_select_sendimage_invalid_range(select_sendimage_pv, select_sendimage_rbv_pv, select_sendimage):
+@pytest.mark.parametrize("select_sendimage",
+                         [-1, -255, pytest.config.images_patterns_total + 1, 256])
+def test_select_sendimage_invalid_range(select_sendimage_pv,
+                                        select_sendimage_rbv_pv, select_sendimage):
     """ Test select_sendimage (invalid tests) """
     prev_value = select_sendimage_rbv_pv.get(use_monitor=False)
     select_sendimage_pv.put(select_sendimage, wait=True)

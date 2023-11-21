@@ -4,7 +4,7 @@
 errlogInit(20000)
 
 dbLoadDatabase("$(TOP)/dbd/pimegaApp.dbd")
-pimegaApp_registerRecordDeviceDriver(pdbbase) 
+pimegaApp_registerRecordDeviceDriver(pdbbase)
 
 # Prefix for all records
 epicsEnvSet("PREFIX", "PITEC:D:PIMEGA45D:")
@@ -95,4 +95,3 @@ dbpf(${PREFIX}image1:EnableCallbacks, 1)
 dbpf(${PREFIX}cam1:LoadEqualization, 60)
 # save things every thirty seconds
 #create_monitor_set("auto_settings.req", 30,"P=$(PREFIX)")
-

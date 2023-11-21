@@ -7,14 +7,14 @@ import pytest
 
 from epics import PV
 
-from .utils import (number_of_chips, number_of_modules, number_of_dacs,
-                    number_of_boards, number_of_image_patterns, get_detector_read_out_by_counter)
 from .pv.acquisition import *
 from .pv.dac import *
-from .pv.omr import *
-from .pv.system import *
 from .pv.filesystem import *
+from .pv.omr import *
 from .pv.status import *
+from .pv.system import *
+from .utils import (get_detector_read_out_by_counter, number_of_boards, number_of_chips,
+                    number_of_dacs, number_of_image_patterns, number_of_modules)
 
 
 def pytest_addoption(parser):

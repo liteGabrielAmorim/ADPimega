@@ -12,7 +12,7 @@
 SUPPORT=/usr/local/epics/synApps/support
 -include $(TOP)/../configure/SUPPORT.$(EPICS_HOST_ARCH)
 
-# If any motor controller communication mechanism besides 
+# If any motor controller communication mechanism besides
 # the VME backplane is required, then ASYN must be defined.
 # Recommended ASYN release: R4-35
 ASYN=$(SUPPORT)/asyn-R4-36
