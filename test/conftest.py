@@ -13,8 +13,9 @@ from .pv.filesystem import *
 from .pv.omr import *
 from .pv.status import *
 from .pv.system import *
-from .utils import (get_detector_read_out_by_counter, number_of_boards, number_of_chips,
-                    number_of_dacs, number_of_image_patterns, number_of_modules)
+from .utils import (get_detector_read_out_by_counter, number_of_boards,
+                    number_of_chips, number_of_dacs, number_of_image_patterns,
+                    number_of_modules)
 
 
 def pytest_addoption(parser):
