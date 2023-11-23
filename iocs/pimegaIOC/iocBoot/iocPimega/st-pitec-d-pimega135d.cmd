@@ -94,5 +94,5 @@ dbpf(${PREFIX}image1:EnableCallbacks, 1)
 #dbpf(${PREFIX}cam1:LoadEqualization, 60)
 # save things every thirty seconds
 #create_monitor_set("auto_settings.req", 30,"P=$(PREFIX)")
-
-
+# Enable temperature alarm after initial setup
+dbpf(${PREFIX}cam1:TemperatureMonitor_Enable, 1)
