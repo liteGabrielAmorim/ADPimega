@@ -2085,3 +2085,34 @@ record(bo, "$(P)$(R)Diagnostic")
 	field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))DIAGNOSTIC")
 	field(DESC, "Run Diagnostic")
 }
+
+
+###########################################################
+# Magic Start. A set of records needed to remove
+# control logic from GUI. Ideally, they shouldnt be needed.
+############### ###########################################
+
+#Its not a pretty record... but it removes control from
+#GUI. Ideally, user should know differences between Capture and#Acquire. 
+record(sseq, "$(P)$(R)MagicStart")
+{
+	field(DESC,  "Orchestration of Capture/Acquire")
+	field(DOL1,  "$(P)$(R)NumExposures_RBV")
+	field(LNK1,  "$(P)$(R)NumCapture PP")
+	field(WAIT1, "1")
+	field(DO2,   "1")
+	field(LNK2,  "$(P)$(R)CaptureAcquire PP")
+	field(SELN, "2")
+}
+
+#If triggermode is internal, MagicStart SELM = All.
+#If triggermode is external, MagicStart SELM = Specified.
+#If "   "  " "  "  alignment, " " " " " " " " " Mask.
+record(dfanout, "$(P)$(R)MagicStartSELM")
+{
+	field(DESC, "MagicStart auxiliary record")
+	field(DOL, "$(P)$(R)TriggerMode CP")
+	field(OMSL, "closed_loop")
+	field(OUTA, "$(P)$(R)MagicStart.SELM")
+	field(PINI, "YES")
+}
