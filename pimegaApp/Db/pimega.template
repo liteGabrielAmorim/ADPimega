@@ -21,11 +21,6 @@ include "ADBase.template"
 # Disable records from ADBase etc. that we do not use for pimega
 ##########################################################################
 
-record(waveform, "$(P)$(R)ArrayData")
-{
-	field(SCAN, "2 second")
-}
-
 
 record(calcout,"$(P)$(R)UpdateScan")
 {
@@ -44,18 +39,6 @@ record(dfanout,"$(P)$(R)AcquireCapture")
 {
 	field(OUTA, "$(P)$(R)Acquire PP")
 	field(OUTB, "$(P)$(R)Capture PP")
-}
-
-
-
-record(ao, "$(P)$(R)Gain")
-{
-	#field(DISA, "1")
-}
-
-record(ai, "$(P)$(R)Gain_RBV")
-{
-	#field(DISA, "1")
 }
 
 record(ai, "$(P)$(R)TimeRemaining_RBV")
@@ -120,20 +103,6 @@ record(mbbi,"$(P)$(R)TriggerMode_RBV") {
     field(TWST,"Alignment")
 }
 
-# Add new items for the ImageMode records defined in ADBase.template
-#record(mbbo,"$(P)$(R)ImageMode") {
-#	field(THST,"Threshold")
-#	field(THVL,"3")
-#	field(FRST,"TestPulse")
-#	field(FRVL,"4")
-#}
-#
-#record(mbbi,"$(P)$(R)ImageMode_RBV") {
-#	field(THST,"Threshold")
-#	field(THVL,"3")
-#	field(FRST,"TestPulse")
-#	field(FRVL,"4")
-#}
 
 record(ao, "$(P)$(R)AcquireTime")
 {
@@ -314,7 +283,6 @@ record(ai, "$(P)$(R)ThresholdEnergy_RBV") {
 record(mbbo, "$(P)$(R)ReadCounter") {
 	field(DESC, "Selects the counter(s) to be read")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))READ_COUNTER")
-	#field(PINI, "YES")
 	field(DTYP, "asynInt32")
 	field(VAL, "0")
 	field(ZRST, "Counter Low")      field(ZRVL, "0")
@@ -349,7 +317,6 @@ record(mbbi, "$(P)$(R)ReadCounter_RBV") {
 
 # OMR Operation mode
 record(mbbo,"$(P)$(R)OmrOMSelec") {
-	#field(PINI, "YES")
 	field(DTYP, "asynInt32")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))OMR_OP_MODE")
 	field(DESC, "OMR operation mode selection")
@@ -414,7 +381,6 @@ record(mbbi,"$(P)$(R)OmrOMSelec_RBV") {
 
 # Gain mode - Selects the sensor gain mode
 record(mbbo,"$(P)$(R)GainMode") {
-   	#field(PINI, "YES")
    	field(DTYP, "asynInt32")
    	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))GAIN_MODE")
     field(DESC, "Sensor gain mode")
@@ -472,7 +438,6 @@ record(mbbi,"$(P)$(R)GainMode_RBV") {
 record(ao, "$(P)$(R)SenseDacSel")
 {
 	field(DESC, "Select DAC code to be monitored")
-	#field(PINI, "YES")
 	field(DRVH, "32")
 	field(DRVL, "-1")
    	field(DTYP, "asynInt32")
@@ -798,7 +763,6 @@ record(ai, "$(P)$(R)M4:Highest_Temperature") {
 }
 
 record(bo,"$(P)$(R)ContinuousRW") {
-    #field(PINI, "YES")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))CONTINUOUSRW")
     field(DESC, "Enable Continuous Read/Write")
@@ -816,7 +780,6 @@ record(bi,"$(P)$(R)ContinuousRW_RBV") {
 }
 
 record(bo,"$(P)$(R)Polarity") {
-    #field(PINI, "YES")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))POLARITY")
     field(DESC, "Select pixel polarity")
@@ -835,7 +798,6 @@ record(bi,"$(P)$(R)Polarity_RBV") {
 }
 
 record(bo,"$(P)$(R)Discriminator") {
-    #field(PINI, "YES")
     field(DTYP, "asynInt32")
     field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))DISCRIMINATOR")
     field(DESC, "Select energy discriminator output")
@@ -872,7 +834,6 @@ record(bi,"$(P)$(R)TestPulse_RBV") {
 
 # Counter depth - number of bits per pixel
 record(mbbo,"$(P)$(R)CounterDepth") {
-   	#field(PINI, "YES")
    	field(DTYP, "asynInt32")
    	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))COUNTER_DEPTH")
     field(DESC, "Number of bits per pixel")
@@ -886,8 +847,6 @@ record(mbbo,"$(P)$(R)CounterDepth") {
 	field(THST, "24 bits")
     field(VAL, "1")
     field(FRSV, "INVALID")
-    #field(FVSV, "INVALID")
-    #field(SXSV, "INVALID")
     field(SVSV, "INVALID")
     field(EISV, "INVALID")
     field(NISV, "INVALID")
@@ -990,12 +949,10 @@ record(waveform, "$(P)$(R)LoadEqualization_RBV")
 record(ao, "$(P)$(R)MedipixBoard")
 {
 	field(DESC, "Medipix Board Number")
-	#field(PINI, "YES")
 	field(DRVH, "32")
 	field(DRVL, "-1")
    	field(DTYP, "asynInt32")
    	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))MEDIPIX_BOARD")
-   	#field(VAL,  "0")
 }
 
 record(ai, "$(P)$(R)MedipixBoard_RBV")
@@ -1387,7 +1344,6 @@ record(waveform, "$(P)$(R)Metadata_Value_RBV") {
 
 # Metadata Operation mode
 record(mbbo,"$(P)$(R)Metadata_OM") {
-	#field(PINI, "YES")
 	field(DTYP, "asynInt32")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))METADATA_OM")
 	field(DESC, "Metadata operation mode selection")
@@ -1399,7 +1355,6 @@ record(mbbo,"$(P)$(R)Metadata_OM") {
 	field(ONST, "Get metadata")
 	field(TWST, "Delete metadata")
 	field(THST, "Clear metadata")
-	# field(VAL, "1")
 }
 
 record(mbbo,"$(P)$(R)Select_SendImage") {
@@ -1454,7 +1409,6 @@ record(bo, "$(P)$(R)SendImage") {
 	field(VAL,  "1")
 	field(ZNAM, "No send")
 	field(ONAM, "Send")
-	#field(HIGH, "0.1")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))SEND_IMAGE")
 }
 
@@ -1482,7 +1436,6 @@ record(bo, "$(P)$(R)CheckSensors") {
 	field(VAL,  "1")
 	field(ZNAM, "No Check")
 	field(ONAM, "Check")
-	#field(HIGH, "0.1")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))CHECK_SENSORS")
 }
 
@@ -1778,7 +1731,6 @@ record(bo, "$(P)$(R)LoadEqualizationStart") {
 	field(VAL,  "1")
 	field(ZNAM, "Idle")
 	field(ONAM, "Equalize")
-	#field(HIGH, "0.1")
 	field(OUT,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))LOAD_EQUALIZATION_START")
 }
 
