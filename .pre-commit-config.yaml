@@ -30,7 +30,7 @@ repos:
             --max-line-length=100,
             --show-source,
             --statistics,
-            "--ignore=F403,F401",
+            "--ignore=F403,F401,W503",
           ]
 
   - repo: https://github.com/PyCQA/pylint

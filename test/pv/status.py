@@ -1,3 +1,6 @@
+"""
+Basic PVs for status tests
+"""
 import pytest
 
 

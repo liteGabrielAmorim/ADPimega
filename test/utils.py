@@ -1,11 +1,16 @@
-import numpy as np
+"""
+Utilities for automated tests
+"""
+
 import time
+
+import numpy as np
 
 
 def uint8_to_str(data: np.ndarray):
     """ Convert uint8 to string """
     if data is None:
-        return ''
+        return ""
     assert data.dtype == np.uint8
     bytes_data = bytes(data).rstrip(b"\x00")
     return bytes_data.decode("ascii")

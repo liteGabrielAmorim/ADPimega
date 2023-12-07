@@ -5,7 +5,7 @@
 # April 7, 2008
 
 ###################################################################
-#  These records control file I/O                                 # 
+#  These records control file I/O                                 #
 ###################################################################
 
 # File path.
@@ -205,7 +205,7 @@ record(bi, "$(P)$(R)ReadFile_RBV")
     field(SCAN, "I/O Intr")
 }
 
-# File data format 
+# File data format
 record(mbbo, "$(P)$(R)FileFormat")
 {
     field(PINI, "YES")
@@ -230,7 +230,7 @@ record(mbbi, "$(P)$(R)FileFormat_RBV")
     field(SCAN, "I/O Intr")
 }
 
-# File save mode 
+# File save mode
 record(mbbo, "$(P)$(R)FileWriteMode")
 {
     field(PINI, "YES")

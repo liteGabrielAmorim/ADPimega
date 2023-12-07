@@ -1972,7 +1972,7 @@ asynStatus pimegaDetector::reset(short action) {
   setParameter(ADTriggerMode, pimega->trigger_in_enum.PIMEGA_TRIGGER_IN_INTERNAL);
   rc = medipixMode(MODE_B12);
   if (rc != PIMEGA_SUCCESS) rc_aux = rc;
- 
+
   /* Get some parameters */
   rc = getDacsValues();
   if (rc != PIMEGA_SUCCESS) rc_aux = rc;

@@ -1,11 +1,11 @@
 """Test Acquisition."""
 
-import pytest
 import os
 import time
-import numpy as np
-from ..utils import acquire, stop
 
+import pytest
+
+from ..utils import acquire, stop
 
 pytestmark = pytest.mark.functional_test
 
@@ -61,8 +61,7 @@ def test_acquire_time_period_neg(acq_time, acq_period, acq_time_rbv, acquire_tim
     minimal_period = 495e-6
     acquire_period = (period_factor[0] * acquire_time + period_factor[1] * minimal_gap
                       + period_factor[2] * read_out)
-    if acquire_period < minimal_period:
-        acquire_period = minimal_period
+    acquire_period = max(acq_period, minimal_period)
     acq_time.put(min_acq_time, wait=True)
     acquire_mode.put(acquisition_mode, wait=True)
     numexp.put(numb_exposures, wait=True)
@@ -255,7 +254,7 @@ def test_stop_execution(acquisition_mode, minimal_gap, acq_time, acquire_period,
     limit_time_s = (ans_period * numb_exposures) * (1 + add_factor) + offset
     while limit_time_s > 0:
         limit_time_s -= 1
-        if stop_factor > 0 and images_received_rbv_pv.get(use_monitor=False) > stop_factor:
+        if 0 < stop_factor < images_received_rbv_pv.get(use_monitor=False):
             stop(det_acquire, capture)
         if images_received_rbv_pv.get(use_monitor=False) == expected_numb_of_frames:
             break

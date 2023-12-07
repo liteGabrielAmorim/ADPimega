@@ -4,7 +4,7 @@
 errlogInit(20000)
 
 dbLoadDatabase("$(TOP)/dbd/pimegaApp.dbd")
-pimegaApp_registerRecordDeviceDriver(pdbbase) 
+pimegaApp_registerRecordDeviceDriver(pdbbase)
 
 # Prefix for all records
 epicsEnvSet("PREFIX", "PITEC:D:PIMEGA540D:")

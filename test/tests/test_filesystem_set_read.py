@@ -1,7 +1,10 @@
-import pytest
+"""
+Write and Read tests for filesystem functionalities
+"""
 
 from pathlib import Path
 
+import pytest
 
 pytestmark = pytest.mark.unit_test
 MAX_PV_CHARACTERS = 250
@@ -52,8 +55,7 @@ def test_autosave_invalid_range(autosave_pv, autosave_rbv_pv, autosave):
 
 @pytest.mark.unit_test_filesystem
 @pytest.mark.parametrize("filename", ["filename.hdf5", "filename_without_extension",
-                                      "".join([str(i)[0] for i in range(MAX_PV_CHARACTERS)])
-                                      + ".hdf5"])
+                                      ("0" * MAX_PV_CHARACTERS) + ".hdf5"])
 def test_filename(filename_pv, filename_rbv_pv, filename):
     """ Test filename (positive tests) """
     filename_pv.put(filename, wait=True)

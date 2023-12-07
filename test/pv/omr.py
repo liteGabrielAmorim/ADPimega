@@ -1,4 +1,9 @@
+"""
+Basic PVs for OMR tests
+"""
+
 import pytest
+
 
 @pytest.fixture()
 def continuousrw_pv(init_pv, dev_id):

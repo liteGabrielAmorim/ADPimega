@@ -27,4 +27,3 @@ cd /usr/local/epics/synApps/support
 make release
 make
 mv /tmp/ADPimega /usr/local/epics/synApps/support/areaDetector-R3-7/
-
