@@ -37,8 +37,10 @@ def number_of_chips(config):
     """ Get the number og chips"""
     if config.getini("detector_model") in ("135D", "540D"):
         return 36
-    else:
+    elif config.getini("detector_model") in ("45D", "450D", "450DS"):
         return 12
+    else:
+        return 6
 
 
 def number_of_dacs():
@@ -50,8 +52,10 @@ def number_of_modules(config):
     """ Return the number of modules of the detector """
     model = config.getini("detector_model")
 
-    if model in ("135D", "135DL"):
+    if model in ("135D", "135DL", "RAD#400k"):
         return 1
+    elif model in ("RAD#800k"):
+        return 2
     elif model == "540D":
         return 4
     else:
