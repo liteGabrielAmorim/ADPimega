@@ -1,14 +1,20 @@
 #!/bin/bash
+set -x
 
-sudo rm -rf /usr/local/epics/synApps/support/areaDetector-R3-7/ADPimega
-sudo cp -r ../../epics /usr/local/epics/synApps/support/areaDetector-R3-7/ADPimega
+if [ "$EUID" -ne 0 ]
+  then echo "This installer must be run as root"
+  exit
+fi
+
+rm -rf /usr/local/epics/synApps/support/areaDetector-R3-7/ADPimega
+cp -r ../../epics /usr/local/epics/synApps/support/areaDetector-R3-7/ADPimega
 cd $PIMEGA_PSS/api
-sudo bash build.sh -e
+bash build.sh -e
 cd /usr/local/epics/synApps/support/areaDetector-R3-7/ADPimega
-sudo make
+make
 cd iocs
-sudo make
+make
 cd pimegaIOC
-sudo make
+make
 cd iocBoot
-sudo make
+make

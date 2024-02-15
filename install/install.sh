@@ -11,7 +11,7 @@ fi
 
 CleanBeforeInstall(){
     echo -e "${INFO}==> Removing existing EPICS installation folder ${NC}"
-    # rm -rf /usr/local/epics
+    rm -rf /usr/local/epics
 }
 
 SetupInstaller() {
