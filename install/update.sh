@@ -18,10 +18,12 @@ cp -r ../ /usr/local/epics/synApps/support/areaDetector-R3-7/ADPimega
 cd $PIMEGA_PSS/api
 bash build.sh -e
 cd /usr/local/epics/synApps/support/areaDetector-R3-7/ADPimega
-make
+make -s
 cd iocs
-make
+make -s
 cd pimegaIOC
-make
+make -s
 cd iocBoot
-make
+make -s
+
+echo "==> Done!"
