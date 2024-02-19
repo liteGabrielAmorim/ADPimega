@@ -18,7 +18,7 @@ repos:
     hooks:
       - id: isort
         files: test/
-        args: [--line-length=100]
+        args: [--line-length=100, --verbose]
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
