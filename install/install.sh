@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
-
+EPICS_BASE_VERSION='7.0.8'
 INFO='\033[0;32m'
 NC='\033[0m'
 
@@ -32,18 +32,21 @@ SetupInstaller() {
 }
 
 DownloadRequirements() {
-    echo -e "${INFO}==> Downloading base-3.15.6 and synApps_6_1 ${NC}"
+    echo -e "${INFO}==> Downloading base-$EPICS_BASE_VERSION and synApps_6_1 ${NC}"
     cd /tmp
-    wget https://epics.anl.gov/download/base/base-3.15.6.tar.gz
-    tar -xzf base-3.15.6.tar.gz
+    wget https://epics.anl.gov/download/base/base-$EPICS_BASE_VERSION.tar.gz
+    tar -xzf base-$EPICS_BASE_VERSION.tar.gz
     wget https://epics.anl.gov/bcda/synApps/tar/synApps_6_1.tar.gz
     tar -xzf synApps_6_1.tar.gz
+    wget https://github.com/epics-modules/motor/archive/refs/tags/R7-3-1.tar.gz -O motor-R7-3-1.tar.gz
+    tar -xzf motor-R7-3-1.tar.gz
 }
 
 CompileAll() {
     echo -e "${INFO}==> Copying source to /usr/local/epics ${NC}"
-    mv base-3.15.6 /usr/local/epics/base
+    mv base-$EPICS_BASE_VERSION /usr/local/epics/base
     mv synApps_6_1 /usr/local/epics/synApps
+    mv motor-R7-3-1 /usr/local/epics/synApps/support
     mv RELEASE /usr/local/epics/synApps/support/configure/RELEASE
     mv RELEASE_motor-r7-1 /usr/local/epics/synApps/support/motor-R7-1/configure/RELEASE
     mv RELEASE_ipac /usr/local/epics/synApps/support/ipac-2-15/configure/RELEASE
