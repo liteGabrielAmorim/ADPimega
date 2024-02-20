@@ -140,7 +140,7 @@ CompileSynapps() {
 
     # Copy ADPimega to areaDetector directory
     mkdir $ADPIMEGA_INSTALL_DIR
-    cp -r ../* $ADPIMEGA_INSTALL_DIR
+    rsync -av ../ $ADPIMEGA_INSTALL_DIR --exclude install --exclude test
 
     # Update release files    
     sed -i "/^SUPPORT=/c\SUPPORT=$EPICS_INSTALL_PATH/synApps/support/" RELEASE_synapps 
@@ -174,15 +174,15 @@ CompileSynapps() {
 }
 
 CompileADPimega() {
-    
+
     make
 }
 
 echo -e "${INFO}==> Starting EPICS installation ${NC}"
-# CleanBeforeInstall
-# SetupInstaller
-# DownloadRequirements
-# CompileEPICSBase
+CleanBeforeInstall
+SetupInstaller
+DownloadRequirements
+CompileEPICSBase
 CompileSynapps
 # CompileADPimega
 echo -e "${INFO}==> Done! ${NC}"
