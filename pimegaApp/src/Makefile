@@ -7,9 +7,7 @@ include $(TOP)/configure/CONFIG
 # -------------------------------
 
 USR_INCLUDES +=-I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
-USR_INCLUDES +=-I/usr/local/epics/synApps/support/areaDetector-R3-7/ADPimega/pimegaSupport
-
-#INC += pimegaDetector.h
+USR_INCLUDES +=-I/usr/local/include/pimega
 
 LIBRARY_IOC_Linux += pimegaDetector
 

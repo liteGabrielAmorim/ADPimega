@@ -10,7 +10,7 @@ ASYN_VERSION='R4-44-2'
 EPICS_INSTALL_PATH="$ROOT_DIR/epics"
 DOWNLOADS_PATH="./tmp_download"
 ADPIMEGA_INSTALL_DIR=$EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADPimega
-ADPIMEGA_SOURCE=/home/lumentum-test/pimega-pss/ioc/epics/
+PIMEGA_API_SRC=/home/$USER/pimega-pss2/api
 INFO='\033[0;32m'
 WARN='\033[0;33m'
 NC='\033[0m'
@@ -53,7 +53,7 @@ DownloadRequirements() {
 
     if [ -f "$EPICS_DL_FILE" ]; then
         echo -e "${WARN}==> $EPICS_DL_FILE already exists ${NC}"
-    else 
+    else
         echo -e "${INFO}==> Downloading $EPICS_DL_FILE ${NC}"
         wget https://epics.anl.gov/download/base/$EPICS_DL_FILE
     fi
@@ -61,7 +61,7 @@ DownloadRequirements() {
 
     if [ -f "$SYNAPPS_DL_FILE" ]; then
         echo -e "${WARN}==> $SYNAPPS_DL_FILE already exists ${NC}"
-    else 
+    else
         echo -e "${INFO}==> Downloading $SYNAPPS_DL_FILE ${NC}"
         wget https://epics.anl.gov/bcda/synApps/tar/$SYNAPPS_DL_FILE
     fi
@@ -69,7 +69,7 @@ DownloadRequirements() {
 
     if [ -f "$SSCAN_DL_FILE" ]; then
         echo -e "${WARN}==> $SSCAN_DL_FILE already exists ${NC}"
-    else 
+    else
         echo -e "${INFO}==> Downloading $SSCAN_DL_FILE ${NC}"
         wget https://github.com/epics-modules/sscan/archive/refs/tags/$SSCAN_VERSION.tar.gz -O $SSCAN_DL_FILE
     fi
@@ -77,7 +77,7 @@ DownloadRequirements() {
 
     if [ -f "$AREA_DETECTOR_FILE" ]; then
         echo -e "${WARN}==> $AREA_DETECTOR_FILE already exists ${NC}"
-    else 
+    else
         echo -e "${INFO}==> Downloading $AREA_DETECTOR_FILE ${NC}"
         wget https://github.com/areaDetector/areaDetector/archive/refs/tags/$AREA_DETECTOR_VERSION.tar.gz -O $AREA_DETECTOR_FILE
     fi
@@ -85,7 +85,7 @@ DownloadRequirements() {
 
     if [ -f "$ADSUPPORT_FILE" ]; then
         echo -e "${WARN}==> $ADSUPPORT_FILE already exists ${NC}"
-    else 
+    else
         echo -e "${INFO}==> Downloading $ADSUPPORT_FILE ${NC}"
         wget https://github.com/areaDetector/ADSupport/archive/refs/tags/$ADSUPPORT_VERSION.tar.gz -O $ADSUPPORT_FILE
     fi
@@ -93,7 +93,7 @@ DownloadRequirements() {
 
     if [ -f "$ADCORE_FILE" ]; then
         echo -e "${WARN}==> $ADCORE_FILE already exists ${NC}"
-    else 
+    else
         echo -e "${INFO}==> Downloading $ADCORE_FILE ${NC}"
         wget https://github.com/areaDetector/ADCore/archive/refs/tags/$ADCORE_VERSION.tar.gz -O $ADCORE_FILE
     fi
@@ -101,7 +101,7 @@ DownloadRequirements() {
 
     if [ -f "$ASYN_FILE" ]; then
         echo -e "${WARN}==> $ASYN_FILE already exists ${NC}"
-    else 
+    else
         echo -e "${INFO}==> Downloading $ASYN_FILE ${NC}"
         wget https://github.com/epics-modules/asyn/archive/refs/tags/$ASYN_VERSION.tar.gz -O $ASYN_FILE
     fi
@@ -117,7 +117,7 @@ CompileEPICSBase() {
     mv $DOWNLOADS_PATH/base-$EPICS_BASE_VERSION $EPICS_INSTALL_PATH/base
     cd $EPICS_INSTALL_PATH/base
     # Set the install location on EPICS CONFIG_SITE to be used by all dependencies
-    sed -i "/^#INSTALL_LOCATION=/c\INSTALL_LOCATION=$EPICS_INSTALL_PATH/base" configure/CONFIG_SITE 
+    sed -i "/^#INSTALL_LOCATION=/c\INSTALL_LOCATION=$EPICS_INSTALL_PATH/base" configure/CONFIG_SITE
 
     echo -e "${INFO}==> Make EPICS BASE ${NC}"
     make -j6 -s
@@ -131,7 +131,7 @@ CompileSynapps() {
     # Move new support modules
     mv $DOWNLOADS_PATH/synApps_6_1 $EPICS_INSTALL_PATH/synApps
     # mv motor-R7-3-1 /usr/local/epics/synApps/support
-    mv $DOWNLOADS_PATH/sscan-$SSCAN_VERSION $EPICS_INSTALL_PATH/synApps/support    
+    mv $DOWNLOADS_PATH/sscan-$SSCAN_VERSION $EPICS_INSTALL_PATH/synApps/support
     # Move areaDetector, ADSupport and ADCore
     mv $DOWNLOADS_PATH/areaDetector-$AREA_DETECTOR_VERSION $EPICS_INSTALL_PATH/synApps/support
     mv $DOWNLOADS_PATH/asyn-$ASYN_VERSION $EPICS_INSTALL_PATH/synApps/support/
@@ -143,7 +143,7 @@ CompileSynapps() {
     rsync -av ../ $ADPIMEGA_INSTALL_DIR --exclude install --exclude test --exclude *.yaml --exclude *.yml
 
     # Update release files
-    sed -i "/^SUPPORT=/c\SUPPORT=$EPICS_INSTALL_PATH/synApps/support/" RELEASE_synapps 
+    sed -i "/^SUPPORT=/c\SUPPORT=$EPICS_INSTALL_PATH/synApps/support/" RELEASE_synapps
     sed -i "/EPICS_BASE=/c\EPICS_BASE=$EPICS_INSTALL_PATH/base/" RELEASE_synapps
     cp RELEASE_synapps $EPICS_INSTALL_PATH/synApps/support/configure/RELEASE
     # Set the EPICS_BASE variable for IPAC
@@ -155,7 +155,7 @@ CompileSynapps() {
     # Disable unit tests from ADCore
     sed -i "/^DIRS += pluginTests/c\#DIRS += pluginTests" $EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADCore/ADApp/Makefile
 
-    echo -e "${INFO}==> Setup release files ${NC}"    
+    echo -e "${INFO}==> Setup release files ${NC}"
 
     # This step updates all .local files with default areaDetector values
     cd $EPICS_INSTALL_PATH/synApps/support
@@ -169,20 +169,23 @@ CompileSynapps() {
     # Update release files
     make release -s
 
-    echo -e "${INFO}==> Build synApps Support ${NC}"    
+    echo -e "${INFO}==> Build synApps Support ${NC}"
     make -j4 -s
 }
 
 CompileADPimega() {
-
+    rm -rf $ADPIMEGA_INSTALL_DIR/*
+    mkdir $ADPIMEGA_SUPPORT
+    rsync -av $ROOT_DIR/../* $ADPIMEGA_INSTALL_DIR --exclude install --exclude test --exclude *.yaml --exclude *.yml
+    cd $ADPIMEGA_INSTALL_DIR
     make
 }
 
 echo -e "${INFO}==> Starting EPICS installation ${NC}"
-CleanBeforeInstall
-SetupInstaller
-DownloadRequirements
-CompileEPICSBase
-CompileSynapps
-# CompileADPimega
+# CleanBeforeInstall
+# SetupInstaller
+# DownloadRequirements
+# CompileEPICSBase
+# CompileSynapps
+CompileADPimega
 echo -e "${INFO}==> Done! ${NC}"
