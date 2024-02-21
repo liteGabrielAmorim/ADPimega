@@ -52,9 +52,9 @@ def number_of_modules(config):
     """ Return the number of modules of the detector """
     model = config.getini("detector_model")
 
-    if model in ("135D", "135DL", "RAD#400k"):
+    if model in ("135D", "135DL", "RAD400k"):
         return 1
-    elif model in ("RAD#800k"):
+    elif model in ("RAD800k"):
         return 2
     elif model == "540D":
         return 4
