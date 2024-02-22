@@ -1,30 +1,33 @@
-# Pimega area detector IOC
+# PIMEGA areaDetector IOC
 
-This is an IOC for all the Pimega area detector variations (540D and 135D). It must be included in compiled in the areaDetector folder of synApps.
+This is an IOC for the PIMEGA area detector models 45D, 135D, 540D, 450D and 450DS. 
+It must be included in compiled in the areaDetector folder of synApps.
 
-## dependencies
-* [pimega-api](https://gitlab.cnpem.br/DET/pimega/pimega-api.git)
+## Dependencies
 
-## build
-make sure your EPICS_HOST_ARCH environment variable is set. Possible values are linux-ppc64 or linux-x86_64. After that run the following
+This IOC requires the PIMEGA library to be installed in /usr/lib/ under libpimega.so.
+The include files must be added to /usr/local/include/pimega.
+
+## Build
+
+Add this repository content to areaDetector/ADPimega and run the Makefile:
 
 ```
-cd ADPimega
-make -j4
-cd iocs/pimegaIOC/iocBoot/iocPimega
-make envPaths
+$ cd ADPimega
+$ make
 ```
 
 ## Run
+To start and IOC, enter the iocPimega directory and execute the .cmd file that contains the PIMEGA model on its filename.
 ```
-cd iocs/pimegaIOC/iocBoot/iocPimega
-./<Choose detector command file>.cmd
+$ cd iocs/pimegaIOC/iocBoot/iocPimega
+$ ./st-pitec-d-pimega<model>.cmd
 ```
 
 ## Test
 To execute tests, first you need the requirements listed on `requirements-dev.txt`. Create a Python virtual environment and install those requirements.
 
-When installed, just call `pytest` with the virtual environment active.
+When installed, just invoke `pytest` with the virtual environment active.
 To enable verbose output, call `pytest -s`.
 
 ```bash

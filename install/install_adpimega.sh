@@ -48,7 +48,12 @@ InstallADPimega() {
     rsync -av $ADPIMEGA_SRC $ADPIMEGA_INSTALL_PATH --exclude install --exclude test --exclude *.yaml --exclude *.yml
     cd $ADPIMEGA_INSTALL_PATH
     make -sw
-    echo -e "${INFO}==> Done!\nADPimega path: $ADPIMEGA_INSTALL_PATH ${NC}"
+    if [ $? -eq 0 ];then
+        echo -e "${INFO}==> ADPimega installed!\nPath: $ADPIMEGA_INSTALL_PATH${NC}"
+    else
+        echo -e "${WARN}==> ADPimega failed to install ${NC}"
+        exit 1
+    fi
 }
 
 CheckDependencies
