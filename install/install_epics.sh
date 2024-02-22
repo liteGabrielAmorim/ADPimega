@@ -8,10 +8,39 @@ ADSUPPORT_VERSION='R1-10'
 ADCORE_VERSION='R3-13'
 ASYN_VERSION='R4-44-2'
 EPICS_INSTALL_PATH="/home/$USER/.local/share/epics"
-DOWNLOADS_PATH="$EPICS_INSTALL_PATH/tmp_download"
+DOWNLOADS_PATH="$EPICS_INSTALL_PATH/../tmp_download"
 INFO='\033[0;32m'
 WARN='\033[0;33m'
 NC='\033[0m'
+
+unused_modules=(
+    "CAMAC"
+    "CAPUTRECORDER"
+    "DAC128V"
+    "DELAYGEN"
+    "DXP"
+    "DXPSITORO"
+    "IP"
+    "IP330"
+    "IPUNIDIG"
+    "LUA"
+    "LOVE"
+    "MCA"
+    "MEASCOMP"
+    "MOTOR"
+    "MODBUS"
+    "OPTICS"
+    "QUADEM"
+    "SOFTGLUE"
+    "SOFTGLUEZYNQ"
+    "STD"
+    "STREAM"
+    "VAC"
+    "VME"
+    "YOKOGAWA_DAS"
+    "XXX"
+    "ALLEN_BRADLEY"
+)
 
 CleanBeforeInstall(){
     echo -e "${INFO}==> Removing existing EPICS installation folder ${NC}"
@@ -22,7 +51,6 @@ SetupInstaller() {
     echo -e "${INFO}==> Creating EPICS install directory ${NC}"
     set +e
     mkdir -p $EPICS_INSTALL_PATH
-    cp RELEASE_synapps $EPICS_INSTALL_PATH
 }
 
 DownloadRequirements() {
@@ -108,8 +136,14 @@ CompileEPICSBase() {
     # Set the install location on EPICS CONFIG_SITE to be used by all dependencies
     sed -i "/^#INSTALL_LOCATION=/c\INSTALL_LOCATION=$EPICS_INSTALL_PATH/base" configure/CONFIG_SITE
 
-    echo -e "${INFO}==> Make EPICS BASE ${NC}"
+    echo -e "${INFO}==> Build EPICS BASE ${NC}"
     make -j6 -s
+    if [ $? -eq 0 ];then
+        echo -e "${INFO}==> EPICS Base installed ${NC}"
+    else
+        echo -e "${WARN}==> EPICS Base failed to install ${NC}"
+        exit 1
+    fi
 }
 
 CompileSynapps() {
@@ -126,13 +160,23 @@ CompileSynapps() {
     mv $DOWNLOADS_PATH/ADSupport-$ADSUPPORT_VERSION/* $EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADSupport
     mv $DOWNLOADS_PATH/ADCore-$ADCORE_VERSION/* $EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADCore
 
-    # Copy ADPimega to areaDetector directory
-
     # Update release files
-    sed -i "/^SUPPORT=/c\SUPPORT=$EPICS_INSTALL_PATH/synApps/support/" RELEASE_synapps
-    sed -i "/EPICS_BASE=/c\EPICS_BASE=$EPICS_INSTALL_PATH/base/" RELEASE_synapps
-    cp RELEASE_synapps $EPICS_INSTALL_PATH/synApps/support/configure/RELEASE
-    # Set the EPICS_BASE variable for IPAC
+    SYNAPPS_RELEASE_FILE=$EPICS_INSTALL_PATH/synApps/support/configure/RELEASE
+    # Update SUPPORT path
+    sed -i "/^SUPPORT=/c\SUPPORT=$EPICS_INSTALL_PATH/synApps/support" $SYNAPPS_RELEASE_FILE
+    # Update EPICS_BASE install path
+    sed -i "/^EPICS_BASE=/c\EPICS_BASE=$EPICS_INSTALL_PATH/base" $SYNAPPS_RELEASE_FILE
+    # Update ASYN version
+    sed -i "/^ASYN=/c\ASYN=\$(SUPPORT)/asyn-$ASYN_VERSION" $SYNAPPS_RELEASE_FILE
+    # Update SSCAN version
+    sed -i "/^SSCAN=/c\SSCAN=\$(SUPPORT)/sscan-$SSCAN_VERSION" $SYNAPPS_RELEASE_FILE
+    # Update AREA_DETECTOR version
+    sed -i "/^AREA_DETECTOR=/c\AREA_DETECTOR=\$(SUPPORT)/areaDetector-$AREA_DETECTOR_VERSION" $SYNAPPS_RELEASE_FILE
+
+    for module in "${unused_modules[@]}"; do
+        sed -i "s/^$module=/#$module=/" $SYNAPPS_RELEASE_FILE
+    done
+
     # Enable TIRPC for ASYN
     sed -i "/^# TIRPC/c\TIRPC = YES" $EPICS_INSTALL_PATH/synApps/support/asyn-$ASYN_VERSION/configure/CONFIG_SITE
     # Set the EPICS_BASE variable for ASYN
@@ -141,21 +185,25 @@ CompileSynapps() {
     sed -i "/^DIRS += pluginTests/c\#DIRS += pluginTests" $EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADCore/ADApp/Makefile
 
     echo -e "${INFO}==> Setup release files ${NC}"
-
     # This step updates all .local files with default areaDetector values
-    cd $EPICS_INSTALL_PATH/synApps/support
-    cd areaDetector-$AREA_DETECTOR_VERSION/configure/
+    cd $EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/configure
     bash copyFromExample
 
-    # Add ADPIMEGA to list of drivers that should be built
+    # Clear the default list of drivers that should be built(they are not imported during download)
     echo '' > RELEASE.local.linux-x86_64
-    cd -
+    cd $EPICS_INSTALL_PATH/synApps/support
 
     # Update release files
     make release -s
 
     echo -e "${INFO}==> Build synApps Support ${NC}"
     make -j4 -s
+    if [ $? -eq 0 ];then
+        echo -e "${INFO}==> synApps installed ${NC}"
+    else
+        echo -e "${WARN}==> synApps failed to install ${NC}"
+        exit 1
+    fi
 }
 
 echo -e "${INFO}==> Starting EPICS installation ${NC}"
@@ -164,4 +212,4 @@ SetupInstaller
 DownloadRequirements
 CompileEPICSBase
 CompileSynapps
-echo -e "${INFO}==> EPICS and synApps installation done! ${NC}"
+echo -e "${INFO}==> Script done! ${NC}"
