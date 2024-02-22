@@ -24,3 +24,5 @@ test/=7
 core
 envPaths*
 __pycache__
+install/epics/
+install/tmp_download
