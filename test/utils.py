@@ -62,6 +62,7 @@ def number_of_modules(config):
         result = 1
     return result
 
+
 def number_of_image_patterns():
     """ Return the number of image patterns """
     return 15
