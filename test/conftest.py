@@ -1,5 +1,4 @@
 """Configuration file for AD Pimega tests."""
-
 import json
 import os
 from types import SimpleNamespace

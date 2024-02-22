@@ -34,7 +34,7 @@ def number_of_boards(config):
 
 
 def number_of_chips(config):
-    """ Get the number og chips"""
+    """ Get the number of chips per module"""
     if config.getini("detector_model") in ("135D", "540D"):
         return 36
     elif config.getini("detector_model") in ("45D", "450D", "450DS"):
@@ -51,16 +51,16 @@ def number_of_dacs():
 def number_of_modules(config):
     """ Return the number of modules of the detector """
     model = config.getini("detector_model")
-
-    if model in ("135D", "135DL", "RAD400k"):
-        return 1
-    elif model in ("RAD800k"):
-        return 2
+    result = 1
+    if model == "RAD800k":
+        result = 2
     elif model == "540D":
-        return 4
+        result = 4
+    elif model in ("450D", "450DS"):
+        result = 10
     else:
-        return 10
-
+        result = 1
+    return result
 
 def number_of_image_patterns():
     """ Return the number of image patterns """
