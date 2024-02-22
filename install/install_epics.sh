@@ -7,10 +7,8 @@ AREA_DETECTOR_VERSION='R3-13'
 ADSUPPORT_VERSION='R1-10'
 ADCORE_VERSION='R3-13'
 ASYN_VERSION='R4-44-2'
-EPICS_INSTALL_PATH="$ROOT_DIR/epics"
-DOWNLOADS_PATH="./tmp_download"
-ADPIMEGA_INSTALL_DIR=$EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADPimega
-PIMEGA_API_SRC=/home/$USER/pimega-pss2/api
+EPICS_INSTALL_PATH="/home/$USER/.local/share/epics"
+DOWNLOADS_PATH="$EPICS_INSTALL_PATH/tmp_download"
 INFO='\033[0;32m'
 WARN='\033[0;33m'
 NC='\033[0m'
@@ -21,25 +19,15 @@ CleanBeforeInstall(){
 }
 
 SetupInstaller() {
-    echo -e "${INFO}==> Copying items from data directory ${NC}"
-    # cp data/epics.sh /etc/profile.d/
-    # cp data/RELEASE /tmp/
-    # cp data/RELEASE_motor-r7-1 /tmp/
-    # cp data/RELEASE_sscan-r2-11-6 /tmp/
-    # cp data/RELEASE_ipac /tmp/
-    # echo -e "${INFO}==> Copying area detector source to /tmp/ADPimega/epics/ ${NC}"
-    # mkdir -p /tmp/ADPimega/epics/
-    # cp -r ../ /tmp/ADPimega/epics/
-    # chmod +x /etc/profile.d/epics.sh
-    # echo ". /etc/profile.d/epics.sh" >> /etc/bash.bashrc
-    # arch | xargs -i@ echo "/usr/local/epics/base/lib/linux-@" > /etc/ld.so.conf.d/epics.conf
     echo -e "${INFO}==> Creating EPICS install directory ${NC}"
     set +e
     mkdir -p $EPICS_INSTALL_PATH
+    cp RELEASE_synapps $EPICS_INSTALL_PATH
 }
 
 DownloadRequirements() {
     echo -e "${INFO}==> Downloading requirements ${NC}"
+    cd $EPICS_INSTALL_PATH
     EPICS_DL_FILE=base-$EPICS_BASE_VERSION.tar.gz
     SYNAPPS_DL_FILE=synApps_$SYNAPPPS_VERSION.tar.gz
     SSCAN_DL_FILE=sscan-$SSCAN_VERSION.tar.gz
@@ -114,6 +102,7 @@ DownloadRequirements() {
 
 CompileEPICSBase() {
     echo -e "${INFO}==> Setting EPICS Base in $EPICS_INSTALL_PATH ${NC}"
+    cd $EPICS_INSTALL_PATH
     mv $DOWNLOADS_PATH/base-$EPICS_BASE_VERSION $EPICS_INSTALL_PATH/base
     cd $EPICS_INSTALL_PATH/base
     # Set the install location on EPICS CONFIG_SITE to be used by all dependencies
@@ -121,13 +110,12 @@ CompileEPICSBase() {
 
     echo -e "${INFO}==> Make EPICS BASE ${NC}"
     make -j6 -s
-    cd -
 }
 
 CompileSynapps() {
     # See: https://areadetector.github.io/areaDetector/install_guide.html
     echo -e "${INFO}==> Preparing SynApps ${NC}"
-
+    cd $EPICS_INSTALL_PATH
     # Move new support modules
     mv $DOWNLOADS_PATH/synApps_6_1 $EPICS_INSTALL_PATH/synApps
     # mv motor-R7-3-1 /usr/local/epics/synApps/support
@@ -139,15 +127,12 @@ CompileSynapps() {
     mv $DOWNLOADS_PATH/ADCore-$ADCORE_VERSION/* $EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADCore
 
     # Copy ADPimega to areaDetector directory
-    mkdir $ADPIMEGA_INSTALL_DIR
-    rsync -av ../ $ADPIMEGA_INSTALL_DIR --exclude install --exclude test --exclude *.yaml --exclude *.yml
 
     # Update release files
     sed -i "/^SUPPORT=/c\SUPPORT=$EPICS_INSTALL_PATH/synApps/support/" RELEASE_synapps
     sed -i "/EPICS_BASE=/c\EPICS_BASE=$EPICS_INSTALL_PATH/base/" RELEASE_synapps
     cp RELEASE_synapps $EPICS_INSTALL_PATH/synApps/support/configure/RELEASE
     # Set the EPICS_BASE variable for IPAC
-    sed -i "/EPICS_BASE=/c\EPICS_BASE=$EPICS_INSTALL_PATH/base/" $EPICS_INSTALL_PATH/synApps/support/ipac-2-15/configure/RELEASE
     # Enable TIRPC for ASYN
     sed -i "/^# TIRPC/c\TIRPC = YES" $EPICS_INSTALL_PATH/synApps/support/asyn-$ASYN_VERSION/configure/CONFIG_SITE
     # Set the EPICS_BASE variable for ASYN
@@ -163,7 +148,7 @@ CompileSynapps() {
     bash copyFromExample
 
     # Add ADPIMEGA to list of drivers that should be built
-    echo 'ADPIMEGA=$(AREA_DETECTOR)/ADPimega' > RELEASE.local.linux-x86_64
+    echo '' > RELEASE.local.linux-x86_64
     cd -
 
     # Update release files
@@ -173,19 +158,10 @@ CompileSynapps() {
     make -j4 -s
 }
 
-CompileADPimega() {
-    rm -rf $ADPIMEGA_INSTALL_DIR/*
-    mkdir $ADPIMEGA_SUPPORT
-    rsync -av $ROOT_DIR/../* $ADPIMEGA_INSTALL_DIR --exclude install --exclude test --exclude *.yaml --exclude *.yml
-    cd $ADPIMEGA_INSTALL_DIR
-    make
-}
-
 echo -e "${INFO}==> Starting EPICS installation ${NC}"
-# CleanBeforeInstall
-# SetupInstaller
-# DownloadRequirements
-# CompileEPICSBase
-# CompileSynapps
-CompileADPimega
-echo -e "${INFO}==> Done! ${NC}"
+CleanBeforeInstall
+SetupInstaller
+DownloadRequirements
+CompileEPICSBase
+CompileSynapps
+echo -e "${INFO}==> EPICS and synApps installation done! ${NC}"
