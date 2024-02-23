@@ -1247,7 +1247,7 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
   pimega = pimega_new((pimega_detector_model_t)detectorModel, true);
   pimega_global = pimega;
   pimega->log = log;
-  pimega->backendOn = backendOn;
+  UseBackendOnStart(pimega, (backend_status_t)backendOn);
   if (log == 1) {
     if (initLog(pimega) == false) {
       PIMEGA_PRINT(pimega, TRACE_MASK_WARNING, "pimegaDetector: Disabling logging\n");
@@ -2201,7 +2201,7 @@ asynStatus pimegaDetector::senseDacSel(u_int8_t dac) {
   if (rc != PIMEGA_SUCCESS) return asynError;
   SenseDacSel_RBV(pimega);
   setParameter(PimegaDacOutSense, pimega->pimegaParam.dacOutput);
-  setParameter(PimegaSenseDacSel, pimega->omr.sense_dacSel);
+  setParameter(PimegaSenseDacSel, SenseDacSelValue(pimega));
   return asynSuccess;
 }
 
