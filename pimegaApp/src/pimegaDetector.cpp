@@ -1254,6 +1254,11 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
       exit(0);
       pimega->log = 0;
     }
+    else {
+      log_file_path = (char*) malloc(sizeof(char) * 50);
+      memset(log_file_path, ' ', 50);
+      GetLogFilePath(pimega, log_file_path);
+    }
   }
   maxSizeX = SizeX;
   maxSizeY = SizeY;
@@ -1625,7 +1630,7 @@ asynStatus pimegaDetector::setDefaults(void) {
   if (rc != PIMEGA_SUCCESS) return asynError;
   setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
 
-  setParameter(PimegaLogFile, pimega->logFileName);
+  setParameter(PimegaLogFile, this->log_file_path);
   callParamCallbacks();
   return asynSuccess;
 }
@@ -1637,27 +1642,27 @@ asynStatus pimegaDetector::getDacsValues(void) {
 
   rc = get_dac(pimega, DIGITAL_READ_ALL_DACS, DAC_ThresholdEnergy0);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  setParameter(PimegaThreshold0, (int)pimega->digital_dac_values[sensor][DAC_ThresholdEnergy0 - 1]);
-  setParameter(PimegaThreshold1, (int)pimega->digital_dac_values[sensor][DAC_ThresholdEnergy1 - 1]);
-  setParameter(PimegaPreamp, (int)pimega->digital_dac_values[sensor][DAC_Preamp - 1]);
-  setParameter(PimegaIkrum, (int)pimega->digital_dac_values[sensor][DAC_IKrum - 1]);
-  setParameter(PimegaShaper, (int)pimega->digital_dac_values[sensor][DAC_Shaper - 1]);
-  setParameter(PimegaDisc, (int)pimega->digital_dac_values[sensor][DAC_Disc - 1]);
-  setParameter(PimegaDiscLS, (int)pimega->digital_dac_values[sensor][DAC_DiscLS - 1]);
+  setParameter(PimegaThreshold0, GetDigitalDacValue(pimega, sensor, DAC_ThresholdEnergy0));
+  setParameter(PimegaThreshold1, GetDigitalDacValue(pimega, sensor, DAC_ThresholdEnergy1));
+  setParameter(PimegaPreamp, GetDigitalDacValue(pimega, sensor, DAC_Preamp));
+  setParameter(PimegaIkrum, GetDigitalDacValue(pimega, sensor, DAC_IKrum));
+  setParameter(PimegaShaper, GetDigitalDacValue(pimega, sensor, DAC_Shaper));
+  setParameter(PimegaDisc, GetDigitalDacValue(pimega, sensor, DAC_Disc));
+  setParameter(PimegaDiscLS, GetDigitalDacValue(pimega, sensor, DAC_DiscLS));
   // setParameter(PimegaShaperTest, pimega->digital_dac_values[DAC_ShaperTest])
-  setParameter(PimegaDiscL, (int)pimega->digital_dac_values[sensor][DAC_DiscL - 1]);
-  setParameter(PimegaDelay, (int)pimega->digital_dac_values[sensor][DAC_Delay - 1]);
-  setParameter(PimegaTpBufferIn, (int)pimega->digital_dac_values[sensor][DAC_TPBufferIn - 1]);
-  setParameter(PimegaTpBufferOut, (int)pimega->digital_dac_values[sensor][DAC_TPBufferOut - 1]);
-  setParameter(PimegaRpz, (int)pimega->digital_dac_values[sensor][DAC_RPZ - 1]);
-  setParameter(PimegaGnd, (int)pimega->digital_dac_values[sensor][DAC_GND - 1]);
-  setParameter(PimegaTpRef, (int)pimega->digital_dac_values[sensor][DAC_TPRef - 1]);
-  setParameter(PimegaFbk, (int)pimega->digital_dac_values[sensor][DAC_FBK - 1]);
-  setParameter(PimegaCas, (int)pimega->digital_dac_values[sensor][DAC_CAS - 1]);
-  setParameter(PimegaTpRefA, (int)pimega->digital_dac_values[sensor][DAC_TPRefA - 1]);
-  setParameter(PimegaTpRefB, (int)pimega->digital_dac_values[sensor][DAC_TPRefB - 1]);
+  setParameter(PimegaDiscL, GetDigitalDacValue(pimega, sensor, DAC_DiscL));
+  setParameter(PimegaDelay, GetDigitalDacValue(pimega, sensor, DAC_Delay));
+  setParameter(PimegaTpBufferIn, GetDigitalDacValue(pimega, sensor, DAC_TPBufferIn));
+  setParameter(PimegaTpBufferOut, GetDigitalDacValue(pimega, sensor, DAC_TPBufferOut));
+  setParameter(PimegaRpz, GetDigitalDacValue(pimega, sensor, DAC_RPZ));
+  setParameter(PimegaGnd, GetDigitalDacValue(pimega, sensor, DAC_GND));
+  setParameter(PimegaTpRef, GetDigitalDacValue(pimega, sensor, DAC_TPRef));
+  setParameter(PimegaFbk, GetDigitalDacValue(pimega, sensor, DAC_FBK));
+  setParameter(PimegaCas, GetDigitalDacValue(pimega, sensor, DAC_CAS));
+  setParameter(PimegaTpRefA, GetDigitalDacValue(pimega, sensor, DAC_TPRefA));
+  setParameter(PimegaTpRefB, GetDigitalDacValue(pimega, sensor, DAC_TPRefB));
   // setParameter(PimegaShaperTest, pimega->digital_dac_values[DAC_Test]);
-  setParameter(PimegaDiscH, (int)pimega->digital_dac_values[sensor][DAC_DiscH - 1]);
+  setParameter(PimegaDiscH, GetDigitalDacValue(pimega, sensor, DAC_DiscH));
   // getDacsOutSense();
   return asynSuccess;
 }
@@ -2209,8 +2214,9 @@ asynStatus pimegaDetector::getDacsOutSense(void) {
   int chip_id;
   getParameter(PimegaMedipixChip, &chip_id);
 
+  // TODO: Check if this iteration starting at 0 makes sense. The pimega_dac_t enum starts at 1.
   for (int i = 0; i < N_DACS_OUTS; i++) {
-    PimegaDacsOutSense_[i] = (epicsFloat32)(pimega->analog_dac_values[chip_id - 1][i]);
+    PimegaDacsOutSense_[i] = (epicsFloat32)GetLastAnalogDacValue(this->pimega, chip_id - 1, (pimega_dac_t) i);
   }
   doCallbacksFloat32Array(PimegaDacsOutSense_, N_DACS_OUTS, PimegaDacsOutSense, 0);
 
