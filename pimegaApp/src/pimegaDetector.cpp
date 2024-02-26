@@ -1246,13 +1246,13 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
 
   pimega = pimega_new((pimega_detector_model_t)detectorModel, true);
   pimega_global = pimega;
-  pimega->log = log;
+  EnableLog(pimega, log);
   UseBackendOnStart(pimega, (backend_status_t)backendOn);
   if (log == 1) {
     if (initLog(pimega) == false) {
       PIMEGA_PRINT(pimega, TRACE_MASK_WARNING, "pimegaDetector: Disabling logging\n");
       exit(0);
-      pimega->log = 0;
+      EnableLog(pimega, 0);
     }
     else {
       log_file_path = (char*) malloc(sizeof(char) * 50);
@@ -1265,7 +1265,7 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
 
   if (pimega) PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "pimegaDetector: Pimega struct created\n");
 
-  pimega->simulate = simulate;
+  SetSimulationFlag(pimega, simulate);
   connect(ips, port, backend_port, vis_frame_port);
   status = prepare_pimega(pimega);
   if (status != PIMEGA_SUCCESS) panic("Unable to prepare pimega. Aborting");
@@ -1318,7 +1318,7 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
   int rc = 0;
   unsigned short ports[10] = {10000, 10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10010};
 
-  if (pimega->simulate == 0)
+  if (GetSimulationFlag(pimega) == 0)
     ports[0] = ports[1] = ports[2] = ports[3] = ports[4] = ports[5] = ports[6] = ports[7] =
         ports[8] = ports[9] = port;
 
