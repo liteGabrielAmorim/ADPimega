@@ -22,7 +22,7 @@ static void alarmTaskC(void *drvPvt) {
 void pimegaDetector::alarmTask() {
   /* Loop forever */
   while (true) {
-    if (pimega->temperature.alarm_enable) {
+    if (GetTemperatureMonitorEnableStatus(pimega)) {
       pimegaDetector::getTemperatureHighest();
       pimegaDetector::getTemperatureStatus();
     }
@@ -1269,12 +1269,8 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
   connect(ips, port, backend_port, vis_frame_port);
   status = prepare_pimega(pimega);
   if (status != PIMEGA_SUCCESS) panic("Unable to prepare pimega. Aborting");
-  // pimega->debug_out = fopen("log.txt", "w+");
-  // report(pimega->debug_out, 1);
-  // fflush(pimega->debug_out);
 
   createParameters();
-  // check_and_disable_sensors(pimega);
 
   setDefaults();
 
@@ -2265,17 +2261,17 @@ asynStatus pimegaDetector::getTemperatureStatus(void) {
                          PimegaTemperatureStatusM3, PimegaTemperatureStatusM4};
 
   for (int module = 0; module < pimega->max_num_modules; module++) {
-    setIntegerParam(idxTempStatus[module], pimega->temperature.status[module]);
+    setIntegerParam(idxTempStatus[module], GetTemperatureStatusFromModule(pimega, module));
   }
   return asynSuccess;
-}
+} 
 
 asynStatus pimegaDetector::getTemperatureHighest(void) {
   int idxTempHighest[] = {PimegaTemperatureHighestM1, PimegaTemperatureHighestM2,
                           PimegaTemperatureHighestM3, PimegaTemperatureHighestM4};
 
   for (int module = 0; module < pimega->max_num_modules; module++) {
-    setParameter(idxTempHighest[module], pimega->temperature.highest[module]);
+    setParameter(idxTempHighest[module], GetTemperatureHighestFromModule(pimega, module));
   }
   return asynSuccess;
 }
