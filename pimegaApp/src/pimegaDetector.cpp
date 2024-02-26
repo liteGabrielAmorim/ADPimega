@@ -1937,7 +1937,7 @@ asynStatus pimegaDetector::checkSensors(void) {
   rc = check_and_disable_sensors(pimega);
   for (int module = 1; module <= pimega->max_num_modules; module++) {
     for (int sensor = 0; sensor < pimega->num_all_chips; sensor++) {
-      PimegaDisabledSensors_[sensor] = (epicsInt32)(pimega->sensor_disabled[module - 1][sensor]);
+      PimegaDisabledSensors_[sensor] = (epicsInt32)(CheckSensorIsDisabled(pimega, module - 1, sensor));
     }
     doCallbacksInt32Array(PimegaDisabledSensors_, pimega->num_all_chips, idxParam, 0);
     idxParam++;
@@ -2032,7 +2032,7 @@ asynStatus pimegaDetector::imgChipID(uint8_t chip_id) {
     return asynError;
   }
   setParameter(PimegaMedipixChip, chip_id);
-  setParameter(PimegaMedipixBoard, pimega->sensor_pos.mb);
+  setParameter(PimegaMedipixBoard, get_currrent_mb(pimega));
 
   /* Get e-fuseID from selected chip_id */
   rc = efuseid_rbv(pimega);
