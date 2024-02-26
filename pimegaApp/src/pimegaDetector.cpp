@@ -1668,16 +1668,16 @@ asynStatus pimegaDetector::getOmrValues(void) {
   int rc = 0;
   rc = get_omr(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  setParameter(PimegaOmrOPMode, pimega->omr_values[OMR_M]);
-  setParameter(PimegaContinuosRW, pimega->omr_values[OMR_CRW_SRW]);
-  setParameter(PimegaPolarity, pimega->omr_values[OMR_Polarity]);
-  setParameter(PimegaDiscriminator, pimega->omr_values[OMR_Disc_CSM_SPM]);
-  setParameter(PimegaTestPulse, pimega->omr_values[OMR_EnableTP]);
-  setParameter(PimegaCounterDepth, pimega->omr_values[OMR_CountL]);
-  setParameter(PimegaEqualization, pimega->omr_values[OMR_Equalization]);
-  setParameter(PimegaPixelMode, pimega->omr_values[OMR_CSM_SPM]);
-  setParameter(PimegaGain, pimega->omr_values[OMR_Gain_Mode]);
-  setParameter(PimegaExtBgSel, pimega->omr_values[OMR_Ext_BG_Sel]);
+  setParameter(PimegaOmrOPMode, GetOMRValue(pimega, OMR_M));
+  setParameter(PimegaContinuosRW, GetOMRValue(pimega, OMR_CRW_SRW));
+  setParameter(PimegaPolarity, GetOMRValue(pimega, OMR_Polarity));
+  setParameter(PimegaDiscriminator, GetOMRValue(pimega, OMR_Disc_CSM_SPM));
+  setParameter(PimegaTestPulse, GetOMRValue(pimega, OMR_EnableTP));
+  setParameter(PimegaCounterDepth, GetOMRValue(pimega, OMR_CountL));
+  setParameter(PimegaEqualization, GetOMRValue(pimega, OMR_Equalization));
+  setParameter(PimegaPixelMode, GetOMRValue(pimega, OMR_CSM_SPM));
+  setParameter(PimegaGain, GetOMRValue(pimega, OMR_Gain_Mode));
+  setParameter(PimegaExtBgSel, GetOMRValue(pimega, OMR_Ext_BG_Sel));
   return asynSuccess;
 }
 
@@ -2174,7 +2174,7 @@ asynStatus pimegaDetector::setThresholdEnergy(float energy) {
     error("Error while trying to set energy\n%s\n", pimega_error_string(rc));
     return asynError;
   }
-  setParameter(PimegaEnergy, pimega->calibrationParam.energy);
+  setParameter(PimegaEnergy, GetCalibrationEnergy(pimega));
   return asynSuccess;
 }
 
