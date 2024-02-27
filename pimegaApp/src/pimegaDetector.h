@@ -415,6 +415,7 @@ class pimegaDetector : public ADDriver {
   char *log_file_path;
   int maxSizeX;
   int maxSizeY;
+  char *error_str;
 
   int arrayCallbacks;
   size_t dims[2];

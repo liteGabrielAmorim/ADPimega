@@ -22,7 +22,7 @@ static void alarmTaskC(void *drvPvt) {
 void pimegaDetector::alarmTask() {
   /* Loop forever */
   while (true) {
-    if (pimega->temperature.alarm_enable) {
+    if (GetTemperatureMonitorEnableStatus(pimega)) {
       pimegaDetector::getTemperatureHighest();
       pimegaDetector::getTemperatureStatus();
     }
@@ -163,8 +163,8 @@ void pimegaDetector::acqTask() {
       if (acquireStatusError == 1) {
         acquireStatusError = 0;
         setIntegerParam(ADStatus, ADStatusAborted);
-        UPDATEIOCSTATUS(pimega->error);
-        pimega->error[0] = '\0';
+        UPDATEIOCSTATUS(this->error_str);
+        this->error_str[0] = '\0';
       } else {
         setIntegerParam(ADStatus, ADStatusAborted);
         abort_save(pimega);
@@ -347,9 +347,9 @@ void pimegaDetector::captureTask() {
 
       if (status != 0) {
         PIMEGA_PRINT(pimega, TRACE_MASK_ERROR, "%s: Failed - %s\n", "send_stopAcquire_to_backend",
-                     pimega->error);
-        UPDATESERVERSTATUS(pimega->error);
-        pimega->error[0] = '\0';
+                     this->error_str);
+        UPDATESERVERSTATUS(this->error_str);
+        this->error_str[0] = '\0';
       } else {
         capture = 0;
         UPDATESERVERSTATUS("Backend stopped");
@@ -392,7 +392,7 @@ void pimegaDetector::captureTask() {
        last time when the NDFileCapture is set to 0 */
 
     received_acq = 0;
-    for (int module = 1; module <= pimega->max_num_modules; module++) {
+    for (int module = 1; module <= GetTotalModules(pimega); module++) {
       if (received_acq == 0 ||
           (int)pimega->acq_status_return.STATUS_NOOFACQUISITIONS[module - 1] > received_acq) {
         received_acq = (int)pimega->acq_status_return.STATUS_NOOFACQUISITIONS[module - 1];
@@ -512,9 +512,9 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
           adstatus, backendStatus);
       status = asynError;
       if (value) {
-        strncpy(pimega->error, "Cannot start", sizeof(pimega->error));
+        strncpy(this->error_str, "Cannot start", strlen(this->error_str));
       } else {
-        strncpy(pimega->error, "Already stopped", sizeof(pimega->error));
+        strncpy(this->error_str, "Already stopped", strlen(this->error_str));
       }
     }
   }
@@ -542,14 +542,14 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
                        "%s: Detector acquisition running. Will not start a new "
                        "backend capture. Sending asynError\n",
                        functionName);
-          strncpy(pimega->error, "Stop current acquisition first", sizeof(pimega->error));
+          strncpy(this->error_str, "Stop current acquisition first", strlen(this->error_str));
           status = asynError;
         } else {
           PIMEGA_PRINT(pimega, TRACE_MASK_ERROR,
                        "%s: Backend already running. Will not start a new "
                        "backend capture. Sending asynError\n",
                        functionName);
-          strncpy(pimega->error, "Stop current acquisition first", sizeof(pimega->error));
+          strncpy(this->error_str, "Stop current acquisition first", strlen(this->error_str));
           status = asynError;
         }
       }
@@ -567,12 +567,12 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
       } else {
         PIMEGA_PRINT(pimega, TRACE_MASK_ERROR, "%s: Backend already stopped. Sending asynError\n",
                      functionName);
-        strncpy(pimega->error, "Backend already stopped", sizeof(pimega->error));
+        strncpy(this->error_str, "Backend already stopped", strlen(this->error_str));
         strcat(ok_str, "Backend already stopped");
       }
     }
   } else if (acquireRunning == 1) {
-    strncpy(pimega->error, "Stop current acquisition first", sizeof(pimega->error));
+    strncpy(this->error_str, "Stop current acquisition first", strlen(this->error_str));
     status = asynError;
   } else if (function == PimegaSendImage) {
     UPDATEIOCSTATUS("Sending Images");
@@ -754,9 +754,9 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
   if (status) {
     PIMEGA_PRINT(pimega, TRACE_MASK_ERROR,
                  "%s: Failed - status=%d function=%s(%d), value=%d - %s\n", __func__, status,
-                 paramName, function, value, pimega->error);
-    UPDATEIOCSTATUS(pimega->error);
-    pimega->error[0] = '\0';
+                 paramName, function, value, this->error_str);
+    UPDATEIOCSTATUS(this->error_str);
+    this->error_str[0] = '\0';
   } else {
     /* Set the parameter and readback in the parameter library.  This may be
      * overwritten when we read back the status at the end, but that's OK */
@@ -826,7 +826,7 @@ asynStatus pimegaDetector::writeOctet(asynUser *pasynUser, const char *value, si
 
   getParameter(ADAcquire, &acquireRunning);
   if (acquireRunning == 1) {
-    strncpy(pimega->error, "Stop current acquisition first", sizeof(pimega->error));
+    strncpy(this->error_str, "Stop current acquisition first", strlen(this->error_str));
     status = asynError;
   } else if (function == pimegaDacDefaults) {
     *nActual = maxChars;
@@ -857,9 +857,9 @@ asynStatus pimegaDetector::writeOctet(asynUser *pasynUser, const char *value, si
   if (status) {
     PIMEGA_PRINT(pimega, TRACE_MASK_ERROR,
                  "%s: Failed - status=%d function=%s(%d), value=%s - %s\n", __func__, status,
-                 paramName, function, value, pimega->error);
-    UPDATEIOCSTATUS(pimega->error);
-    pimega->error[0] = '\0';
+                 paramName, function, value, this->error_str);
+    UPDATEIOCSTATUS(this->error_str);
+    this->error_str[0] = '\0';
   } else {
     /* Do callbacks so higher layers see any changes */
     callParamCallbacks();
@@ -896,7 +896,7 @@ asynStatus pimegaDetector::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
 
   getParameter(ADAcquire, &acquireRunning);
   if (acquireRunning == 1) {
-    strncpy(pimega->error, "Stop current acquisition first", sizeof(pimega->error));
+    strncpy(this->error_str, "Stop current acquisition first", strlen(this->error_str));
     status = asynError;
   } else if (function == ADAcquireTime) {
     status |= acqTime(value);
@@ -934,9 +934,9 @@ asynStatus pimegaDetector::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
   if (status) {
     PIMEGA_PRINT(pimega, TRACE_MASK_ERROR,
                  "%s: Failed - status=%d function=%s(%d), value=%f - %s\n", functionName, status,
-                 paramName, function, value, pimega->error);
-    UPDATEIOCSTATUS(pimega->error);
-    pimega->error[0] = '\0';
+                 paramName, function, value, this->error_str);
+    UPDATEIOCSTATUS(this->error_str);
+    this->error_str[0] = '\0';
   } else {
     /* Do callbacks so higher layers see any changes */
     callParamCallbacks();
@@ -964,8 +964,8 @@ asynStatus pimegaDetector::readFloat32Array(asynUser *pasynUser, epicsFloat32 *v
   getParameter(ADAcquire, &acquireRunning);
   /*if (acquireRunning == 1)
   {
-      strncpy(pimega->error, "Stop current acquisition first", sizeof("Stop
-  current acquisition first")); UPDATEIOCSTATUS(pimega->error); pimega->error[0]
+      strncpy(this->error_str, "Stop current acquisition first", sizeof("Stop
+  current acquisition first")); UPDATEIOCSTATUS(this->error_str); this->error_str[0]
   = '\0'; return asynError;
   }
   else */
@@ -987,8 +987,8 @@ asynStatus pimegaDetector::readFloat32Array(asynUser *pasynUser, epicsFloat32 *v
   } else {
     PIMEGA_PRINT(pimega, TRACE_MASK_ERROR, "%s: Failed - status=%d function=%s(%d), value=%f\n",
                  functionName, status, paramName, function, value);
-    UPDATEIOCSTATUS(pimega->error);
-    pimega->error[0] = '\0';
+    UPDATEIOCSTATUS(this->error_str);
+    this->error_str[0] = '\0';
     return asynError;
   }
 
@@ -1019,7 +1019,7 @@ asynStatus pimegaDetector::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
 
   else if (function == PimegaDacOutSense) {
     if (acquireRunning == 1) {
-      strncpy(pimega->error, "Stop current acquisition first", sizeof(pimega->error));
+      strncpy(this->error_str, "Stop current acquisition first", strlen(this->error_str));
       status = asynError;
     } else {
       status = get_dac_out_sense(pimega);
@@ -1036,7 +1036,7 @@ asynStatus pimegaDetector::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
   } else {
     PIMEGA_PRINT(pimega, TRACE_MASK_ERROR,
                  "%s: Failed - status=%d function=%s(%d), value=%f - %s\n", functionName, status,
-                 paramName, function, value, pimega->error);
+                 paramName, function, value, this->error_str);
     return asynError;
   }
 }
@@ -1068,7 +1068,7 @@ asynStatus pimegaDetector::readInt32(asynUser *pasynUser, epicsInt32 *value) {
       error = 0;
 
     received_acq = 0;
-    for (int module = 1; module <= pimega->max_num_modules; module++) {
+    for (int module = 1; module <= GetTotalModules(pimega); module++) {
       if (received_acq == 0 ||
           (int)pimega->acq_status_return.STATUS_NOOFACQUISITIONS[module - 1] > received_acq) {
         received_acq = (int)pimega->acq_status_return.STATUS_NOOFACQUISITIONS[module - 1];
@@ -1246,13 +1246,13 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
 
   pimega = pimega_new((pimega_detector_model_t)detectorModel, true);
   pimega_global = pimega;
-  pimega->log = log;
+  EnableLog(pimega, log);
   UseBackendOnStart(pimega, (backend_status_t)backendOn);
   if (log == 1) {
     if (initLog(pimega) == false) {
       PIMEGA_PRINT(pimega, TRACE_MASK_WARNING, "pimegaDetector: Disabling logging\n");
       exit(0);
-      pimega->log = 0;
+      EnableLog(pimega, 0);
     }
     else {
       log_file_path = (char*) malloc(sizeof(char) * 50);
@@ -1260,21 +1260,18 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
       GetLogFilePath(pimega, log_file_path);
     }
   }
+  error_str = ErrorStringPointer(pimega);
   maxSizeX = SizeX;
   maxSizeY = SizeY;
 
   if (pimega) PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "pimegaDetector: Pimega struct created\n");
 
-  pimega->simulate = simulate;
+  SetSimulationFlag(pimega, simulate);
   connect(ips, port, backend_port, vis_frame_port);
   status = prepare_pimega(pimega);
   if (status != PIMEGA_SUCCESS) panic("Unable to prepare pimega. Aborting");
-  // pimega->debug_out = fopen("log.txt", "w+");
-  // report(pimega->debug_out, 1);
-  // fflush(pimega->debug_out);
 
   createParameters();
-  // check_and_disable_sensors(pimega);
 
   setDefaults();
 
@@ -1318,7 +1315,7 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
   int rc = 0;
   unsigned short ports[10] = {10000, 10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10010};
 
-  if (pimega->simulate == 0)
+  if (GetSimulationFlag(pimega) == 0)
     ports[0] = ports[1] = ports[2] = ports[3] = ports[4] = ports[5] = ports[6] = ports[7] =
         ports[8] = ports[9] = port;
 
@@ -1671,16 +1668,16 @@ asynStatus pimegaDetector::getOmrValues(void) {
   int rc = 0;
   rc = get_omr(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  setParameter(PimegaOmrOPMode, pimega->omr_values[OMR_M]);
-  setParameter(PimegaContinuosRW, pimega->omr_values[OMR_CRW_SRW]);
-  setParameter(PimegaPolarity, pimega->omr_values[OMR_Polarity]);
-  setParameter(PimegaDiscriminator, pimega->omr_values[OMR_Disc_CSM_SPM]);
-  setParameter(PimegaTestPulse, pimega->omr_values[OMR_EnableTP]);
-  setParameter(PimegaCounterDepth, pimega->omr_values[OMR_CountL]);
-  setParameter(PimegaEqualization, pimega->omr_values[OMR_Equalization]);
-  setParameter(PimegaPixelMode, pimega->omr_values[OMR_CSM_SPM]);
-  setParameter(PimegaGain, pimega->omr_values[OMR_Gain_Mode]);
-  setParameter(PimegaExtBgSel, pimega->omr_values[OMR_Ext_BG_Sel]);
+  setParameter(PimegaOmrOPMode, GetOMRValue(pimega, OMR_M));
+  setParameter(PimegaContinuosRW, GetOMRValue(pimega, OMR_CRW_SRW));
+  setParameter(PimegaPolarity, GetOMRValue(pimega, OMR_Polarity));
+  setParameter(PimegaDiscriminator, GetOMRValue(pimega, OMR_Disc_CSM_SPM));
+  setParameter(PimegaTestPulse, GetOMRValue(pimega, OMR_EnableTP));
+  setParameter(PimegaCounterDepth, GetOMRValue(pimega, OMR_CountL));
+  setParameter(PimegaEqualization, GetOMRValue(pimega, OMR_Equalization));
+  setParameter(PimegaPixelMode, GetOMRValue(pimega, OMR_CSM_SPM));
+  setParameter(PimegaGain, GetOMRValue(pimega, OMR_Gain_Mode));
+  setParameter(PimegaExtBgSel, GetOMRValue(pimega, OMR_Ext_BG_Sel));
   return asynSuccess;
 }
 
@@ -1765,7 +1762,7 @@ asynStatus pimegaDetector::startCaptureBackend(void) {
     char error[100];
     decode_backend_error(pimega->ack.error, error);
     UPDATESERVERSTATUS(error);
-    strncpy(pimega->error, "Error configuring backend", sizeof(pimega->error));
+    strncpy(this->error_str, "Error configuring backend", strlen(this->error_str));
     return asynError;
   }
 
@@ -1935,11 +1932,11 @@ asynStatus pimegaDetector::checkSensors(void) {
 
   idxParam = PimegaDisabledSensorsM1;
   rc = check_and_disable_sensors(pimega);
-  for (int module = 1; module <= pimega->max_num_modules; module++) {
-    for (int sensor = 0; sensor < pimega->num_all_chips; sensor++) {
+  for (int module = 1; module <= GetTotalModules(pimega); module++) {
+    for (int sensor = 0; sensor < GetChipsPerModule(pimega); sensor++) {
       PimegaDisabledSensors_[sensor] = (epicsInt32)(CheckSensorIsDisabled(pimega, module - 1, sensor));
     }
-    doCallbacksInt32Array(PimegaDisabledSensors_, pimega->num_all_chips, idxParam, 0);
+    doCallbacksInt32Array(PimegaDisabledSensors_, GetChipsPerModule(pimega), idxParam, 0);
     idxParam++;
   }
 
@@ -2177,7 +2174,7 @@ asynStatus pimegaDetector::setThresholdEnergy(float energy) {
     error("Error while trying to set energy\n%s\n", pimega_error_string(rc));
     return asynError;
   }
-  setParameter(PimegaEnergy, pimega->calibrationParam.energy);
+  setParameter(PimegaEnergy, GetCalibrationEnergy(pimega));
   return asynSuccess;
 }
 
@@ -2233,7 +2230,7 @@ asynStatus pimegaDetector::getMbTemperature(void) {
   rc = getMB_Temperatures(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
 
-  for (int module = 1; module <= pimega->max_num_modules; module++) {
+  for (int module = 1; module <= GetTotalModules(pimega); module++) {
     for (int i = 0; i < pimega->num_mb_tsensors; i++) {
       PimegaMBTemperature_[i] = (epicsFloat32)(pimega->pimegaParam.mb_temperature[module - 1][i]);
       sum += PimegaMBTemperature_[i];
@@ -2264,18 +2261,18 @@ asynStatus pimegaDetector::getTemperatureStatus(void) {
   int idxTempStatus[] = {PimegaTemperatureStatusM1, PimegaTemperatureStatusM2,
                          PimegaTemperatureStatusM3, PimegaTemperatureStatusM4};
 
-  for (int module = 0; module < pimega->max_num_modules; module++) {
-    setIntegerParam(idxTempStatus[module], pimega->temperature.status[module]);
+  for (int module = 0; module < GetTotalModules(pimega); module++) {
+    setIntegerParam(idxTempStatus[module], GetTemperatureStatusFromModule(pimega, module));
   }
   return asynSuccess;
-}
+} 
 
 asynStatus pimegaDetector::getTemperatureHighest(void) {
   int idxTempHighest[] = {PimegaTemperatureHighestM1, PimegaTemperatureHighestM2,
                           PimegaTemperatureHighestM3, PimegaTemperatureHighestM4};
 
-  for (int module = 0; module < pimega->max_num_modules; module++) {
-    setParameter(idxTempHighest[module], pimega->temperature.highest[module]);
+  for (int module = 0; module < GetTotalModules(pimega); module++) {
+    setParameter(idxTempHighest[module], GetTemperatureHighestFromModule(pimega, module));
   }
   return asynSuccess;
 }
@@ -2288,9 +2285,9 @@ asynStatus pimegaDetector::getMedipixTemperatures(void) {
                   PimegaMPAvgTSensorM4};
   rc = getMedipixSensor_Temperatures(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  for (int module = 1; module <= pimega->max_num_modules; module++) {
+  for (int module = 1; module <= GetTotalModules(pimega); module++) {
     doCallbacksFloat32Array(pimega->pimegaParam.allchip_temperature[module - 1],
-                            pimega->num_all_chips, idxTemp[module - 1], 0);
+                            GetChipsPerModule(pimega), idxTemp[module - 1], 0);
     setParameter(idxAvg[module - 1], pimega->pimegaParam.avg_chip_temperature[module - 1]);
   }
   return asynSuccess;
@@ -2300,7 +2297,7 @@ asynStatus pimegaDetector::getMedipixAvgTemperature(void) {
   int idxAvg = PimegaMPAvgTSensorM1;
   int rc = get_TemperatureSensorAvg(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  for (int module = 1; module <= pimega->max_num_modules; module++) {
+  for (int module = 1; module <= GetTotalModules(pimega); module++) {
     setParameter(idxAvg, pimega->pimegaParam.avg_chip_temperature[module - 1]);
     idxAvg++;
   }
