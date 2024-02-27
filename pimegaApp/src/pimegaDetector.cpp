@@ -1023,7 +1023,7 @@ asynStatus pimegaDetector::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
       status = asynError;
     } else {
       status = get_dac_out_sense(pimega);
-      *value = pimega->pimegaParam.dacOutput;
+      *value = GetCurrentDACOutSense(pimega);
     }
   }
 
@@ -1625,7 +1625,7 @@ asynStatus pimegaDetector::setDefaults(void) {
 
   rc = getSensorBias(pimega, PIMEGA_ONE_MB_LOW_FLEX_ONE_MODULE);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   setParameter(PimegaLogFile, this->log_file_path);
   callParamCallbacks();
@@ -1685,7 +1685,7 @@ asynStatus pimegaDetector::getExtBgIn(void) {
   int rc;
   rc = get_ImgChip_ExtBgIn(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  setParameter(PimegaExtBgIn, pimega->pimegaParam.extBgIn);
+  setParameter(PimegaExtBgIn, GetCurrentExtBGIn(pimega));
   return asynSuccess;
 }
 
@@ -1703,7 +1703,7 @@ void pimegaDetector::report(FILE *fp, int details) {
 
 asynStatus pimegaDetector::startAcquire(void) {
   int rc = 0;
-  pimega->pimegaParam.software_trigger = false;
+  SetSoftwareTrigger(pimega, false);
   if (BoolAcqResetRDMA) {
     send_allinitArgs_allModules(pimega);
   }
@@ -1823,7 +1823,7 @@ asynStatus pimegaDetector::selectModule(uint8_t module) {
   if (rc != PIMEGA_SUCCESS) return asynError;
   rc = getSensorBias(pimega, (pimega_send_mb_flex_t)send_mode);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   setParameter(PimegaModule, module);
   return asynSuccess;
@@ -1978,7 +1978,7 @@ asynStatus pimegaDetector::reset(short action) {
   /* Get some parameters */
   rc = getDacsValues();
   if (rc != PIMEGA_SUCCESS) rc_aux = rc;
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   if (rc_aux != PIMEGA_SUCCESS) {
     return asynError;
@@ -2000,7 +2000,7 @@ asynStatus pimegaDetector::medipixBoard(uint8_t board_id) {
   rc = getSensorBias(pimega, (pimega_send_mb_flex_t)send_mode);
   if (rc != PIMEGA_SUCCESS) return asynError;
 
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   // getMfbTemperature();
   setParameter(PimegaMedipixBoard, board_id);
@@ -2034,7 +2034,7 @@ asynStatus pimegaDetector::imgChipID(uint8_t chip_id) {
   /* Get e-fuseID from selected chip_id */
   rc = efuseid_rbv(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  _efuseID = pimega->pimegaParam.efuseID;
+  _efuseID = GetCurrentEfuseID(pimega);
   setParameter(PimegaefuseID, _efuseID);
 
   rc = getDacsValues();
@@ -2162,7 +2162,7 @@ asynStatus pimegaDetector::sensorBias(float voltage) {
   }
 
   getSensorBias(pimega, (pimega_send_mb_flex_t)send_mode);
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   return asynSuccess;
 }
@@ -2202,7 +2202,7 @@ asynStatus pimegaDetector::senseDacSel(u_int8_t dac) {
   rc = get_dac_out_sense(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
   SenseDacSel_RBV(pimega);
-  setParameter(PimegaDacOutSense, pimega->pimegaParam.dacOutput);
+  setParameter(PimegaDacOutSense, GetCurrentDACOutSense(pimega));
   setParameter(PimegaSenseDacSel, SenseDacSelValue(pimega));
   return asynSuccess;
 }
@@ -2232,7 +2232,7 @@ asynStatus pimegaDetector::getMbTemperature(void) {
 
   for (int module = 1; module <= GetTotalModules(pimega); module++) {
     for (int i = 0; i < pimega->num_mb_tsensors; i++) {
-      PimegaMBTemperature_[i] = (epicsFloat32)(pimega->pimegaParam.mb_temperature[module - 1][i]);
+      PimegaMBTemperature_[i] = (epicsFloat32)GetBoardTemperatureFromModule(pimega, module - 1, i);
       sum += PimegaMBTemperature_[i];
     }
     average = sum / pimega->num_mb_tsensors;
@@ -2288,7 +2288,7 @@ asynStatus pimegaDetector::getMedipixTemperatures(void) {
   for (int module = 1; module <= GetTotalModules(pimega); module++) {
     doCallbacksFloat32Array(pimega->pimegaParam.allchip_temperature[module - 1],
                             GetChipsPerModule(pimega), idxTemp[module - 1], 0);
-    setParameter(idxAvg[module - 1], pimega->pimegaParam.avg_chip_temperature[module - 1]);
+    setParameter(idxAvg[module - 1], GetChipAverageTemperatureFromModule(pimega, module - 1));
   }
   return asynSuccess;
 }
@@ -2298,7 +2298,7 @@ asynStatus pimegaDetector::getMedipixAvgTemperature(void) {
   int rc = get_TemperatureSensorAvg(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
   for (int module = 1; module <= GetTotalModules(pimega); module++) {
-    setParameter(idxAvg, pimega->pimegaParam.avg_chip_temperature[module - 1]);
+    setParameter(idxAvg, GetChipAverageTemperatureFromModule(pimega, module - 1));
     idxAvg++;
   }
   return asynSuccess;
