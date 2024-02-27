@@ -221,9 +221,9 @@ void pimegaDetector::acqTask() {
             UPDATEIOCSTATUS("Saving images..");
           } else if (indexEnableBool == true &&
                      GetAcqStatusSentAcquisitionsCount(pimega) <
-                         (unsigned int)pimega->acquireParam.numCapture) {
+                         (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
             UPDATEIOCSTATUS("Sending frames to Index");
-          } else if (processedBackendCount < (unsigned int)pimega->acquireParam.numCapture) {
+          } else if (processedBackendCount < (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
             UPDATEIOCSTATUS("Images received, processing");
           } else if (acquireStatus == DONE_ACQ) {
             PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "%s: Acquisition finished\n", functionName);
@@ -246,16 +246,16 @@ void pimegaDetector::acqTask() {
              the backend. Notice that the following snippet of code is identical
              to that of the Capture and server status message management block
            */
-          if (pimega->acquireParam.numCapture != 0) {
+          if (GetAcqParamCameraNumCapture(pimega) != 0) {
             if (GetAcqStatusProcessedImageNum(pimega) <
-                (unsigned int)pimega->acquireParam.numCapture) {
+                (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
               UPDATEIOCSTATUS("Waiting for trigger");
             } else if (autoSave == 1 &&
                        processedBackendCount < GetAcqStatusSavedFramesCount(pimega)) {
               UPDATEIOCSTATUS("Saving images..");
             } else if (indexEnableBool == true &&
                        GetAcqStatusSentAcquisitionsCount(pimega) <
-                           (unsigned int)pimega->acquireParam.numCapture) {
+                           (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
               UPDATEIOCSTATUS("Sending frames to Index");
             } else if (acquireStatus == DONE_ACQ) {
               PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "%s: Acquisition finished\n", functionName);
@@ -370,10 +370,10 @@ void pimegaDetector::captureTask() {
       /*Anamoly detection. Upon incorrect configuration the detector, a number
         of images larger that what has been requested may arrive. In that case,
         to establish the end of the capture, an upper bound
-        pimega->acquireParam.numCapture is set for recievedBackendCount*/
-      if (pimega->acquireParam.numCapture != 0 &&
-          recievedBackendCount > (unsigned int)pimega->acquireParam.numCapture) {
-        recievedBackendCount = (unsigned int)pimega->acquireParam.numCapture;
+        GetAcqParamCameraNumCapture(pimega) is set for recievedBackendCount*/
+      if (GetAcqParamCameraNumCapture(pimega) != 0 &&
+          recievedBackendCount > (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
+        recievedBackendCount = (unsigned int)GetAcqParamCameraNumCapture(pimega);
       }
     }
     getParameter(NDAutoSave, &autoSave);
@@ -402,18 +402,18 @@ void pimegaDetector::captureTask() {
       }
     }
 
-    if (pimega->acquireParam.numCapture != 0 && capture) {
+    if (GetAcqParamCameraNumCapture(pimega) != 0 && capture) {
       /* Timer finished and data should have arrived already ( but not
        * necessarily saved ) */
       getIntegerParam(ADStatus, &adstatus);
       if (adstatus == ADStatusAborted) {
         UPDATESERVERSTATUS("Aborted");
-      } else if (received_acq < (int)pimega->acquireParam.numCapture) {
+      } else if (received_acq < (int)GetAcqParamCameraNumCapture(pimega)) {
         UPDATESERVERSTATUS("Waiting for images");
       } else if (autoSave == 1 && GetAcqStatusDone(pimega) != DONE_ACQ) {
         UPDATESERVERSTATUS("Saving");
       } else if (GetAcqStatusProcessedImageNum(pimega) <
-                 (int)pimega->acquireParam.numCapture) {
+                 (int)GetAcqParamCameraNumCapture(pimega)) {
         UPDATESERVERSTATUS("Processing images");
       } else {
         setParameter(NDFileCapture, 0);
@@ -1752,12 +1752,12 @@ asynStatus pimegaDetector::startCaptureBackend(void) {
   configureAlignment(triggerMode == IOC_TRIGGER_MODE_ALIGNMENT);
 
   rc = (asynStatus)update_backend_acqArgs(pimega, lfsr, autoSave, BoolAcqResetRDMA,
-                                          pimega->acquireParam.numCapture, frameProcessMode);
+                                          GetAcqParamCameraNumCapture(pimega), frameProcessMode);
   if (rc != PIMEGA_SUCCESS) return asynError;
 
   rc = (asynStatus)send_acqArgs_to_backend(pimega);
   get_acquire_period(pimega);
-  setParameter(ADAcquirePeriod, pimega->acquireParam.acquirePeriod);
+  setParameter(ADAcquirePeriod, GetAcquirePeriod(pimega));
   if (rc != PIMEGA_SUCCESS) {
     char error[100];
     decode_backend_error(pimega->ack.error, error);
@@ -2074,7 +2074,7 @@ asynStatus pimegaDetector::acqTime(double acquire_time_s) {
   }
   setParameter(ADAcquireTime, acquire_time_s);
   get_acquire_period(pimega);
-  double acq_period_s_rbv = pimega->acquireParam.acquirePeriod;
+  double acq_period_s_rbv = GetAcquirePeriod(pimega);
   setParameter(ADAcquirePeriod, acq_period_s_rbv);
   return asynSuccess;
 }
@@ -2096,7 +2096,7 @@ asynStatus pimegaDetector::acqPeriod(double period_time_s) {
     return asynError;
   } else {
     get_acquire_period(pimega);
-    double acq_period_s_rbv = pimega->acquireParam.acquirePeriod;
+    double acq_period_s_rbv = GetAcquirePeriod(pimega);
     setParameter(ADAcquirePeriod, acq_period_s_rbv);
     return asynSuccess;
   }
@@ -2382,14 +2382,16 @@ asynStatus pimegaDetector::debug(const std::string &method, const std::string &m
 
 asynStatus pimegaDetector::configureAlignment(bool alignment_mode) {
   int numExposuresVar;
+  int numCaptureVar;
   int max_num_capture = 2147483647;
   if (alignment_mode) {
     set_numberExposures(pimega, max_num_capture);
-    pimega->acquireParam.numCapture = max_num_capture;
+    SetAcqParamCameraNumCapture(pimega, max_num_capture);
   } else {
+    numCaptureVar = GetAcqParamCameraNumCapture(pimega);
     getIntegerParam(ADNumExposures, &numExposuresVar);
     set_numberExposures(pimega, numExposuresVar);
-    getParameter(NDFileNumCapture, &pimega->acquireParam.numCapture);
+    getParameter(NDFileNumCapture, &numCaptureVar);
   }
 }
 
