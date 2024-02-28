@@ -416,6 +416,7 @@ class pimegaDetector : public ADDriver {
   int maxSizeX;
   int maxSizeY;
   char *error_str;
+  trigger_in_available *trigger_input_cfg;
 
   int arrayCallbacks;
   size_t dims[2];
@@ -468,7 +469,7 @@ class pimegaDetector : public ADDriver {
   // asynStatus imageMode(u_int8_t mode);
   asynStatus sendImage(void);
   asynStatus checkSensors(void);
-  asynStatus loadEqualization(uint32_t *cfg);
+  asynStatus loadEqualization(void);
   asynStatus setExtBgIn(float voltage);
   asynStatus dacDefaults(const char *file);
   asynStatus getExtBgIn(void);
