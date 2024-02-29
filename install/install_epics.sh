@@ -177,8 +177,12 @@ CompileSynapps() {
         sed -i "s/^$module=/#$module=/" $SYNAPPS_RELEASE_FILE
     done
 
-    # Enable TIRPC for ASYN
-    sed -i "/^# TIRPC/c\TIRPC = YES" $EPICS_INSTALL_PATH/synApps/support/asyn-$ASYN_VERSION/configure/CONFIG_SITE
+    . /etc/os-release
+    if [[ $NAME =~ "Ubuntu" && $VERSION_ID =~ "22." ]]; then
+        # Fix for Ubuntu 22
+        # Enable TIRPC for ASYN
+        sed -i "/^# TIRPC/c\TIRPC = YES" $EPICS_INSTALL_PATH/synApps/support/asyn-$ASYN_VERSION/configure/CONFIG_SITE
+    fi
     # Set the EPICS_BASE variable for ASYN
     sed -i "/#EPICS_BASE=/c\EPICS_BASE=$EPICS_INSTALL_PATH/base" $EPICS_INSTALL_PATH/synApps/support/asyn-$ASYN_VERSION/configure/RELEASE
     # Disable unit tests from ADCore
