@@ -132,7 +132,7 @@ void pimegaDetector::acqTask() {
       UPDATEIOCSTATUS("Permission Denied, press stop");
     }
     if (acquire && (acquireStatus != DONE_ACQ || acquireStatus != PERMISSION_DENIED ||
-                    triggerMode != pimega->trigger_in_enum.PIMEGA_TRIGGER_IN_INTERNAL)) {
+                    triggerMode != this->trigger_input_cfg->PIMEGA_TRIGGER_IN_INTERNAL)) {
       epicsTimeGetCurrent(&endTime);
       elapsedTime = epicsTimeDiffInSeconds(&endTime, &startTime);
       if (acquirePeriod != 0) {
@@ -144,7 +144,7 @@ void pimegaDetector::acqTask() {
       if (remainingTime < 0) {
         remainingTime = 0;
       }
-      if (triggerMode == pimega->trigger_in_enum.PIMEGA_TRIGGER_IN_INTERNAL) {
+      if (triggerMode == this->trigger_input_cfg->PIMEGA_TRIGGER_IN_INTERNAL) {
         setDoubleParam(ADTimeRemaining, remainingTime);
       } else {
         setDoubleParam(ADTimeRemaining, elapsedTime);
@@ -195,7 +195,7 @@ void pimegaDetector::acqTask() {
          the detector Y ( X = K x Y ). So the offset to establish the end of a
          single acquire needs to be tracked */
       // acquireImageCount = recievedBackendCount - recievedBackendCountOffset;
-      acquireImageCount = GetAcqStatusFramesReceived(pimega, pimega->pimega_module - 1);
+      acquireImageCount = GetAcqStatusFramesReceived(pimega, get_selected_module(pimega) - 1);
       acquireImageSavedCount =
           GetAcqStatusSavedFramesCount(pimega) - recievedBackendCountOffset;
 
@@ -221,9 +221,9 @@ void pimegaDetector::acqTask() {
             UPDATEIOCSTATUS("Saving images..");
           } else if (indexEnableBool == true &&
                      GetAcqStatusSentAcquisitionsCount(pimega) <
-                         (unsigned int)pimega->acquireParam.numCapture) {
+                         (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
             UPDATEIOCSTATUS("Sending frames to Index");
-          } else if (processedBackendCount < (unsigned int)pimega->acquireParam.numCapture) {
+          } else if (processedBackendCount < (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
             UPDATEIOCSTATUS("Images received, processing");
           } else if (acquireStatus == DONE_ACQ) {
             PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "%s: Acquisition finished\n", functionName);
@@ -246,16 +246,16 @@ void pimegaDetector::acqTask() {
              the backend. Notice that the following snippet of code is identical
              to that of the Capture and server status message management block
            */
-          if (pimega->acquireParam.numCapture != 0) {
+          if (GetAcqParamCameraNumCapture(pimega) != 0) {
             if (GetAcqStatusProcessedImageNum(pimega) <
-                (unsigned int)pimega->acquireParam.numCapture) {
+                (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
               UPDATEIOCSTATUS("Waiting for trigger");
             } else if (autoSave == 1 &&
                        processedBackendCount < GetAcqStatusSavedFramesCount(pimega)) {
               UPDATEIOCSTATUS("Saving images..");
             } else if (indexEnableBool == true &&
                        GetAcqStatusSentAcquisitionsCount(pimega) <
-                           (unsigned int)pimega->acquireParam.numCapture) {
+                           (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
               UPDATEIOCSTATUS("Sending frames to Index");
             } else if (acquireStatus == DONE_ACQ) {
               PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "%s: Acquisition finished\n", functionName);
@@ -370,10 +370,10 @@ void pimegaDetector::captureTask() {
       /*Anamoly detection. Upon incorrect configuration the detector, a number
         of images larger that what has been requested may arrive. In that case,
         to establish the end of the capture, an upper bound
-        pimega->acquireParam.numCapture is set for recievedBackendCount*/
-      if (pimega->acquireParam.numCapture != 0 &&
-          recievedBackendCount > (unsigned int)pimega->acquireParam.numCapture) {
-        recievedBackendCount = (unsigned int)pimega->acquireParam.numCapture;
+        GetAcqParamCameraNumCapture(pimega) is set for recievedBackendCount*/
+      if (GetAcqParamCameraNumCapture(pimega) != 0 &&
+          recievedBackendCount > (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
+        recievedBackendCount = (unsigned int)GetAcqParamCameraNumCapture(pimega);
       }
     }
     getParameter(NDAutoSave, &autoSave);
@@ -402,18 +402,18 @@ void pimegaDetector::captureTask() {
       }
     }
 
-    if (pimega->acquireParam.numCapture != 0 && capture) {
+    if (GetAcqParamCameraNumCapture(pimega) != 0 && capture) {
       /* Timer finished and data should have arrived already ( but not
        * necessarily saved ) */
       getIntegerParam(ADStatus, &adstatus);
       if (adstatus == ADStatusAborted) {
         UPDATESERVERSTATUS("Aborted");
-      } else if (received_acq < (int)pimega->acquireParam.numCapture) {
+      } else if (received_acq < (int)GetAcqParamCameraNumCapture(pimega)) {
         UPDATESERVERSTATUS("Waiting for images");
       } else if (autoSave == 1 && GetAcqStatusDone(pimega) != DONE_ACQ) {
         UPDATESERVERSTATUS("Saving");
       } else if (GetAcqStatusProcessedImageNum(pimega) <
-                 (int)pimega->acquireParam.numCapture) {
+                 (int)GetAcqParamCameraNumCapture(pimega)) {
         UPDATESERVERSTATUS("Processing images");
       } else {
         setParameter(NDFileCapture, 0);
@@ -580,7 +580,7 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     strcat(ok_str, "Sending image done");
   } else if (function == PimegaLoadEqStart) {
     UPDATEIOCSTATUS("Equalizing. Please Wait");
-    if (value) status |= loadEqualization(pimega->loadEqCFG);
+    if (value) status |= loadEqualization();
     strcat(ok_str, "Equalization Finished");
   }
   else if (function == PimegaCheckSensors) {
@@ -1023,7 +1023,7 @@ asynStatus pimegaDetector::readFloat64(asynUser *pasynUser, epicsFloat64 *value)
       status = asynError;
     } else {
       status = get_dac_out_sense(pimega);
-      *value = pimega->pimegaParam.dacOutput;
+      *value = GetCurrentDACOutSense(pimega);
     }
   }
 
@@ -1114,7 +1114,7 @@ asynStatus pimegaDetector::readInt32(asynUser *pasynUser, epicsInt32 *value) {
     setParameter(NDFileNumCaptured, (int)GetAcqStatusSavedFramesCount(pimega));
     callParamCallbacks();
   } else if (function == PimegaModule) {
-    *value = pimega->pimega_module;
+    *value = get_selected_module(pimega);
   }
   // Other functions we call the base class method
   else {
@@ -1248,6 +1248,7 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
   pimega_global = pimega;
   EnableLog(pimega, log);
   UseBackendOnStart(pimega, (backend_status_t)backendOn);
+  trigger_input_cfg = GetTriggerInputConfigPtr(pimega);
   if (log == 1) {
     if (initLog(pimega) == false) {
       PIMEGA_PRINT(pimega, TRACE_MASK_WARNING, "pimegaDetector: Disabling logging\n");
@@ -1279,7 +1280,7 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
   get_MbHwVersion(pimega);
 
   // Alocate memory for PimegaMBTemperature_
-  PimegaMBTemperature_ = (epicsFloat32 *)calloc(pimega->num_mb_tsensors, sizeof(epicsFloat32));
+  PimegaMBTemperature_ = (epicsFloat32 *)calloc(GetModuleTemperatureSensorCount(pimega), sizeof(epicsFloat32));
 
   /* Create the thread that runs acquisition */
   status = (epicsThreadCreate("pimegaDetTask", epicsThreadPriorityMedium,
@@ -1298,8 +1299,8 @@ pimegaDetector::pimegaDetector(const char *portName, const char *address_module0
     debug(functionName, "epicsTheadCreate failure for image task");
   }
 
-  define_master_module(pimega, pimega->master_module, false,
-                       pimega->trigger_in_enum.PIMEGA_TRIGGER_IN_EXTERNAL_POS_EDGE);
+  define_master_module(pimega, GetMasterModule(pimega), false,
+                       this->trigger_input_cfg->PIMEGA_TRIGGER_IN_EXTERNAL_POS_EDGE);
 
   /* Reset RDMA logic in the FPGA at initialization */
   send_allinitArgs_allModules(pimega);
@@ -1625,7 +1626,7 @@ asynStatus pimegaDetector::setDefaults(void) {
 
   rc = getSensorBias(pimega, PIMEGA_ONE_MB_LOW_FLEX_ONE_MODULE);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   setParameter(PimegaLogFile, this->log_file_path);
   callParamCallbacks();
@@ -1685,7 +1686,7 @@ asynStatus pimegaDetector::getExtBgIn(void) {
   int rc;
   rc = get_ImgChip_ExtBgIn(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  setParameter(PimegaExtBgIn, pimega->pimegaParam.extBgIn);
+  setParameter(PimegaExtBgIn, GetCurrentExtBGIn(pimega));
   return asynSuccess;
 }
 
@@ -1703,7 +1704,7 @@ void pimegaDetector::report(FILE *fp, int details) {
 
 asynStatus pimegaDetector::startAcquire(void) {
   int rc = 0;
-  pimega->pimegaParam.software_trigger = false;
+  SetSoftwareTrigger(pimega, false);
   if (BoolAcqResetRDMA) {
     send_allinitArgs_allModules(pimega);
   }
@@ -1752,12 +1753,12 @@ asynStatus pimegaDetector::startCaptureBackend(void) {
   configureAlignment(triggerMode == IOC_TRIGGER_MODE_ALIGNMENT);
 
   rc = (asynStatus)update_backend_acqArgs(pimega, lfsr, autoSave, BoolAcqResetRDMA,
-                                          pimega->acquireParam.numCapture, frameProcessMode);
+                                          GetAcqParamCameraNumCapture(pimega), frameProcessMode);
   if (rc != PIMEGA_SUCCESS) return asynError;
 
   rc = (asynStatus)send_acqArgs_to_backend(pimega);
   get_acquire_period(pimega);
-  setParameter(ADAcquirePeriod, pimega->acquireParam.acquirePeriod);
+  setParameter(ADAcquirePeriod, GetAcquirePeriod(pimega));
   if (rc != PIMEGA_SUCCESS) {
     char error[100];
     decode_backend_error(pimega->ack.error, error);
@@ -1823,7 +1824,7 @@ asynStatus pimegaDetector::selectModule(uint8_t module) {
   if (rc != PIMEGA_SUCCESS) return asynError;
   rc = getSensorBias(pimega, (pimega_send_mb_flex_t)send_mode);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   setParameter(PimegaModule, module);
   return asynSuccess;
@@ -1904,13 +1905,13 @@ asynStatus pimegaDetector::setOMRValue(pimega_omr_t omr, int value, int paramete
   return asynSuccess;
 }
 
-asynStatus pimegaDetector::loadEqualization(uint32_t *cfg) {
+asynStatus pimegaDetector::loadEqualization() {
   int rc = 0, send_form, sensor;
 
   getParameter(PimegaAllModules, &send_form);
   getParameter(PimegaMedipixChip, &sensor);
 
-  rc |= load_equalization(pimega, cfg, sensor, (pimega_send_to_all_t)send_form);
+  rc |= load_equalization(pimega, pimega->loadEqCFG, sensor, (pimega_send_to_all_t)send_form);
 
   if (rc != PIMEGA_SUCCESS) return asynError;
   return asynSuccess;
@@ -1971,14 +1972,14 @@ asynStatus pimegaDetector::reset(short action) {
   if (rc != PIMEGA_SUCCESS) rc_aux = rc;
   rc = numExposures(1);
   if (rc != PIMEGA_SUCCESS) rc_aux = rc;
-  setParameter(ADTriggerMode, pimega->trigger_in_enum.PIMEGA_TRIGGER_IN_INTERNAL);
+  setParameter(ADTriggerMode, this->trigger_input_cfg->PIMEGA_TRIGGER_IN_INTERNAL);
   rc = medipixMode(MODE_B12);
   if (rc != PIMEGA_SUCCESS) rc_aux = rc;
 
   /* Get some parameters */
   rc = getDacsValues();
   if (rc != PIMEGA_SUCCESS) rc_aux = rc;
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   if (rc_aux != PIMEGA_SUCCESS) {
     return asynError;
@@ -2000,7 +2001,7 @@ asynStatus pimegaDetector::medipixBoard(uint8_t board_id) {
   rc = getSensorBias(pimega, (pimega_send_mb_flex_t)send_mode);
   if (rc != PIMEGA_SUCCESS) return asynError;
 
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   // getMfbTemperature();
   setParameter(PimegaMedipixBoard, board_id);
@@ -2034,7 +2035,7 @@ asynStatus pimegaDetector::imgChipID(uint8_t chip_id) {
   /* Get e-fuseID from selected chip_id */
   rc = efuseid_rbv(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
-  _efuseID = pimega->pimegaParam.efuseID;
+  _efuseID = GetCurrentEfuseID(pimega);
   setParameter(PimegaefuseID, _efuseID);
 
   rc = getDacsValues();
@@ -2074,7 +2075,7 @@ asynStatus pimegaDetector::acqTime(double acquire_time_s) {
   }
   setParameter(ADAcquireTime, acquire_time_s);
   get_acquire_period(pimega);
-  double acq_period_s_rbv = pimega->acquireParam.acquirePeriod;
+  double acq_period_s_rbv = GetAcquirePeriod(pimega);
   setParameter(ADAcquirePeriod, acq_period_s_rbv);
   return asynSuccess;
 }
@@ -2096,7 +2097,7 @@ asynStatus pimegaDetector::acqPeriod(double period_time_s) {
     return asynError;
   } else {
     get_acquire_period(pimega);
-    double acq_period_s_rbv = pimega->acquireParam.acquirePeriod;
+    double acq_period_s_rbv = GetAcquirePeriod(pimega);
     setParameter(ADAcquirePeriod, acq_period_s_rbv);
     return asynSuccess;
   }
@@ -2116,7 +2117,7 @@ asynStatus pimegaDetector::metadataHandler(int op_mode) {
     case (kGetMethod):
       rc = get_collection_metadata(pimega, field);
       if (rc == PIMEGA_SUCCESS) {
-        sscanf(pimega->result[pimega->pimega_module - 1], "%s", result);
+        sscanf(get_module_result(pimega), "%s", result);
       }
       break;
     case (kDelMethod):
@@ -2162,7 +2163,7 @@ asynStatus pimegaDetector::sensorBias(float voltage) {
   }
 
   getSensorBias(pimega, (pimega_send_mb_flex_t)send_mode);
-  setParameter(PimegaSensorBias, pimega->pimegaParam.bias_voltage[PIMEGA_THREAD_MAIN]);
+  setParameter(PimegaSensorBias, GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   return asynSuccess;
 }
@@ -2202,7 +2203,7 @@ asynStatus pimegaDetector::senseDacSel(u_int8_t dac) {
   rc = get_dac_out_sense(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
   SenseDacSel_RBV(pimega);
-  setParameter(PimegaDacOutSense, pimega->pimegaParam.dacOutput);
+  setParameter(PimegaDacOutSense, GetCurrentDACOutSense(pimega));
   setParameter(PimegaSenseDacSel, SenseDacSelValue(pimega));
   return asynSuccess;
 }
@@ -2222,8 +2223,10 @@ asynStatus pimegaDetector::getDacsOutSense(void) {
 
 asynStatus pimegaDetector::getMbTemperature(void) {
   int idxWaveform, idxAvg, rc;
+  int total_sensors;
   float sum = 0.00, average;
 
+  total_sensors = GetModuleTemperatureSensorCount(pimega);
   idxWaveform = PimegaMBTemperatureM1;
   idxAvg = PimegaMBAvgTSensorM1;
 
@@ -2231,14 +2234,14 @@ asynStatus pimegaDetector::getMbTemperature(void) {
   if (rc != PIMEGA_SUCCESS) return asynError;
 
   for (int module = 1; module <= GetTotalModules(pimega); module++) {
-    for (int i = 0; i < pimega->num_mb_tsensors; i++) {
-      PimegaMBTemperature_[i] = (epicsFloat32)(pimega->pimegaParam.mb_temperature[module - 1][i]);
+    for (int i = 0; i < total_sensors; i++) {
+      PimegaMBTemperature_[i] = (epicsFloat32)GetBoardTemperatureFromModule(pimega, module - 1, i);
       sum += PimegaMBTemperature_[i];
     }
-    average = sum / pimega->num_mb_tsensors;
+    average = sum / total_sensors;
     sum = 0;
     setParameter(idxAvg, average);
-    doCallbacksFloat32Array(PimegaMBTemperature_, pimega->num_mb_tsensors, idxWaveform, 0);
+    doCallbacksFloat32Array(PimegaMBTemperature_, total_sensors, idxWaveform, 0);
     idxWaveform++;
     idxAvg++;
   }
@@ -2286,9 +2289,9 @@ asynStatus pimegaDetector::getMedipixTemperatures(void) {
   rc = getMedipixSensor_Temperatures(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
   for (int module = 1; module <= GetTotalModules(pimega); module++) {
-    doCallbacksFloat32Array(pimega->pimegaParam.allchip_temperature[module - 1],
+    doCallbacksFloat32Array(pimega->pimegaParam.allchip_temperature[module - 1],    
                             GetChipsPerModule(pimega), idxTemp[module - 1], 0);
-    setParameter(idxAvg[module - 1], pimega->pimegaParam.avg_chip_temperature[module - 1]);
+    setParameter(idxAvg[module - 1], GetChipAverageTemperatureFromModule(pimega, module - 1));
   }
   return asynSuccess;
 }
@@ -2298,7 +2301,7 @@ asynStatus pimegaDetector::getMedipixAvgTemperature(void) {
   int rc = get_TemperatureSensorAvg(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
   for (int module = 1; module <= GetTotalModules(pimega); module++) {
-    setParameter(idxAvg, pimega->pimegaParam.avg_chip_temperature[module - 1]);
+    setParameter(idxAvg, GetChipAverageTemperatureFromModule(pimega, module - 1));
     idxAvg++;
   }
   return asynSuccess;
@@ -2382,14 +2385,16 @@ asynStatus pimegaDetector::debug(const std::string &method, const std::string &m
 
 asynStatus pimegaDetector::configureAlignment(bool alignment_mode) {
   int numExposuresVar;
+  int numCaptureVar;
   int max_num_capture = 2147483647;
   if (alignment_mode) {
     set_numberExposures(pimega, max_num_capture);
-    pimega->acquireParam.numCapture = max_num_capture;
+    SetAcqParamCameraNumCapture(pimega, max_num_capture);
   } else {
+    numCaptureVar = GetAcqParamCameraNumCapture(pimega);
     getIntegerParam(ADNumExposures, &numExposuresVar);
     set_numberExposures(pimega, numExposuresVar);
-    getParameter(NDFileNumCapture, &pimega->acquireParam.numCapture);
+    getParameter(NDFileNumCapture, &numCaptureVar);
   }
 }
 
