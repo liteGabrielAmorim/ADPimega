@@ -50,3 +50,8 @@ repos:
     rev: 1.6.1
     hooks:
       - id: cpplint
+
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: cppcheck
