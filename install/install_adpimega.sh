@@ -1,6 +1,7 @@
 #!/bin/bash
 ROOT_DIR=$PWD
-AREA_DETECTOR_VERSION='R3-13'
+# This area detector version is valid for synApps 6.3
+AREA_DETECTOR_VERSION='R3-12-1'
 AREA_DETECTOR_PATH="/home/$USER/.local/share/epics/synApps/support/areaDetector-$AREA_DETECTOR_VERSION"
 ADPIMEGA_INSTALL_PATH=$AREA_DETECTOR_PATH/ADPimega
 ADPIMEGA_SRC="../"

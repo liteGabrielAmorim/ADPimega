@@ -1,14 +1,11 @@
 #!/bin/bash
 ROOT_DIR=$PWD
 EPICS_BASE_VERSION='7.0.8'
-SYNAPPPS_VERSION='6_1'
-SSCAN_VERSION='R2-11-6'
-AREA_DETECTOR_VERSION='R3-13'
-ADSUPPORT_VERSION='R1-10'
-ADCORE_VERSION='R3-13'
-ASYN_VERSION='R4-44-2'
+SYNAPPPS_VERSION_1='6_3'
+SYNAPPPS_VERSION='R6-3'
 EPICS_INSTALL_PATH="/home/$USER/.local/share/epics"
 DOWNLOADS_PATH="$EPICS_INSTALL_PATH/../tmp_download"
+MAX_CPUS=$(($(nproc)-1))
 INFO='\033[0;32m'
 WARN='\033[0;33m'
 NC='\033[0m'
@@ -20,9 +17,12 @@ unused_modules=(
     "DELAYGEN"
     "DXP"
     "DXPSITORO"
+    "ETHERIP"
+    "GALIL"
     "IP"
     "IP330"
     "IPUNIDIG"
+    "LABJACK"
     "LUA"
     "LOVE"
     "MCA"
@@ -31,15 +31,18 @@ unused_modules=(
     "MODBUS"
     "OPTICS"
     "QUADEM"
+    "SCALER"
     "SOFTGLUE"
     "SOFTGLUEZYNQ"
     "STD"
     "STREAM"
     "VAC"
     "VME"
+    "XSPRESS3"
     "YOKOGAWA_DAS"
     "XXX"
     "ALLEN_BRADLEY"
+    "ULDAQ"
 )
 
 CleanBeforeInstall(){
@@ -57,12 +60,7 @@ DownloadRequirements() {
     echo -e "${INFO}==> Downloading requirements ${NC}"
     cd $EPICS_INSTALL_PATH
     EPICS_DL_FILE=base-$EPICS_BASE_VERSION.tar.gz
-    SYNAPPS_DL_FILE=synApps_$SYNAPPPS_VERSION.tar.gz
-    SSCAN_DL_FILE=sscan-$SSCAN_VERSION.tar.gz
-    AREA_DETECTOR_FILE=areaDetector-$AREA_DETECTOR_VERSION.tar.gz
-    ADSUPPORT_FILE=ADSupport-$ADSUPPORT_VERSION.tar.gz
-    ADCORE_FILE=ADCore-$ADCORE_VERSION.tar.gz
-    ASYN_FILE=asyn-$ASYN_VERSION.tar.gz
+    SYNAPPS_DL_FILE=synApps_$SYNAPPPS_VERSION_1.tar.gz
 
     mkdir $DOWNLOADS_PATH
     cd $DOWNLOADS_PATH
@@ -79,53 +77,12 @@ DownloadRequirements() {
         echo -e "${WARN}==> $SYNAPPS_DL_FILE already exists ${NC}"
     else
         echo -e "${INFO}==> Downloading $SYNAPPS_DL_FILE ${NC}"
-        wget https://epics.anl.gov/bcda/synApps/tar/$SYNAPPS_DL_FILE
+        wget https://github.com/EPICS-synApps/support/releases/download/$SYNAPPPS_VERSION/synApps_$SYNAPPPS_VERSION_1.tar.gz
     fi
+
     tar -xzf $SYNAPPS_DL_FILE
-
-    if [ -f "$SSCAN_DL_FILE" ]; then
-        echo -e "${WARN}==> $SSCAN_DL_FILE already exists ${NC}"
-    else
-        echo -e "${INFO}==> Downloading $SSCAN_DL_FILE ${NC}"
-        wget https://github.com/epics-modules/sscan/archive/refs/tags/$SSCAN_VERSION.tar.gz -O $SSCAN_DL_FILE
-    fi
-    tar -xzf $SSCAN_DL_FILE
-
-    if [ -f "$AREA_DETECTOR_FILE" ]; then
-        echo -e "${WARN}==> $AREA_DETECTOR_FILE already exists ${NC}"
-    else
-        echo -e "${INFO}==> Downloading $AREA_DETECTOR_FILE ${NC}"
-        wget https://github.com/areaDetector/areaDetector/archive/refs/tags/$AREA_DETECTOR_VERSION.tar.gz -O $AREA_DETECTOR_FILE
-    fi
-    tar -xzf $AREA_DETECTOR_FILE
-
-    if [ -f "$ADSUPPORT_FILE" ]; then
-        echo -e "${WARN}==> $ADSUPPORT_FILE already exists ${NC}"
-    else
-        echo -e "${INFO}==> Downloading $ADSUPPORT_FILE ${NC}"
-        wget https://github.com/areaDetector/ADSupport/archive/refs/tags/$ADSUPPORT_VERSION.tar.gz -O $ADSUPPORT_FILE
-    fi
-    tar -xzf $ADSUPPORT_FILE
-
-    if [ -f "$ADCORE_FILE" ]; then
-        echo -e "${WARN}==> $ADCORE_FILE already exists ${NC}"
-    else
-        echo -e "${INFO}==> Downloading $ADCORE_FILE ${NC}"
-        wget https://github.com/areaDetector/ADCore/archive/refs/tags/$ADCORE_VERSION.tar.gz -O $ADCORE_FILE
-    fi
-    tar -xzf $ADCORE_FILE
-
-    if [ -f "$ASYN_FILE" ]; then
-        echo -e "${WARN}==> $ASYN_FILE already exists ${NC}"
-    else
-        echo -e "${INFO}==> Downloading $ASYN_FILE ${NC}"
-        wget https://github.com/epics-modules/asyn/archive/refs/tags/$ASYN_VERSION.tar.gz -O $ASYN_FILE
-    fi
-    tar -xzf $ASYN_FILE
-
-    # wget https://github.com/epics-modules/motor/archive/refs/tags/R7-3-1.tar.gz -O motor-R7-3-1.tar.gz
-    # tar -xzf motor-R7-3-1.tar.gz
     cd -
+
 }
 
 CompileEPICSBase() {
@@ -137,7 +94,7 @@ CompileEPICSBase() {
     sed -i "/^#INSTALL_LOCATION=/c\INSTALL_LOCATION=$EPICS_INSTALL_PATH/base" configure/CONFIG_SITE
 
     echo -e "${INFO}==> Build EPICS BASE ${NC}"
-    make -j6 -s
+    make -j$MAX_CPUS -s -Wfatal-errors
     if [ $? -eq 0 ];then
         echo -e "${INFO}==> EPICS Base installed ${NC}"
     else
@@ -151,14 +108,7 @@ CompileSynapps() {
     echo -e "${INFO}==> Preparing SynApps ${NC}"
     cd $EPICS_INSTALL_PATH
     # Move new support modules
-    mv $DOWNLOADS_PATH/synApps_6_1 $EPICS_INSTALL_PATH/synApps
-    # mv motor-R7-3-1 /usr/local/epics/synApps/support
-    mv $DOWNLOADS_PATH/sscan-$SSCAN_VERSION $EPICS_INSTALL_PATH/synApps/support
-    # Move areaDetector, ADSupport and ADCore
-    mv $DOWNLOADS_PATH/areaDetector-$AREA_DETECTOR_VERSION $EPICS_INSTALL_PATH/synApps/support
-    mv $DOWNLOADS_PATH/asyn-$ASYN_VERSION $EPICS_INSTALL_PATH/synApps/support/
-    mv $DOWNLOADS_PATH/ADSupport-$ADSUPPORT_VERSION/* $EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADSupport
-    mv $DOWNLOADS_PATH/ADCore-$ADCORE_VERSION/* $EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADCore
+    mv $DOWNLOADS_PATH/synApps_$SYNAPPPS_VERSION_1 $EPICS_INSTALL_PATH/synApps
 
     # Update release files
     SYNAPPS_RELEASE_FILE=$EPICS_INSTALL_PATH/synApps/support/configure/RELEASE
@@ -166,12 +116,6 @@ CompileSynapps() {
     sed -i "/^SUPPORT=/c\SUPPORT=$EPICS_INSTALL_PATH/synApps/support" $SYNAPPS_RELEASE_FILE
     # Update EPICS_BASE install path
     sed -i "/^EPICS_BASE=/c\EPICS_BASE=$EPICS_INSTALL_PATH/base" $SYNAPPS_RELEASE_FILE
-    # Update ASYN version
-    sed -i "/^ASYN=/c\ASYN=\$(SUPPORT)/asyn-$ASYN_VERSION" $SYNAPPS_RELEASE_FILE
-    # Update SSCAN version
-    sed -i "/^SSCAN=/c\SSCAN=\$(SUPPORT)/sscan-$SSCAN_VERSION" $SYNAPPS_RELEASE_FILE
-    # Update AREA_DETECTOR version
-    sed -i "/^AREA_DETECTOR=/c\AREA_DETECTOR=\$(SUPPORT)/areaDetector-$AREA_DETECTOR_VERSION" $SYNAPPS_RELEASE_FILE
 
     for module in "${unused_modules[@]}"; do
         sed -i "s/^$module=/#$module=/" $SYNAPPS_RELEASE_FILE
@@ -183,10 +127,6 @@ CompileSynapps() {
         # Enable TIRPC for ASYN
         sed -i "/^# TIRPC/c\TIRPC = YES" $EPICS_INSTALL_PATH/synApps/support/asyn-$ASYN_VERSION/configure/CONFIG_SITE
     fi
-    # Set the EPICS_BASE variable for ASYN
-    sed -i "/#EPICS_BASE=/c\EPICS_BASE=$EPICS_INSTALL_PATH/base" $EPICS_INSTALL_PATH/synApps/support/asyn-$ASYN_VERSION/configure/RELEASE
-    # Disable unit tests from ADCore
-    sed -i "/^DIRS += pluginTests/c\#DIRS += pluginTests" $EPICS_INSTALL_PATH/synApps/support/areaDetector-$AREA_DETECTOR_VERSION/ADCore/ADApp/Makefile
 
     echo -e "${INFO}==> Setup release files ${NC}"
     # This step updates all .local files with default areaDetector values
@@ -201,7 +141,7 @@ CompileSynapps() {
     make release -s
 
     echo -e "${INFO}==> Build synApps Support ${NC}"
-    make -j4 -s
+    make -j$MAX_CPUS -s -Wfatal-errors
     if [ $? -eq 0 ];then
         echo -e "${INFO}==> synApps installed ${NC}"
     else
