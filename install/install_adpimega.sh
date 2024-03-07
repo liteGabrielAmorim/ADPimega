@@ -1,21 +1,23 @@
 #!/bin/bash
 ROOT_DIR=$PWD
-AREA_DETECTOR_VERSION='R3-13'
+# This area detector version is valid for synApps 6.3
+AREA_DETECTOR_VERSION='R3-12-1'
 AREA_DETECTOR_PATH="/home/$USER/.local/share/epics/synApps/support/areaDetector-$AREA_DETECTOR_VERSION"
 ADPIMEGA_INSTALL_PATH=$AREA_DETECTOR_PATH/ADPimega
 ADPIMEGA_SRC="../"
+LIBPIMEGA_PATH="/usr/lib"
 
 INFO='\033[0;32m'
 WARN='\033[0;33m'
 NC='\033[0m'
 
-# libpimega.so should be in /usr/local/lib
+# libpimega.so should be in /usr/lib
 # Include files should be in /usr/local/include/pimega
 CheckDependencies() {
-    if [ -f /usr/local/lib/libpimega.so ]; then
+    if [ -f $LIBPIMEGA_PATH/libpimega.so ]; then
         echo -e "${INFO}==> libpimega.so found ${NC}"
     else
-        echo -e "${WARN}==> libpimega.so not found.\nAdd libpimega.so to /usr/local/lib ${NC}"
+        echo -e "${WARN}==> libpimega.so not found.\nAdd libpimega.so to ${LIBPIMEGA_PATH} ${NC}"
         exit
     fi
 
