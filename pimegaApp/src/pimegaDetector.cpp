@@ -1333,7 +1333,7 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
       this->updateEpicsFrame(reinterpret_cast<vis_dtype*>(data));
   });
 
-  rc = pimega_connect_backend(pimega, "127.0.0.1", backend_port);
+  rc = pimega_connect_backend(pimega, "127.0.0.1", backend_port, vis_frame_port);
   if (rc != PIMEGA_SUCCESS) panic("Unable to connect with Backend. Aborting");
     receive_initArgs_from_backend(pimega);
 
