@@ -583,7 +583,6 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     if (value) status |= loadEqualization(pimega->loadEqCFG);
     strcat(ok_str, "Equalization Finished");
   }
-
   else if (function == PimegaCheckSensors) {
     UPDATEIOCSTATUS("Checking sensors. Please Wait");
     if (value) status |= checkSensors();
@@ -615,6 +614,10 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     status |= medipixBoard(value);
     strcat(ok_str, "ConfigDiscL set");
   } else if (function == PimegaMedipixChip) {
+    if (value < 1) {
+      error("Invalid value: %d\n", value);
+      return asynError;
+    }
     status |= imgChipID(value);
     strcat(ok_str, "Chip selected");
   } else if (function == PimegaPixelMode) {
@@ -641,6 +644,16 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
   } else if (function == PimegaGain) {
     status |= setOMRValue(OMR_Gain_Mode, value, function);
     strcat(ok_str, "Gain set");
+  } else if (function == PimegaAllModules) {
+    if ((value < PIMEGA_SEND_ONE_CHIP_ONE_MODULE) || (value > PIMEGA_SEND_ALL_CHIPS_ALL_MODULES)) {
+      error("Invalid value: %d\n", value);
+      return asynError;
+    }
+  } else if (function == PimegaMBSendMode) {
+    if ((value < 0) || (value > 4)) {
+      error("Invalid value: %d\n", value);
+      return asynError;
+  }
   } else if (function == PimegaExtBgSel) {
     status |= setOMRValue(OMR_Ext_BG_Sel, value, function);
     strcat(ok_str, "BG select set");
@@ -1816,6 +1829,11 @@ asynStatus pimegaDetector::selectModule(uint8_t module) {
 
 asynStatus pimegaDetector::triggerMode(ioc_trigger_mode_t trigger) {
   int rc = 0;
+  if ((trigger < IOC_TRIGGER_MODE_INTERNAL) || (trigger > IOC_TRIGGER_MODE_ALIGNMENT)) {
+    error("Invalid value: %d\n", trigger);
+    return asynError;
+  }
+
   switch (trigger) {
     case IOC_TRIGGER_MODE_INTERNAL:
       rc = configure_trigger(pimega, TRIGGER_MODE_IN_INTERNAL_OUT_ACQ);
@@ -1873,7 +1891,6 @@ asynStatus pimegaDetector::setDACValue(pimega_dac_t dac, int value, int paramete
 asynStatus pimegaDetector::setOMRValue(pimega_omr_t omr, int value, int parameter) {
   int rc = 0;
   int all_modules;
-
   getParameter(PimegaAllModules, &all_modules);
   rc = set_omr(pimega, omr, (unsigned)value, (pimega_send_to_all_t)all_modules);
   if (rc != PIMEGA_SUCCESS) {
@@ -1955,7 +1972,7 @@ asynStatus pimegaDetector::reset(short action) {
   setParameter(ADTriggerMode, pimega->trigger_in_enum.PIMEGA_TRIGGER_IN_INTERNAL);
   rc = medipixMode(MODE_B12);
   if (rc != PIMEGA_SUCCESS) rc_aux = rc;
- 
+
   /* Get some parameters */
   rc = getDacsValues();
   if (rc != PIMEGA_SUCCESS) rc_aux = rc;
@@ -2029,7 +2046,6 @@ asynStatus pimegaDetector::imgChipID(uint8_t chip_id) {
 
 asynStatus pimegaDetector::numExposures(unsigned number) {
   int rc = 0;
-
   rc = set_numberExposures(pimega, number);
   if (rc != PIMEGA_SUCCESS) {
     error("Invalid number of exposures: %s\n", pimega_error_string(rc));
@@ -2041,8 +2057,14 @@ asynStatus pimegaDetector::numExposures(unsigned number) {
 
 asynStatus pimegaDetector::acqTime(double acquire_time_s) {
   int rc = 0;
+  double acquire_time_min = 1e-6;
+  double acquire_time_max = 18446744073709551615e-6;
+  // TODO (Lumentum): Check why the pimega.template is not blocking invalid values
+  if ((acquire_time_s < acquire_time_min) || (acquire_time_s > acquire_time_max)) {
+    error("Invalid acquire time: %lf\n", acquire_time_s);
+    return asynError;
+  }
   uint64_t acquire_time_us = (uint64_t)(acquire_time_s * 1e6);
-  
   rc = set_acquireTime(pimega, acquire_time_us);
   if (rc != PIMEGA_SUCCESS) {
     error("Invalid acquire time: %s\n", pimega_error_string(rc));
@@ -2057,13 +2079,23 @@ asynStatus pimegaDetector::acqTime(double acquire_time_s) {
 
 asynStatus pimegaDetector::acqPeriod(double period_time_s) {
   int rc = 0;
+  double acquire_period_min = 1e-6;
+  double acquire_period_max = 18446744073709551615e-6;
+  // TODO (Lumentum): Check why the pimega.template is not blocking invalid values
+  if (((period_time_s < acquire_period_min) || (period_time_s > acquire_period_max))
+      && period_time_s != 0) {
+    error("Invalid acquire period: %lf\n", period_time_s);
+    return asynError;
+  }
   uint64_t period_time_us = (uint64_t)(period_time_s * 1e6);
   rc = set_periodTime(pimega, period_time_us);
   if (rc != PIMEGA_SUCCESS) {
     error("Invalid period time: %s\n", pimega_error_string(rc));
     return asynError;
   } else {
-    setParameter(ADAcquirePeriod, period_time_s);
+    get_acquire_period(pimega);
+    double acq_period_s_rbv = pimega->acquireParam.acquirePeriod;
+    setParameter(ADAcquirePeriod, acq_period_s_rbv);
     return asynSuccess;
   }
 }
@@ -2167,8 +2199,9 @@ asynStatus pimegaDetector::senseDacSel(u_int8_t dac) {
   if (rc != PIMEGA_SUCCESS) return asynError;
   rc = get_dac_out_sense(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
+  SenseDacSel_RBV(pimega);
   setParameter(PimegaDacOutSense, pimega->pimegaParam.dacOutput);
-  setParameter(PimegaSenseDacSel, dac);
+  setParameter(PimegaSenseDacSel, pimega->omr.sense_dacSel);
   return asynSuccess;
 }
 
