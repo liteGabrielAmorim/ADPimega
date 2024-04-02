@@ -2032,3 +2032,28 @@ record(ai, "$(P)$(R)Backend_BufferUsed_RBV")
        field(PREC, "1")
        field(EGU, "%")
 }
+
+record(waveform, "$(P)$(R)DiagnosticDir")
+{
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))DIAGNOSTIC_DIR")
+	field(DESC, "Directory in SD card to save diagnostic files")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+}
+
+record(waveform, "$(P)$(R)DiagnosticSysInfoID")
+{
+    field(DTYP, "asynOctetWrite")
+    field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))DIAGNOSTIC_SYS_INFO_ID")
+	field(DESC, "User supplied file identification string")
+    field(FTVL, "CHAR")
+    field(NELM, "256")
+}
+
+record(bo, "$(P)$(R)Diagnostic")
+{
+	field(DTYP, "asynInt32")
+	field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))DIAGNOSTIC")
+	field(DESC, "Run Diagnostic")
+}
