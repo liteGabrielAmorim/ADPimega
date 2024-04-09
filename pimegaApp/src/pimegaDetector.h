@@ -260,6 +260,9 @@ class pimegaDetector : public ADDriver {
   void updateIOCStatus(const char *message, int size);
   void updateServerStatus(const char *message, int size);
   void newImageTask();
+  void finishAcq(int trigger, int * acquire,
+                 int * acquireStatus, uint64_t * recievedBackendCountOffset,
+                 int numExposuresVar);
   // Debugging routines
   asynStatus initDebugger(int initDebug);
   asynStatus debugLevel(const std::string &method, int onOff);

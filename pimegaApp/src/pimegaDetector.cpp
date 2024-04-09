@@ -235,13 +235,8 @@ void pimegaDetector::acqTask() {
           } else if (processedBackendCount < (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
             UPDATEIOCSTATUS("Images received, processing");
           } else if (acquireStatus == DONE_ACQ) {
-            PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "%s: Acquisition finished\n", functionName);
-            UPDATEIOCSTATUS("Acquisition finished");
-            recievedBackendCountOffset += numExposuresVar;
-            acquire = 0;
-            setIntegerParam(ADAcquire, 0);
-            acquireStatus = 0;
-            setIntegerParam(ADStatus, ADStatusIdle);
+            finishAcq(triggerMode, &acquire, &acquireStatus,
+                      &recievedBackendCountOffset, numExposuresVar);
           } else {
             UPDATEIOCSTATUS("Waiting Acquire Period");
           }
@@ -267,13 +262,8 @@ void pimegaDetector::acqTask() {
                            (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
               UPDATEIOCSTATUS("Sending frames to Index");
             } else if (acquireStatus == DONE_ACQ) {
-              PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "%s: Acquisition finished\n", functionName);
-              UPDATEIOCSTATUS("Acquisition finished");
-              recievedBackendCountOffset += numExposuresVar;
-              acquire = 0;
-              setIntegerParam(ADAcquire, 0);
-              acquireStatus = 0;
-              setIntegerParam(ADStatus, ADStatusIdle);
+              finishAcq(triggerMode, &acquire, &acquireStatus,
+                        &recievedBackendCountOffset, numExposuresVar);
             } else {
               UPDATEIOCSTATUS("Waiting Acquire Period");
             }
@@ -285,13 +275,8 @@ void pimegaDetector::acqTask() {
         case IOC_TRIGGER_MODE_ALIGNMENT:
 
           if (acquireStatus == DONE_ACQ) {
-            configureAlignment(false);
-            PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "%s: Alignment stopped\n", functionName);
-            UPDATEIOCSTATUS("Alignment stopped");
-            acquire = 0;
-            setIntegerParam(ADAcquire, 0);
-            acquireStatus = 0;
-            setIntegerParam(ADStatus, ADStatusIdle);
+            finishAcq(triggerMode, &acquire, &acquireStatus, 
+                      &recievedBackendCountOffset, numExposuresVar);
           }
           break;
       }
@@ -309,6 +294,32 @@ void pimegaDetector::acqTask() {
     callParamCallbacks();
   }
 }
+
+void pimegaDetector::finishAcq(int trigger, int * acquire, 
+                               int * acquireStatus, uint64_t * recievedBackendCountOffset,
+                               int numExposuresVar){
+  switch (trigger){
+
+    case IOC_TRIGGER_MODE_ALIGNMENT:
+      configureAlignment(false);
+      PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "%s: Alignment stopped\n", __func__);
+      UPDATEIOCSTATUS("Alignment stopped");
+      break;
+
+    default:
+      PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "%s: Acquisition finished\n", __func__);
+      UPDATEIOCSTATUS("Acquisition finished");
+      * recievedBackendCountOffset += numExposuresVar;
+      break;
+
+    * acquire = 0;
+    setIntegerParam(ADAcquire, 0);
+    * acquireStatus = 0;
+    setIntegerParam(ADStatus, ADStatusIdle);
+  
+  }
+}
+
 
 static void captureTaskC(void *drvPvt) {
   pimegaDetector *pPvt = (pimegaDetector *)drvPvt;
