@@ -225,8 +225,6 @@ void pimegaDetector::acqTask() {
              for index to receive the images or both */
           if (GetAcqStatusDone(pimega) != DONE_ACQ) {
             UPDATEIOCSTATUS("Not all images received. Waiting");
-          } else if (autoSave == 1 && GetAcqStatusDone(pimega) != DONE_ACQ) {
-            UPDATEIOCSTATUS("Saving images..");
           } else if (indexEnableBool == true &&
                      GetAcqStatusSentAcquisitionsCount(pimega) <
                          (unsigned int)GetAcqParamCameraNumCapture(pimega)) {
