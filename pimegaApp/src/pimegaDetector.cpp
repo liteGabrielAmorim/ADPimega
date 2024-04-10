@@ -2286,7 +2286,7 @@ asynStatus pimegaDetector::getMedipixTemperatures(void) {
                    PimegaSensorTemperatureM4};
   int idxAvg[] = {PimegaMPAvgTSensorM1, PimegaMPAvgTSensorM2, PimegaMPAvgTSensorM3,
                   PimegaMPAvgTSensorM4};
-  rc = getMedipixSensor_Temperatures(pimega);
+  rc = getMedipixSensor_Temperatures_Adjusted(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
   for (int module = 1; module <= GetTotalModules(pimega); module++) {
     doCallbacksFloat32Array(pimega->pimegaParam.allchip_temperature[module - 1],    
