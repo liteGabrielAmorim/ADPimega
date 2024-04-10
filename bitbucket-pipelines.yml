@@ -8,6 +8,7 @@ pipelines:
             caches:
               - pip
             script:
+              - apt-get update && apt-get install -y cppcheck
               - pip install pre-commit
               - pip install lizard
               - pre-commit run --all-files
