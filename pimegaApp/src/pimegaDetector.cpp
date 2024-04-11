@@ -794,7 +794,7 @@ asynStatus pimegaDetector::writeInt32Array(asynUser *pasynUser, epicsInt32 *valu
   if (function == PimegaLoadEqualization) {
     status = set_eq_cfg(pimega, (uint32_t *)value, nElements);
     strcat(ok_str, "Equalization string set");
-  } else if (function == PimegaDacCountScanSensors) {
+  } else if (function == PimegaDacCountScanChips) {
     if (nElements > MAX_NUM_CHIPS) {
       PIMEGA_PRINT(pimega, TRACE_MASK_ERROR,
                    "writeInt32Array: %s(%d) Array larger than expected. "
@@ -804,7 +804,7 @@ asynStatus pimegaDetector::writeInt32Array(asynUser *pasynUser, epicsInt32 *valu
     }
 
     for (int index = 0; index < nElements && value[index] > 0; index++) {
-      PimegaDacCountScanSelectedSensors_.push_back(value[index]);
+      PimegaDacCountScanSelectedChips_.push_back(value[index]);
     }
   } else if (function < FIRST_PIMEGA_PARAM) {
     status = ADDriver::writeInt32Array(pasynUser, value, nElements);
@@ -1553,7 +1553,7 @@ void pimegaDetector::createParameters(void) {
   createParam(pimegaDacCountScanStartString, asynParamInt32, &PimegaDacCountScanStart);
   createParam(pimegaDacCountScanStopString, asynParamInt32, &PimegaDacCountScanStop);
   createParam(pimegaDacCountScanStepString, asynParamInt32, &PimegaDacCountScanStep);
-  createParam(pimegaDacCountScanSensorsString, asynParamInt8Array, &PimegaDacCountScanSensors);
+  createParam(pimegaDacCountScanChipsString, asynParamInt8Array, &PimegaDacCountScanChips);
   createParam(pimegaDacCountScanData, asynParamGenericPointer, &PimegaDacCountScanData);
 
 
@@ -1879,9 +1879,9 @@ asynStatus pimegaDetector::dacCountScan() {
   setParameter(NDFullFileName, fullFileName);
 
   uint8_t *sensors = NULL;
-  size_t len = PimegaDacCountScanSelectedSensors_.size();
+  size_t len = PimegaDacCountScanSelectedChips_.size();
   if (len > 0) {
-    sensors = PimegaDacCountScanSelectedSensors_.data();
+    sensors = PimegaDacCountScanSelectedChips_.data();
   }
 
   uint32_t *counts = dac_count_scan(pimega, dac, sensors, len, start, stop,

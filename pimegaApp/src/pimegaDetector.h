@@ -226,7 +226,7 @@ typedef enum ioc_trigger_mode_t {
 #define pimegaDacCountScanStartString "DAC_COUNT_SCAN_START"
 #define pimegaDacCountScanStopString "DAC_COUNT_SCAN_STOP"
 #define pimegaDacCountScanStepString "DAC_COUNT_SCAN_STEP"
-#define pimegaDacCountScanSensorsString "DAC_COUNT_SCAN_SENSORS"
+#define pimegaDacCountScanChipsString "DAC_COUNT_SCAN_CHIPS"
 #define pimegaDacCountScanData "DAC_COUNT_SCAN_DATA"
 #define pimegaDiagnosticString "DIAGNOSTIC"
 #define pimegaDiagnosticDirString "DIAGNOSTIC_DIR"
@@ -404,7 +404,7 @@ class pimegaDetector : public ADDriver {
   int PimegaFrameProcessMode;
   int PimegaDacCountScan;
   int PimegaDacCountScanDac;
-  int PimegaDacCountScanSensors;
+  int PimegaDacCountScanChips;
   int PimegaDacCountScanStart;
   int PimegaDacCountScanStop;
   int PimegaDacCountScanStep;
@@ -448,7 +448,7 @@ class pimegaDetector : public ADDriver {
   epicsFloat32 *PimegaDacsOutSense_;
   epicsFloat32 *PimegaMBTemperature_;
 
-  std::vector<uint8_t> PimegaDacCountScanSelectedSensors_;
+  std::vector<uint8_t> PimegaDacCountScanSelectedChips_;
 
   int numImageSaved;
   uint64_t recievedBackendCountOffset;
