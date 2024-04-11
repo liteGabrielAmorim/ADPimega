@@ -2030,7 +2030,7 @@ asynStatus pimegaDetector::medipixBoard(uint8_t board_id) {
 
 asynStatus pimegaDetector::medipixMode(uint8_t mode) {
   int rc = 0;
-  rc = set_medipix_mode(pimega, (aquisition_mode_t)mode);
+  rc = set_medipix_mode(pimega, (acquisition_mode_t)mode);
   if (rc != PIMEGA_SUCCESS) {
     error("Invalid Medipix Mode: %s\n", pimega_error_string(rc));
     return asynError;
