@@ -747,6 +747,10 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     UPDATEIOCSTATUS("Running DAC Count Scan");
     status |= dacCountScan();
     strcat(ok_str, "DAC Count Scan done");
+  } else if (function == PimegaDiagnostic) {
+    UPDATEIOCSTATUS("Performing diagnostic");
+    status |= diagnostic();
+    strcat(ok_str, "Diagnostic performed");
   } else {
     if (function < FIRST_PIMEGA_PARAM) {
       status = ADDriver::writeInt32(pasynUser, value);
@@ -861,6 +865,14 @@ asynStatus pimegaDetector::writeOctet(asynUser *pasynUser, const char *value, si
     *nActual = maxChars;
     setParameter(function, value);
     strcat(ok_str, "Metadata Value set");
+  } else if (function == PimegaDiagnosticDir) {
+    *nActual = maxChars;
+    setParameter(function, value);
+    strcat(ok_str, "Diagnostic directory set");
+  } else if (function == PimegaDiagnosticSysInfoID) {
+    *nActual = maxChars;
+    setParameter(function, value);
+    strcat(ok_str, "Diagnostic sysinfoID set");
   } else {
     /* If this parameter belongs to a base class call its method */
     if (function < FIRST_PIMEGA_PARAM) {
@@ -1544,6 +1556,11 @@ void pimegaDetector::createParameters(void) {
   createParam(pimegaDacCountScanSensorsString, asynParamInt8Array, &PimegaDacCountScanSensors);
   createParam(pimegaDacCountScanData, asynParamGenericPointer, &PimegaDacCountScanData);
 
+
+  createParam(pimegaDiagnosticString, asynParamInt32, &PimegaDiagnostic);
+  createParam(pimegaDiagnosticDirString, asynParamOctet, &PimegaDiagnosticDir);
+  createParam(pimegaDiagnosticSysInfoIDString, asynParamOctet, &PimegaDiagnosticSysInfoID);
+
   /* Do callbacks so higher layers see any changes */
   callParamCallbacks();
 }
@@ -1643,6 +1660,9 @@ asynStatus pimegaDetector::setDefaults(void) {
   setParameter(PimegaMPAvgTSensorM4, 0.0);
   setParameter(NDFileNumCaptured, 0);
   setParameter(PimegaFrameProcessMode, 0);
+
+  setParameter(PimegaDiagnosticDir, "EPICSDiagnostic");
+  setParameter(PimegaDiagnosticSysInfoID, "EPICS-Diagnostic");
 
   setParameter(PimegaModule, 10);
   setParameter(PimegaMedipixBoard, 2);
@@ -2363,7 +2383,7 @@ asynStatus pimegaDetector::getMedipixTemperatures(void) {
                    PimegaSensorTemperatureM4};
   int idxAvg[] = {PimegaMPAvgTSensorM1, PimegaMPAvgTSensorM2, PimegaMPAvgTSensorM3,
                   PimegaMPAvgTSensorM4};
-  rc = getMedipixSensor_Temperatures(pimega);
+  rc = getMedipixSensor_Temperatures_Adjusted(pimega);
   if (rc != PIMEGA_SUCCESS) return asynError;
   for (int module = 1; module <= GetTotalModules(pimega); module++) {
     doCallbacksFloat32Array(pimega->pimegaParam.allchip_temperature[module - 1],    
@@ -2473,6 +2493,23 @@ asynStatus pimegaDetector::configureAlignment(bool alignment_mode) {
     set_numberExposures(pimega, numExposuresVar);
     getParameter(NDFileNumCapture, &numCaptureVar);
   }
+}
+
+asynStatus pimegaDetector::diagnostic() {
+  char diagnosticDir[PIMEGA_MAX_FILE_NAME];
+  char diagnosticSysInfoID[PIMEGA_SMALL_STRING];
+
+  getParameter(PimegaDiagnosticDir, sizeof(diagnosticDir), diagnosticDir);
+  getParameter(PimegaDiagnosticSysInfoID, sizeof(diagnosticSysInfoID),
+               diagnosticSysInfoID);
+
+  PIMEGA_PRINT(pimega, TRACE_MASK_FLOW,
+               "Running diagnostic (Dir='%s' SysInfoID='%s')\n", diagnosticDir,
+               diagnosticSysInfoID);
+
+  int ret = Diagnostic(pimega, diagnosticSysInfoID, diagnosticDir);
+
+  return ret == PIMEGA_SUCCESS ? asynSuccess : asynError;
 }
 
 /* Code for iocsh registration */

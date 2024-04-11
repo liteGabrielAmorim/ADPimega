@@ -228,6 +228,9 @@ typedef enum ioc_trigger_mode_t {
 #define pimegaDacCountScanStepString "DAC_COUNT_SCAN_STEP"
 #define pimegaDacCountScanSensorsString "DAC_COUNT_SCAN_SENSORS"
 #define pimegaDacCountScanData "DAC_COUNT_SCAN_DATA"
+#define pimegaDiagnosticString "DIAGNOSTIC"
+#define pimegaDiagnosticDirString "DIAGNOSTIC_DIR"
+#define pimegaDiagnosticSysInfoIDString "DIAGNOSTIC_SYS_INFO_ID"
 
 class pimegaDetector : public ADDriver {
  public:
@@ -411,6 +414,9 @@ class pimegaDetector : public ADDriver {
   int PimegaLogFile;
   bool BoolAcqResetRDMA = false;
   IMessageConsumer* message_consumer = nullptr;
+  int PimegaDiagnostic;
+  int PimegaDiagnosticDir;
+  int PimegaDiagnosticSysInfoID;
 #define LAST_PIMEGA_PARAM PimegaLogFile
 
  private:
@@ -499,6 +505,7 @@ class pimegaDetector : public ADDriver {
   asynStatus getTemperatureStatus(void);
   asynStatus getTemperatureHighest(void);
   asynStatus configureAlignment(bool alignment_mode);
+  asynStatus diagnostic(void);
 };
 
 #define NUM_pimega_PARAMS (&LAST_pimega_PARAM - &FIRST_pimega_PARAM + 1)
