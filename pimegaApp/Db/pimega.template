@@ -2033,6 +2033,82 @@ record(ai, "$(P)$(R)Backend_BufferUsed_RBV")
        field(EGU, "%")
 }
 
+record(bo, "$(P)$(R)DAC_Count_Scan")
+{
+	field(DTYP, "asynInt32")
+	field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN")
+	field(DESC, "Perform DAC Count Scan")
+}
+
+record(longout, "$(P)$(R)DAC_Count_Scan:Start")
+{
+	field(DTYP, "asynInt32")
+	field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN_START")
+	field(DESC, "DAC Count Scan start value")
+	field(VAL, "0")
+}
+
+record(longout, "$(P)$(R)DAC_Count_Scan:Stop")
+{
+	field(DTYP, "asynInt32")
+	field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN_STOP")
+	field(DESC, "DAC Count Scan stop value")
+	field(VAL, "100")
+}
+
+record(longout, "$(P)$(R)DAC_Count_Scan:Step")
+{
+	field(DTYP, "asynInt32")
+	field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN_STEP")
+	field(DESC, "DAC Count Scan step value")
+	field(VAL, "1")
+}
+
+record(longout, "$(P)$(R)DAC_Count_Scan:DAC")
+{
+	field(DTYP, "asynInt32")
+	field(OUT, "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN_DAC")
+	field(DESC, "DAC Count Scan DAC to use")
+	field(LOPR, "1")
+	field(HOPR, "31")
+	field(DRVL, "1")
+	field(DRVH, "31")
+	field(VAL, "1")
+}
+
+record(waveform, "$(P)$(R)DAC_Count_Scan:Chips")
+{
+	field(DESC, "Chips to perform DAC Count Scan")
+   	field(DTYP, "asynInt32ArrayOut")
+   	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN_CHIPS")
+    field(FTVL, "LONG")
+    field(NELM, "36")
+}
+
+record(calcout, "$(P)$(R)DAC_Count_Scan:ResultSize")
+{
+	field(INPA, "$(P)$(R)DAC_Count_Scan:Start CPP NMS")
+	field(INPB, "$(P)$(R)DAC_Count_Scan:Stop CPP NMS")
+	field(INPC, "$(P)$(R)DAC_Count_Scan:Step CPP NMS")
+	field(INPD, "$(P)$(R)MaxSizeX_RBV CPP NMS")
+	field(INPE, "$(P)$(R)MaxSizeY_RBV CPP NMS")
+
+	field(SCAN, "I/O Intr")
+
+	# The array shape is (n_steps, n_sensors). Because it is written as
+	# a flattened array, the total number of elements will be the
+	# result of the calculation below
+	field(CALC, "(FLOOR(((B)-(A)) / (C)) + 1) * FLOOR((D) / 256) * FLOOR((E) / 256)")
+
+	field(OUT, "$(P)$(R)DAC_Count_Scan:Result.NELEM PP")
+}
+
+record(waveform, "$(P)$(R)DAC_Count_Scan:Result") {
+	field(DESC, "Sum of counts in scanned sensors")
+	field(DTYP, "asynInt32ArrayIn")
+	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN_DATA")
+	field(FTVL, "LONG")
+}
 record(waveform, "$(P)$(R)DiagnosticDir")
 {
     field(DTYP, "asynOctetWrite")

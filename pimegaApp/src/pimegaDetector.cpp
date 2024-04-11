@@ -743,6 +743,10 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
   } else if (function == PimegaFrameProcessMode) {
     setParameter(function, value);
     strcat(ok_str, "Frame process mode set");
+  } else if (function == PimegaDacCountScan) {
+    UPDATEIOCSTATUS("Running DAC Count Scan");
+    status |= dacCountScan();
+    strcat(ok_str, "DAC Count Scan done");
   } else if (function == PimegaDiagnostic) {
     UPDATEIOCSTATUS("Performing diagnostic");
     status |= diagnostic();
@@ -790,6 +794,18 @@ asynStatus pimegaDetector::writeInt32Array(asynUser *pasynUser, epicsInt32 *valu
   if (function == PimegaLoadEqualization) {
     status = set_eq_cfg(pimega, (uint32_t *)value, nElements);
     strcat(ok_str, "Equalization string set");
+  } else if (function == PimegaDacCountScanChips) {
+    if (nElements > MAX_NUM_CHIPS) {
+      PIMEGA_PRINT(pimega, TRACE_MASK_ERROR,
+                   "writeInt32Array: %s(%d) Array larger than expected. "
+                   "Expected nElements < %d but got %d\n",
+                   paramName, function, MAX_NUM_CHIPS, nElements);
+      return asynError;
+    }
+
+    for (int index = 0; index < nElements && value[index] > 0; index++) {
+      PimegaDacCountScanSelectedChips_.push_back(value[index]);
+    }
   } else if (function < FIRST_PIMEGA_PARAM) {
     status = ADDriver::writeInt32Array(pasynUser, value, nElements);
     strcat(ok_str, paramName);
@@ -1532,6 +1548,15 @@ void pimegaDetector::createParameters(void) {
   createParam(pimegaMetadataOMString, asynParamOctet, &PimegaMetadataOM);
   createParam(pimegaFrameProcessModeString, asynParamInt32, &PimegaFrameProcessMode);
 
+  createParam(pimegaDacCountScanString, asynParamInt32, &PimegaDacCountScan);
+  createParam(pimegaDacCountScanDacsString, asynParamInt32, &PimegaDacCountScanDac);
+  createParam(pimegaDacCountScanStartString, asynParamInt32, &PimegaDacCountScanStart);
+  createParam(pimegaDacCountScanStopString, asynParamInt32, &PimegaDacCountScanStop);
+  createParam(pimegaDacCountScanStepString, asynParamInt32, &PimegaDacCountScanStep);
+  createParam(pimegaDacCountScanChipsString, asynParamInt8Array, &PimegaDacCountScanChips);
+  createParam(pimegaDacCountScanData, asynParamGenericPointer, &PimegaDacCountScanData);
+
+
   createParam(pimegaDiagnosticString, asynParamInt32, &PimegaDiagnostic);
   createParam(pimegaDiagnosticDirString, asynParamOctet, &PimegaDiagnosticDir);
   createParam(pimegaDiagnosticSysInfoIDString, asynParamOctet, &PimegaDiagnosticSysInfoID);
@@ -1581,6 +1606,10 @@ asynStatus pimegaDetector::setDefaults(void) {
   setParameter(ADReverseY, 0);
   setParameter(PimegaDistance, 22000.0);
   setParameter(ADFrameType, ADFrameNormal);
+  setParameter(PimegaDacCountScanDac, DAC_ThresholdEnergy0);
+  setParameter(PimegaDacCountScanStart, 0);
+  setParameter(PimegaDacCountScanStop, 100);
+  setParameter(PimegaDacCountScanStep, 1);
   rc = acqPeriod(0.0);
   if (rc != PIMEGA_SUCCESS) return asynError;
   rc = acqTime(1.0);
@@ -1831,6 +1860,54 @@ asynStatus pimegaDetector::dac_scan_tmp(pimega_dac_t dac) {
   return asynError;
 }
 
+asynStatus pimegaDetector::dacCountScan() {
+  int rc = PIMEGA_SUCCESS;
+  int start = 0, stop = 100, step = 1;
+  pimega_dac_t dac;
+
+  int sizex, sizey;
+  getIntegerParam(ADMaxSizeX, &sizex);
+  getIntegerParam(ADMaxSizeY, &sizey);
+
+  getParameter(PimegaDacCountScanStart, &start);
+  getParameter(PimegaDacCountScanStop, &stop);
+  getParameter(PimegaDacCountScanStep, &step);
+  getParameter(PimegaDacCountScanDac, (int *)&dac);
+
+  char fullFileName[PIMEGA_MAX_FILENAME_LEN];
+  createFileName(sizeof(fullFileName), fullFileName);
+  setParameter(NDFullFileName, fullFileName);
+
+  uint8_t *sensors = NULL;
+  size_t len = PimegaDacCountScanSelectedChips_.size();
+  if (len > 0) {
+    sensors = PimegaDacCountScanSelectedChips_.data();
+  }
+
+  uint32_t *counts = dac_count_scan(pimega, dac, sensors, len, start, stop,
+                                    step, sizex, sizey, fullFileName);
+  if (counts == NULL) {
+    return asynError;
+  }
+
+  int maxModules = get_max_modules(pimega);
+  int maxChips = get_max_chips_per_module(pimega);
+  int steps = (stop - start) / step + 1;
+  size_t shape[2] = {steps, maxModules * maxChips};
+
+  PimegaDacCountScanResult =
+      this->pNDArrayPool->alloc(2, shape, NDUInt32, 0, NULL);
+  memcpy(PimegaDacCountScanResult, counts, PimegaDacCountScanResult->dataSize);
+
+  doCallbacksGenericPointer(PimegaDacCountScanResult, PimegaDacCountScanData,
+                            0);
+
+  dac_count_scan_free(counts);
+  PimegaDacCountScanResult->release();
+
+  return asynSuccess;
+}
+
 asynStatus pimegaDetector::selectModule(uint8_t module) {
   int rc = 0;
   int mfb, send_mode;
@@ -2030,7 +2107,7 @@ asynStatus pimegaDetector::medipixBoard(uint8_t board_id) {
 
 asynStatus pimegaDetector::medipixMode(uint8_t mode) {
   int rc = 0;
-  rc = set_medipix_mode(pimega, (aquisition_mode_t)mode);
+  rc = set_medipix_mode(pimega, (acquisition_mode_t)mode);
   if (rc != PIMEGA_SUCCESS) {
     error("Invalid Medipix Mode: %s\n", pimega_error_string(rc));
     return asynError;

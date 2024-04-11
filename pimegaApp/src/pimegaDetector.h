@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 
 // EPICS includes
 #include <cantProceed.h>
@@ -220,6 +221,13 @@ typedef enum ioc_trigger_mode_t {
 #define pimegaMetadataValueString "METADATA_VALUE"
 #define pimegaMetadataOMString "METADATA_OM"
 #define pimegaFrameProcessModeString "FRAME_PROCESS_MODE"
+#define pimegaDacCountScanString "DAC_COUNT_SCAN"
+#define pimegaDacCountScanDacsString "DAC_COUNT_SCAN_DAC"
+#define pimegaDacCountScanStartString "DAC_COUNT_SCAN_START"
+#define pimegaDacCountScanStopString "DAC_COUNT_SCAN_STOP"
+#define pimegaDacCountScanStepString "DAC_COUNT_SCAN_STEP"
+#define pimegaDacCountScanChipsString "DAC_COUNT_SCAN_CHIPS"
+#define pimegaDacCountScanData "DAC_COUNT_SCAN_DATA"
 #define pimegaDiagnosticString "DIAGNOSTIC"
 #define pimegaDiagnosticDirString "DIAGNOSTIC_DIR"
 #define pimegaDiagnosticSysInfoIDString "DIAGNOSTIC_SYS_INFO_ID"
@@ -394,6 +402,14 @@ class pimegaDetector : public ADDriver {
   int PimegaMetadataOM;
   int PimegaIndexError;
   int PimegaFrameProcessMode;
+  int PimegaDacCountScan;
+  int PimegaDacCountScanDac;
+  int PimegaDacCountScanChips;
+  int PimegaDacCountScanStart;
+  int PimegaDacCountScanStop;
+  int PimegaDacCountScanStep;
+  int PimegaDacCountScanData;
+  NDArray *PimegaDacCountScanResult = NULL;
   NDArray *PimegaNDArray = NULL;
   int PimegaLogFile;
   bool BoolAcqResetRDMA = false;
@@ -432,6 +448,8 @@ class pimegaDetector : public ADDriver {
   epicsFloat32 *PimegaDacsOutSense_;
   epicsFloat32 *PimegaMBTemperature_;
 
+  std::vector<uint8_t> PimegaDacCountScanSelectedChips_;
+
   int numImageSaved;
   uint64_t recievedBackendCountOffset;
 
@@ -457,6 +475,7 @@ class pimegaDetector : public ADDriver {
   asynStatus startCaptureBackend(void);
 
   asynStatus dac_scan_tmp(pimega_dac_t dac);
+  asynStatus dacCountScan(void);
   asynStatus selectModule(uint8_t module);
   asynStatus medipixMode(uint8_t mode);
   asynStatus configDiscL(int value);
