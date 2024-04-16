@@ -185,6 +185,7 @@ void pimegaDetector::acqTask() {
      * on full speed. */
     this->unlock();
     usleep(1000);
+    this->lock();
 
     // printf("Index error = %d\n", GetAcqStatusIndexError(pimega));
     /* Will enter here only one time when the acqusition time is over. The
@@ -214,7 +215,6 @@ void pimegaDetector::acqTask() {
       /* If save is enabled */
       getParameter(NDAutoSave, &autoSave);
 
-      this->lock();
       /* Acquire logic */
       switch (triggerMode) {
         /* Internal Trigger : Acquire should go down after the number of images
@@ -307,7 +307,6 @@ void pimegaDetector::acqTask() {
     }
     /* Call the callbacks to update any changes */
     callParamCallbacks();
-    this->unlock();
   }
 }
 
