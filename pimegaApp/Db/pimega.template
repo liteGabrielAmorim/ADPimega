@@ -2093,7 +2093,7 @@ record(bo, "$(P)$(R)Diagnostic")
 ############### ###########################################
 
 #Its not a pretty record... but it removes control from
-#GUI. Ideally, user should know differences between Capture and#Acquire. 
+#GUI. Ideally, user should know differences between Capture and#Acquire.
 record(sseq, "$(P)$(R)MagicStart")
 {
 	field(DESC,  "Orchestration of Capture/Acquire")
