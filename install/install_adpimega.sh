@@ -5,7 +5,9 @@ AREA_DETECTOR_VERSION='R3-12-1'
 AREA_DETECTOR_PATH="/home/$USER/.local/share/epics/synApps/support/areaDetector-$AREA_DETECTOR_VERSION"
 ADPIMEGA_INSTALL_PATH=$AREA_DETECTOR_PATH/ADPimega
 ADPIMEGA_SRC="../"
-LIBPIMEGA_PATH="/usr/lib"
+LIBPIMEGA_PATH="/home/$USER/.local/bin/libpimega"
+LIBPIMEGA_INCLUDE_PATH="/home/$USER/pimega-pss/api/include"
+ADPIMEGA_INCLUDE_PATH=$ADPIMEGA_INSTALL_PATH/pimegaApp/src/
 
 INFO='\033[0;32m'
 WARN='\033[0;33m'
@@ -21,8 +23,8 @@ CheckDependencies() {
         exit
     fi
 
-    if [ -z "$(ls -A /usr/local/include/pimega)" ]; then
-        echo -e "${WARN}==> PIMEGA include files not found.\nAdd PIMEGA includes to /usr/local/include/pimega ${NC}"
+    if [ -z "$(ls -A $LIBPIMEGA_INCLUDE_PATH)" ]; then
+        echo -e "${WARN}==> PIMEGA include files not found.\nAdd PIMEGA includes to $LIBPIMEGA_INCLUDE_PATH ${NC}"
         exit
     else
         echo -e "${INFO}==> PIMEGA include files found ${NC}"
@@ -48,6 +50,7 @@ InstallADPimega() {
     echo -e "${INFO}==> Installing ADPimega ${NC}"
     mkdir $ADPIMEGA_INSTALL_PATH
     rsync -av $ADPIMEGA_SRC $ADPIMEGA_INSTALL_PATH --exclude install --exclude test --exclude *.yaml --exclude *.yml
+    cp -r $LIBPIMEGA_INCLUDE_PATH/* $ADPIMEGA_INCLUDE_PATH/
     cd $ADPIMEGA_INSTALL_PATH
     make -sw
     if [ $? -eq 0 ];then

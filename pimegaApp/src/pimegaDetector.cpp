@@ -1344,7 +1344,7 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
   int rc = 0;
   unsigned short ports[10] = {10000, 10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10010};
 
-  if (GetSimulationFlag(pimega) == 0)
+  if (!GetSimulationFlag(pimega))
     ports[0] = ports[1] = ports[2] = ports[3] = ports[4] = ports[5] = ports[6] = ports[7] =
         ports[8] = ports[9] = port;
 
@@ -1884,14 +1884,14 @@ asynStatus pimegaDetector::dacCountScan() {
     sensors = PimegaDacCountScanSelectedChips_.data();
   }
 
-  uint32_t *counts = dac_count_scan(pimega, dac, sensors, len, start, stop,
+  uint32_t *counts = DACCountScan(pimega, dac, sensors, len, start, stop,
                                     step, sizex, sizey, fullFileName);
   if (counts == NULL) {
     return asynError;
   }
 
-  int maxModules = get_max_modules(pimega);
-  int maxChips = get_max_chips_per_module(pimega);
+  int maxModules = GetMaxModules(pimega);
+  int maxChips = GetMaxChipsPerModule(pimega);
   int steps = (stop - start) / step + 1;
   size_t shape[2] = {steps, maxModules * maxChips};
 
@@ -1902,7 +1902,7 @@ asynStatus pimegaDetector::dacCountScan() {
   doCallbacksGenericPointer(PimegaDacCountScanResult, PimegaDacCountScanData,
                             0);
 
-  dac_count_scan_free(counts);
+  DACCountScanFree(counts);
   PimegaDacCountScanResult->release();
 
   return asynSuccess;
