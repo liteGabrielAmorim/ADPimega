@@ -20,8 +20,11 @@ $(PROD_NAME)_SRCS += $(PROD_NAME)_registerRecordDeviceDriver.cpp $(PROD_NAME)Mai
 
 # Add locally compiled object code
 PROD_LIBS += pimegaDetector
-# libpimega is found under /usr/include
-SYS_PROD_LIBS += pimega
+
+pimega_DIR = $(LIBPIMEGA_PATH)
+
+PROD_LIBS += pimega
+
 
 include $(ADCORE)/ADApp/commonDriverMakefile
 
