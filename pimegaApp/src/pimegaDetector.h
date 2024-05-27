@@ -229,6 +229,7 @@ typedef enum ioc_trigger_mode_t {
 #define pimegaDacCountScanStopString "DAC_COUNT_SCAN_STOP"
 #define pimegaDacCountScanStepString "DAC_COUNT_SCAN_STEP"
 #define pimegaDacCountScanChipsString "DAC_COUNT_SCAN_CHIPS"
+#define pimegaDacCountScanModulesString "DAC_COUNT_SCAN_MODULES"
 #define pimegaDacCountScanData "DAC_COUNT_SCAN_DATA"
 #define pimegaDiagnosticString "DIAGNOSTIC"
 #define pimegaDiagnosticDirString "DIAGNOSTIC_DIR"
@@ -245,7 +246,8 @@ class pimegaDetector : public ADDriver {
                  int maxSizeY, int detectorModel, int maxBuffers,
                  size_t maxMemory, int priority, int stackSize, int simulate,
                  int backendOn, int log, unsigned short backend_port,
-                 unsigned short vis_frame_port, int IntAcqResetRDMA);
+                 unsigned short vis_frame_port, int IntAcqResetRDMA,
+                 int numModulesX, int numModulesY);
 
   virtual asynStatus writeFloat64(asynUser *pasynUser, epicsFloat64 value);
   virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
@@ -415,6 +417,7 @@ class pimegaDetector : public ADDriver {
   int PimegaDacCountScan;
   int PimegaDacCountScanDac;
   int PimegaDacCountScanChips;
+  int PimegaDacCountScanModules;
   int PimegaDacCountScanStart;
   int PimegaDacCountScanStop;
   int PimegaDacCountScanStep;
@@ -447,6 +450,8 @@ class pimegaDetector : public ADDriver {
   char *log_file_path;
   int maxSizeX;
   int maxSizeY;
+  int numModulesX_;
+  int numModulesY_;
   char *error_str;
   trigger_in_available *trigger_input_cfg;
 
@@ -459,6 +464,7 @@ class pimegaDetector : public ADDriver {
   epicsFloat32 *PimegaMBTemperature_;
 
   std::vector<uint8_t> PimegaDacCountScanSelectedChips_;
+  std::vector<uint8_t> PimegaDacCountScanSelectedModules_;
 
   int numImageSaved;
   uint64_t recievedBackendCountOffset;

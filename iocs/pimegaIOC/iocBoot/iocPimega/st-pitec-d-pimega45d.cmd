@@ -36,6 +36,8 @@ epicsEnvSet("PIMEGA_MODULE08_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE09_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE10_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.2")
+epicsEnvSet("PIMEGA_NUM_MODULES_X", "1")
+epicsEnvSet("PIMEGA_NUM_MODULES_Y", "1")
 
 # The IP port for the command socket
 epicsEnvSet("PIMEGA_PORT", "60000")
@@ -64,7 +66,7 @@ epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "99999999")
 #              BackendPortFrame    # select the backend port for frame receiving
 #              IntAcqResetRDMA     # Reset the RDMA buffer before the acquisition (true -> 1 or false - > 0)
 
-pimegaDetectorConfig("$(PORT)",$(PIMEGA_MODULE01_IP),$(PIMEGA_MODULE02_IP),$(PIMEGA_MODULE03_IP),$(PIMEGA_MODULE04_IP),$(PIMEGA_MODULE05_IP),$(PIMEGA_MODULE06_IP),$(PIMEGA_MODULE07_IP),$(PIMEGA_MODULE08_IP),$(PIMEGA_MODULE09_IP),$(PIMEGA_MODULE10_IP),$(PIMEGA_PORT), $(XSIZE), $(YSIZE), $(DMODEL), 0, 0, 0, 0, 0, 1, 1, 5412, 6464, 1)
+pimegaDetectorConfig("$(PORT)",$(PIMEGA_MODULE01_IP),$(PIMEGA_MODULE02_IP),$(PIMEGA_MODULE03_IP),$(PIMEGA_MODULE04_IP),$(PIMEGA_MODULE05_IP),$(PIMEGA_MODULE06_IP),$(PIMEGA_MODULE07_IP),$(PIMEGA_MODULE08_IP),$(PIMEGA_MODULE09_IP),$(PIMEGA_MODULE10_IP),$(PIMEGA_PORT), $(XSIZE), $(YSIZE), $(DMODEL), 0, 0, 0, 0, 0, 1, 1, 5412, 6464, 1, $(PIMEGA_NUM_MODULES_X), $(PIMEGA_NUM_MODULES_Y))
 
 dbLoadRecords("$(ADPIMEGA)/db/pimega.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
 dbLoadRecords("$(ADPIMEGA)/db/NDFile.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
