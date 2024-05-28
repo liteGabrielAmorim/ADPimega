@@ -7,13 +7,12 @@ include $(TOP)/configure/CONFIG
 # -------------------------------
 
 USR_INCLUDES +=-I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
-USR_INCLUDES +=-I/usr/local/include/pimega
+USR_INCLUDES +=-I$(LIBPIMEGA_INCLUDE_PATH)
 
 LIBRARY_IOC_Linux += pimegaDetector
 
 LIB_SRCS += pimegaDetector.cpp
 
-LIB_SYS_LIBS_Linux += pimega
 # ------------------------
 # Build the Area Detector Derived Library
 # ------------------------

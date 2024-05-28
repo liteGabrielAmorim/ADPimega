@@ -2048,14 +2048,14 @@ asynStatus pimegaDetector::dacCountScan() {
     sensors = PimegaDacCountScanSelectedChips_.data();
   }
 
-  uint32_t *counts = dac_count_scan(pimega, dac, sensors, len, start, stop,
+  uint32_t *counts = DACCountScan(pimega, dac, sensors, len, start, stop,
                                     step, sizex, sizey, fullFileName);
   if (counts == NULL) {
     return asynError;
   }
 
-  int maxModules = get_max_modules(pimega);
-  int maxChips = get_max_chips_per_module(pimega);
+  int maxModules = GetMaxModules(pimega);
+  int maxChips = GetMaxChipsPerModule(pimega);
   int steps = (stop - start) / step + 1;
   size_t shape[2] = {steps, maxModules * maxChips};
 
@@ -2066,7 +2066,7 @@ asynStatus pimegaDetector::dacCountScan() {
   doCallbacksGenericPointer(PimegaDacCountScanResult, PimegaDacCountScanData,
                             0);
 
-  dac_count_scan_free(counts);
+  DACCountScanFree(counts);
   PimegaDacCountScanResult->release();
 
   return asynSuccess;
