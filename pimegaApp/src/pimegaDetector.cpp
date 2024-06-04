@@ -857,6 +857,18 @@ asynStatus pimegaDetector::writeInt32Array(asynUser *pasynUser,
     for (int index = 0; index < nElements && value[index] > 0; index++) {
       PimegaDacCountScanSelectedChips_.push_back(value[index]);
     }
+  } else if (function == PimegaDacCountScanModules) {
+    if (nElements > MAX_NUM_MODULES) {
+      PIMEGA_PRINT(pimega, TRACE_MASK_ERROR,
+                   "writeInt32Array: %s(%d) Array larger than expected. "
+                   "Expected nElements < %d but got %d\n",
+                   paramName, function, MAX_NUM_MODULES, nElements);
+      return asynError;
+    }
+
+    for (int index = 0; index < nElements && value[index] > 0; index++) {
+      PimegaDacCountScanSelectedModules_.push_back(value[index]);
+    }
   } else if (function < FIRST_PIMEGA_PARAM) {
     status = ADDriver::writeInt32Array(pasynUser, value, nElements);
     strcat(ok_str, paramName);
@@ -1247,13 +1259,14 @@ extern "C" int pimegaDetectorConfig(
     int detectorModel, int maxBuffers, size_t maxMemory, int priority,
     int stackSize, int simulate, int backendOn, int log,
     unsigned short backend_port, unsigned short vis_frame_port,
-    int IntAcqResetRDMA) {
-  new pimegaDetector(
-      portName, address_module01, address_module02, address_module03,
-      address_module04, address_module05, address_module06, address_module07,
-      address_module08, address_module09, address_module10, port, maxSizeX,
-      maxSizeY, detectorModel, maxBuffers, maxMemory, priority, stackSize,
-      simulate, backendOn, log, backend_port, vis_frame_port, IntAcqResetRDMA);
+    int IntAcqResetRDMA, int numModulesX, int numModulesY) {
+  new pimegaDetector(portName, address_module01, address_module02,
+                     address_module03, address_module04, address_module05,
+                     address_module06, address_module07, address_module08,
+                     address_module09, address_module10, port, maxSizeX,
+                     maxSizeY, detectorModel, maxBuffers, maxMemory, priority,
+                     stackSize, simulate, backendOn, log, backend_port,
+                     vis_frame_port, IntAcqResetRDMA, numModulesX, numModulesY);
 
   return (asynSuccess);
 }
@@ -1286,7 +1299,7 @@ pimegaDetector::pimegaDetector(
     int detectorModel, int maxBuffers, size_t maxMemory, int priority,
     int stackSize, int simulate, int backendOn, int log,
     unsigned short backend_port, unsigned short vis_frame_port,
-    int IntAcqResetRDMA)
+    int IntAcqResetRDMA, int numModulesX, int numModulesY)
 
     : ADDriver(
           portName, 1, 0, maxBuffers, maxMemory,
@@ -1377,6 +1390,8 @@ pimegaDetector::pimegaDetector(
   error_str = ErrorStringPointer(pimega);
   maxSizeX = SizeX;
   maxSizeY = SizeY;
+  numModulesX_ = numModulesX;
+  numModulesY_ = numModulesY;
 
   if (pimega)
     PIMEGA_PRINT(pimega, TRACE_MASK_FLOW,
@@ -1704,6 +1719,8 @@ void pimegaDetector::createParameters(void) {
               &PimegaDacCountScanStep);
   createParam(pimegaDacCountScanChipsString, asynParamInt8Array,
               &PimegaDacCountScanChips);
+  createParam(pimegaDacCountScanModulesString, asynParamInt8Array,
+              &PimegaDacCountScanModules);
   createParam(pimegaDacCountScanData, asynParamGenericPointer,
               &PimegaDacCountScanData);
 
@@ -2043,13 +2060,20 @@ asynStatus pimegaDetector::dacCountScan() {
   setParameter(NDFullFileName, fullFileName);
 
   uint8_t *sensors = NULL;
-  size_t len = PimegaDacCountScanSelectedChips_.size();
-  if (len > 0) {
+  size_t slen = PimegaDacCountScanSelectedChips_.size();
+  if (slen > 0) {
     sensors = PimegaDacCountScanSelectedChips_.data();
   }
 
-  uint32_t *counts = DACCountScan(pimega, dac, sensors, len, start, stop,
-                                    step, sizex, sizey, fullFileName);
+  uint8_t *modules = NULL;
+  size_t mlen = PimegaDacCountScanSelectedModules_.size();
+  if (mlen > 0) {
+    modules = PimegaDacCountScanSelectedModules_.data();
+  }
+
+  uint32_t *counts =
+      DACCountScan(pimega, dac, sensors, slen, start, stop, step, sizex, sizey,
+                   numModulesX_, numModulesY_, modules, mlen, fullFileName);
   if (counts == NULL) {
     return asynError;
   }
@@ -2057,11 +2081,16 @@ asynStatus pimegaDetector::dacCountScan() {
   int maxModules = GetMaxModules(pimega);
   int maxChips = GetMaxChipsPerModule(pimega);
   int steps = (stop - start) / step + 1;
-  size_t shape[2] = {steps, maxModules * maxChips};
+
+  size_t shape[3] = {mlen, steps, maxChips};
+  if (modules == NULL) {
+    shape[0] = maxModules;
+  }
 
   PimegaDacCountScanResult =
-      this->pNDArrayPool->alloc(2, shape, NDUInt32, 0, NULL);
-  memcpy(PimegaDacCountScanResult, counts, PimegaDacCountScanResult->dataSize);
+      this->pNDArrayPool->alloc(3, shape, NDUInt32, 0, NULL);
+  memcpy(PimegaDacCountScanResult->pData, counts,
+         PimegaDacCountScanResult->dataSize);
 
   doCallbacksGenericPointer(PimegaDacCountScanResult, PimegaDacCountScanData,
                             0);
@@ -2768,8 +2797,8 @@ static void configpimegaDetectorCallFunc(const iocshArgBuf *args) {
       args[5].sval, args[6].sval, args[7].sval, args[8].sval, args[9].sval,
       args[10].sval, args[11].ival, args[12].ival, args[13].ival, args[14].ival,
       args[15].ival, args[16].ival, args[17].ival, args[18].ival, args[19].ival,
-      args[20].ival, args[21].ival, args[22].ival, args[23].ival,
-      args[24].ival);
+      args[20].ival, args[21].ival, args[22].ival, args[23].ival, args[24].ival,
+      args[25].ival, args[26].ival);
 }
 
 static void pimegaDetectorRegister(void) {
