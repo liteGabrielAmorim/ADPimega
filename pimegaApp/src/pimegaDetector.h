@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <map>
+#include <vector>
 
 // EPICS includes
 #include <cantProceed.h>
@@ -43,16 +44,17 @@
 #include <lib/debug.h>
 #include <lib/generic.h>
 #include <lib/load.h>
-#include <lib/pimega_thread.h>
 #include <lib/monitoring.h>
 #include <lib/omr.h>
+#include <lib/pimega_thread.h>
 #include <lib/scan.h>
 #include <lib/sd_card.h>
 #include <lib/system.h>
 #include <lib/test_pulse.h>
 #include <lib/trigger.h>
-#include <lib/zmq_message_broker.hpp>
 #include <pimega.h>
+
+#include <lib/zmq_message_broker.hpp>
 
 #define PIMEGA_MAX_FILENAME_LEN 300
 #define MAX_BAD_PIXELS 100
@@ -70,8 +72,9 @@ static const char *driverName = "pimegaDetector";
 
 using vis_dtype = uint32_t;
 
-#define error(fmt, ...) \
-  asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, "%s:%d " fmt, __FILE__, __LINE__, __VA_ARGS__)
+#define error(fmt, ...)                                                        \
+  asynPrint(pasynUserSelf, ASYN_TRACE_ERROR, "%s:%d " fmt, __FILE__, __LINE__, \
+            __VA_ARGS__)
 
 #define UPDATEIOCSTATUS(x)         \
   do {                             \
@@ -220,42 +223,62 @@ typedef enum ioc_trigger_mode_t {
 #define pimegaMetadataValueString "METADATA_VALUE"
 #define pimegaMetadataOMString "METADATA_OM"
 #define pimegaFrameProcessModeString "FRAME_PROCESS_MODE"
+#define pimegaDacCountScanString "DAC_COUNT_SCAN"
+#define pimegaDacCountScanDacsString "DAC_COUNT_SCAN_DAC"
+#define pimegaDacCountScanStartString "DAC_COUNT_SCAN_START"
+#define pimegaDacCountScanStopString "DAC_COUNT_SCAN_STOP"
+#define pimegaDacCountScanStepString "DAC_COUNT_SCAN_STEP"
+#define pimegaDacCountScanChipsString "DAC_COUNT_SCAN_CHIPS"
+#define pimegaDacCountScanModulesString "DAC_COUNT_SCAN_MODULES"
+#define pimegaDacCountScanData "DAC_COUNT_SCAN_DATA"
+#define pimegaDiagnosticString "DIAGNOSTIC"
+#define pimegaDiagnosticDirString "DIAGNOSTIC_DIR"
+#define pimegaDiagnosticSysInfoIDString "DIAGNOSTIC_SYS_INFO_ID"
 
 class pimegaDetector : public ADDriver {
  public:
-  pimegaDetector(const char *portName, const char *address_module01, const char *address_module02,
-                 const char *address_module03, const char *address_module04,
-                 const char *address_module05, const char *address_module06,
-                 const char *address_module07, const char *address_module08,
-                 const char *address_module09, const char *address_module10, int port, int maxSizeX,
-                 int maxSizeY, int detectorModel, int maxBuffers, size_t maxMemory, int priority,
-                 int stackSize, int simulate, int backendOn, int log, unsigned short backend_port,
-                 unsigned short vis_frame_port, int IntAcqResetRDMA);
+  pimegaDetector(const char *portName, const char *address_module01,
+                 const char *address_module02, const char *address_module03,
+                 const char *address_module04, const char *address_module05,
+                 const char *address_module06, const char *address_module07,
+                 const char *address_module08, const char *address_module09,
+                 const char *address_module10, int port, int maxSizeX,
+                 int maxSizeY, int detectorModel, int maxBuffers,
+                 size_t maxMemory, int priority, int stackSize, int simulate,
+                 int backendOn, int log, unsigned short backend_port,
+                 unsigned short vis_frame_port, int IntAcqResetRDMA,
+                 int numModulesX, int numModulesY);
 
   virtual asynStatus writeFloat64(asynUser *pasynUser, epicsFloat64 value);
   virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
   virtual asynStatus readInt32(asynUser *pasynUser, epicsInt32 *value);
   virtual asynStatus readFloat64(asynUser *pasynUser, epicsFloat64 *value);
-  virtual asynStatus readFloat32Array(asynUser *pasynUser, epicsFloat32 *value, size_t nElements,
-                                      size_t *nIn);
-  virtual asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t maxChars,
-                                size_t *nActual);
-  virtual asynStatus writeInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements);
+  virtual asynStatus readFloat32Array(asynUser *pasynUser, epicsFloat32 *value,
+                                      size_t nElements, size_t *nIn);
+  virtual asynStatus writeOctet(asynUser *pasynUser, const char *value,
+                                size_t maxChars, size_t *nActual);
+  virtual asynStatus writeInt32Array(asynUser *pasynUser, epicsInt32 *value,
+                                     size_t nElements);
   virtual void report(FILE *fp, int details);
   virtual void alarmTask(void);
   virtual void acqTask(void);
   virtual void captureTask(void);
-  virtual void updateEpicsFrame(vis_dtype* data);
+  virtual void updateEpicsFrame(vis_dtype *data);
   void updateIOCStatus(const char *message, int size);
   void updateServerStatus(const char *message, int size);
   void newImageTask();
+  void finishAcq(int trigger, int *acquire, int *acquireStatus,
+                 uint64_t *recievedBackendCountOffset, int numExposuresVar);
   // Debugging routines
   asynStatus initDebugger(int initDebug);
   asynStatus debugLevel(const std::string &method, int onOff);
   asynStatus debug(const std::string &method, const std::string &msg);
-  asynStatus debug(const std::string &method, const std::string &msg, int value);
-  asynStatus debug(const std::string &method, const std::string &msg, double value);
-  asynStatus debug(const std::string &method, const std::string &msg, const std::string &value);
+  asynStatus debug(const std::string &method, const std::string &msg,
+                   int value);
+  asynStatus debug(const std::string &method, const std::string &msg,
+                   double value);
+  asynStatus debug(const std::string &method, const std::string &msg,
+                   const std::string &value);
 
  protected:
   int PimegaReset;
@@ -391,10 +414,22 @@ class pimegaDetector : public ADDriver {
   int PimegaMetadataOM;
   int PimegaIndexError;
   int PimegaFrameProcessMode;
+  int PimegaDacCountScan;
+  int PimegaDacCountScanDac;
+  int PimegaDacCountScanChips;
+  int PimegaDacCountScanModules;
+  int PimegaDacCountScanStart;
+  int PimegaDacCountScanStop;
+  int PimegaDacCountScanStep;
+  int PimegaDacCountScanData;
+  NDArray *PimegaDacCountScanResult = NULL;
   NDArray *PimegaNDArray = NULL;
   int PimegaLogFile;
   bool BoolAcqResetRDMA = false;
-  IMessageConsumer* message_consumer = nullptr;
+  IMessageConsumer *message_consumer = nullptr;
+  int PimegaDiagnostic;
+  int PimegaDiagnosticDir;
+  int PimegaDiagnosticSysInfoID;
 #define LAST_PIMEGA_PARAM PimegaLogFile
 
  private:
@@ -412,8 +447,13 @@ class pimegaDetector : public ADDriver {
   epicsEventId stopCaptureEventId_;
 
   pimega_t *pimega;
+  char *log_file_path;
   int maxSizeX;
   int maxSizeY;
+  int numModulesX_;
+  int numModulesY_;
+  char *error_str;
+  trigger_in_available *trigger_input_cfg;
 
   int arrayCallbacks;
   size_t dims[2];
@@ -423,12 +463,15 @@ class pimegaDetector : public ADDriver {
   epicsFloat32 *PimegaDacsOutSense_;
   epicsFloat32 *PimegaMBTemperature_;
 
+  std::vector<uint8_t> PimegaDacCountScanSelectedChips_;
+  std::vector<uint8_t> PimegaDacCountScanSelectedModules_;
+
   int numImageSaved;
   uint64_t recievedBackendCountOffset;
 
   void panic(const char *msg);
   void connect(const char *address[4], unsigned short port,
-          unsigned short backend_port, unsigned short vis_frame_port);
+               unsigned short backend_port, unsigned short vis_frame_port);
   void createParameters(void);
   void setParameter(int index, const char *value);
   void setParameter(int index, int value);
@@ -448,6 +491,7 @@ class pimegaDetector : public ADDriver {
   asynStatus startCaptureBackend(void);
 
   asynStatus dac_scan_tmp(pimega_dac_t dac);
+  asynStatus dacCountScan(void);
   asynStatus selectModule(uint8_t module);
   asynStatus medipixMode(uint8_t mode);
   asynStatus configDiscL(int value);
@@ -466,7 +510,7 @@ class pimegaDetector : public ADDriver {
   // asynStatus imageMode(u_int8_t mode);
   asynStatus sendImage(void);
   asynStatus checkSensors(void);
-  asynStatus loadEqualization(uint32_t *cfg);
+  asynStatus loadEqualization(void);
   asynStatus setExtBgIn(float voltage);
   asynStatus dacDefaults(const char *file);
   asynStatus getExtBgIn(void);
@@ -477,6 +521,7 @@ class pimegaDetector : public ADDriver {
   asynStatus getTemperatureStatus(void);
   asynStatus getTemperatureHighest(void);
   asynStatus configureAlignment(bool alignment_mode);
+  asynStatus diagnostic(void);
 };
 
 #define NUM_pimega_PARAMS (&LAST_pimega_PARAM - &FIRST_pimega_PARAM + 1)

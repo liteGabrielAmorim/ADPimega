@@ -1,6 +1,6 @@
 # PIMEGA areaDetector IOC
 
-This is an IOC for the PIMEGA area detector models 45D, 135D, 540D, 450D and 450DS. 
+This is an IOC for the PIMEGA area detector models 45D, 135D, 540D, 450D and 450DS.
 It must be included in compiled in the areaDetector folder of synApps.
 
 ## Dependencies

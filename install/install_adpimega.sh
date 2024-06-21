@@ -1,26 +1,30 @@
 #!/bin/bash
 ROOT_DIR=$PWD
-AREA_DETECTOR_VERSION='R3-13'
+# This area detector version is valid for synApps 6.3
+AREA_DETECTOR_VERSION='R3-12-1'
 AREA_DETECTOR_PATH="/home/$USER/.local/share/epics/synApps/support/areaDetector-$AREA_DETECTOR_VERSION"
 ADPIMEGA_INSTALL_PATH=$AREA_DETECTOR_PATH/ADPimega
 ADPIMEGA_SRC="../"
+
+if [[ -z "${LIBPIMEGA_PATH}" ]]; then
+    export LIBPIMEGA_PATH="/home/$USER/.local/bin/"
+    export LIBPIMEGA_INCLUDE_PATH="/home/$USER/.local/include/pimega/"
+fi
 
 INFO='\033[0;32m'
 WARN='\033[0;33m'
 NC='\033[0m'
 
-# libpimega.so should be in /usr/local/lib
-# Include files should be in /usr/local/include/pimega
 CheckDependencies() {
-    if [ -f /usr/local/lib/libpimega.so ]; then
+    if [ -f $LIBPIMEGA_PATH/libpimega.so ]; then
         echo -e "${INFO}==> libpimega.so found ${NC}"
     else
-        echo -e "${WARN}==> libpimega.so not found.\nAdd libpimega.so to /usr/local/lib ${NC}"
+        echo -e "${WARN}==> libpimega.so not found.\nAdd libpimega.so to ${LIBPIMEGA_PATH} ${NC}"
         exit
     fi
 
-    if [ -z "$(ls -A /usr/local/include/pimega)" ]; then
-        echo -e "${WARN}==> PIMEGA include files not found.\nAdd PIMEGA includes to /usr/local/include/pimega ${NC}"
+    if [ -z "$(ls -A $LIBPIMEGA_INCLUDE_PATH)" ]; then
+        echo -e "${WARN}==> PIMEGA include files not found.\nAdd PIMEGA includes to $LIBPIMEGA_INCLUDE_PATH ${NC}"
         exit
     else
         echo -e "${INFO}==> PIMEGA include files found ${NC}"
