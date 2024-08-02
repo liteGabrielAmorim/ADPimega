@@ -2037,15 +2037,6 @@ record(waveform, "$(P)$(R)DAC_Count_Scan:Chips")
     field(NELM, "36")
 }
 
-record(waveform, "$(P)$(R)DAC_Count_Scan:Modules")
-{
-	field(DESC, "Modules to perform DAC Count Scan")
-   	field(DTYP, "asynInt32ArrayOut")
-   	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN_MODULES")
-    field(FTVL, "LONG")
-    field(NELM, "10")
-}
-
 record(calcout, "$(P)$(R)DAC_Count_Scan:ResultSize")
 {
 	field(INPA, "$(P)$(R)DAC_Count_Scan:Start CPP NMS")
