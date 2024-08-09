@@ -2041,7 +2041,7 @@ asynStatus pimegaDetector::dacCountScan() {
   getParameter(PimegaDacCountScanStop, &stop);
   getParameter(PimegaDacCountScanStep, &step);
   getParameter(PimegaDacCountScanDac, (int *)&dac);
-  getParameter(PimegaModule, &current_module);
+  getParameter(PimegaModule, (int *)&current_module);
 
   char fullFileName[PIMEGA_MAX_FILENAME_LEN];
   createFileName(sizeof(fullFileName), fullFileName);
