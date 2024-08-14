@@ -21,10 +21,11 @@ The interface to the detector is provided via a TCP/IP socket. The vendor
 provides a library that is used by ADPimega to communicate with the detector.
 
 To receive frames from the device it is necessary to use the vendor-provided
-tool ``detector_backend``. It is a server that receives frames from the detector
-via RoCE interface, reconstructs the images and make them available through a
-ZeroMQ socket and/or save them to disk as a HDF5 file. ADPimega uses the ZeroMQ
-socket to receive images and convert them to NDArrays.
+tool ``detector_backend``. It must be running before starting the IOC. It is a
+server that receives frames from the detector via RoCE interface, reconstructs
+the images and make them available through a ZeroMQ socket and/or save them to
+disk as a HDF5 file. ADPimega uses the ZeroMQ socket to receive images and
+convert them to NDArrays.
 
 Both the library and the ``detector_backend`` tool are supported on Ubuntu 20.04
 or later.
@@ -347,6 +348,10 @@ Acquisition
       - mbbo, mbbi
       - MEDIPIX_MODE
       - Medipix Acquire Mode
+    * - $(P)$(R)CaptureAcquire
+      - dfanout
+      - N/A
+      - Capture and Acquire
 
 Equalization
 ~~~~~~~~~~~~
@@ -621,3 +626,33 @@ The ADPimega driver instance is created using the ``pimegaDetectorConfig`` comma
     int stackSize, int simulate, int backendOn, int log,
     unsigned short backend_port, unsigned short vis_frame_port,
     int IntAcqResetRDMA, int numModulesX, int numModulesY);
+
+Screenshots
+-----------
+
+.. image:: pydm-gui-135d.png
+   :width: 800px
+   :align: center
+
+.. image:: pydm-gui-135d-settings.png
+  :width: 800px
+  :align: center
+
+.. image:: pydm-gui-135d-restoration.png
+  :width: 800px
+  :align: center
+
+.. image:: pydm-gui-135d-diagnostic.png
+  :width: 800px
+  :align: center
+
+Restrictions
+------------
+
+* To perform an acquisition, first the ``$(P)$(R)Capture`` record should be set
+  to 1 and then the ``$(P)$(R)Acquire`` record. For convenience, there is a
+  record ``$(P)$(R)CaptureAcquire`` that sets both at once.
+
+* Currently, the ZeroMQ stream does not stream at high frame rates. It is useful
+  for a visualization tool, where not all frames are needed. Only the
+  ``detector_backend`` can save images at high frame rates for now.
