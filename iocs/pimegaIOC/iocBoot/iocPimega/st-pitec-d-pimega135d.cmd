@@ -35,7 +35,7 @@ epicsEnvSet("PIMEGA_MODULE07_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE08_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE09_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE10_IP", "127.0.0.1")
-epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.2")
+epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.10")
 # The IP port for the command socket
 epicsEnvSet("PIMEGA_PORT", "60000")
 # The search path for database files
@@ -66,7 +66,7 @@ epicsEnvSet("PIMEGA_NUM_MODULES_Y", "1")
 #              BackendPortFrame    # select the backend port for frame receiving
 #              IntAcqResetRDMA     # Reset the RDMA buffer before the acquisition (true -> 1 or false - > 0)
 
-pimegaDetectorConfig("$(PORT)",$(PIMEGA_MODULE01_IP),$(PIMEGA_MODULE02_IP),$(PIMEGA_MODULE03_IP),$(PIMEGA_MODULE04_IP),$(PIMEGA_MODULE05_IP),$(PIMEGA_MODULE06_IP),$(PIMEGA_MODULE07_IP),$(PIMEGA_MODULE08_IP),$(PIMEGA_MODULE09_IP),$(PIMEGA_MODULE10_IP),$(PIMEGA_PORT), $(XSIZE), $(YSIZE), $(DMODEL), 0, 0, 0, 0, 0, 1, 1, 5412, 6464, 1, $(PIMEGA_NUM_MODULES_X), $(PIMEGA_NUM_MODULES_Y))
+pimegaDetectorConfig("$(PORT)",$(PIMEGA_MODULE01_IP),$(PIMEGA_MODULE02_IP),$(PIMEGA_MODULE03_IP),$(PIMEGA_MODULE04_IP),$(PIMEGA_MODULE05_IP),$(PIMEGA_MODULE06_IP),$(PIMEGA_MODULE07_IP),$(PIMEGA_MODULE08_IP),$(PIMEGA_MODULE09_IP),$(PIMEGA_MODULE10_IP),$(PIMEGA_PORT), $(XSIZE), $(YSIZE), $(DMODEL), 0, 0, 0, 0, 0, 1, 1, 5418, 6464, 1, $(PIMEGA_NUM_MODULES_X), $(PIMEGA_NUM_MODULES_Y))
 
 dbLoadRecords("$(ADPIMEGA)/db/pimega.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
 dbLoadRecords("$(ADPIMEGA)/db/NDFile.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
@@ -87,10 +87,10 @@ set_requestfile_path("$(ADPIMEGA)/pimegaApp/Db")
 
 iocInit()
 
-dbpf(${PREFIX}cam1:FilePath,"/home/pimega/pimega-pss/database/acquisitions")
+dbpf(${PREFIX}cam1:FilePath,"${PIMEGA_PSS}/database/acquisitions")
 dbpf(${PREFIX}cam1:FileName,"test")
 dbpf(${PREFIX}cam1:FileTemplate,"%s%s_%3.3d.hdf5")
-dbpf(${PREFIX}cam1:dac_defaults_files,"/usr/local/epics/synApps/support/areaDetector-R3-7/ADPimega/iocs/pimegaIOC/iocBoot/iocPimega/config/pimega135d.ini")
+dbpf(${PREFIX}cam1:dac_defaults_files,"${PIMEGA_PSS}/ioc/epics/iocs/pimegaIOC/iocBoot/iocPimega/config/pimega135d.ini")
 dbpf(${PREFIX}cam1:ImgChipNumberID, 1)
 dbpf(${PREFIX}image1:EnableCallbacks, 1)
 #dbpf(${PREFIX}Stats2:EnableCallbacks, 1)
@@ -98,4 +98,4 @@ dbpf(${PREFIX}image1:EnableCallbacks, 1)
 # save things every thirty seconds
 #create_monitor_set("auto_settings.req", 30,"P=$(PREFIX)")
 # Enable temperature alarm after initial setup
-dbpf(${PREFIX}cam1:TemperatureMonitor_Enable, 1)
+#dbpf(${PREFIX}cam1:TemperatureMonitor_Enable, 1)
