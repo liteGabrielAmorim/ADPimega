@@ -15,7 +15,7 @@ Overview
 --------
 
 This is an :doc:`../index` driver for PIMEGA and RAD X-ray detectors from
-`Lumentum <https://www.lumentum.com/>`_.
+`Pitec <https://pitec.co/>`_.
 
 The interface to the detector is provided via a TCP/IP socket. The vendor
 provides a library that is used by ADPimega to communicate with the detector.
