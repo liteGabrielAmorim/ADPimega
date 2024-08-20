@@ -318,12 +318,12 @@ void pimegaDetector::finishAcq(int trigger, int *acquire, int *acquireStatus,
                    __func__);
       UPDATEIOCSTATUS("Acquisition finished");
       *recievedBackendCountOffset += numExposuresVar;
-      break;
 
       *acquire = 0;
       setIntegerParam(ADAcquire, 0);
       *acquireStatus = 0;
       setIntegerParam(ADStatus, ADStatusIdle);
+      break;
   }
 }
 
@@ -1833,6 +1833,9 @@ asynStatus pimegaDetector::setDefaults(void) {
                GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   setParameter(PimegaLogFile, this->log_file_path);
+
+  SetAcqParamCameraNumCapture(pimega, 1);
+
   callParamCallbacks();
   return asynSuccess;
 }
@@ -2041,7 +2044,7 @@ asynStatus pimegaDetector::dacCountScan() {
   getParameter(PimegaDacCountScanStop, &stop);
   getParameter(PimegaDacCountScanStep, &step);
   getParameter(PimegaDacCountScanDac, (int *)&dac);
-  getParameter(PimegaModule, &current_module);
+  getParameter(PimegaModule, (int *)&current_module);
 
   char fullFileName[PIMEGA_MAX_FILENAME_LEN];
   createFileName(sizeof(fullFileName), fullFileName);
@@ -2333,6 +2336,7 @@ asynStatus pimegaDetector::numExposures(unsigned number) {
     return asynError;
   }
   setParameter(ADNumExposures, (int)number);
+  SetAcqParamCameraNumCapture(pimega, number);
   return asynSuccess;
 }
 
