@@ -14,8 +14,8 @@ ADPimega
 Overview
 --------
 
-This is an :doc:`../index` driver for PIMEGA and RAD X-ray detectors from
-`Pitec <https://pitec.co/>`_.
+This is an :doc:`../index` driver for PIMEGA X-ray detectors from `Pitec
+<https://pitec.co/>`_.
 
 The interface to the detector is provided via a TCP/IP socket. The vendor
 provides a library that is used by ADPimega to communicate with the detector.
@@ -32,7 +32,7 @@ or later.
 
 ADPimega inherits from `ADDriver`_. It implements some of the parameters in
 `asynNDArrayDriver`_ and `ADDriver`_. It also implements parameters specific to
-the PIMEGA and RAD detectors.
+the PIMEGA detectors.
 
 ADPimega specific parameters
 ----------------------------
@@ -626,25 +626,6 @@ The ADPimega driver instance is created using the ``pimegaDetectorConfig`` comma
     int stackSize, int simulate, int backendOn, int log,
     unsigned short backend_port, unsigned short vis_frame_port,
     int IntAcqResetRDMA, int numModulesX, int numModulesY);
-
-Screenshots
------------
-
-.. image:: pydm-gui-135d.png
-   :width: 800px
-   :align: center
-
-.. image:: pydm-gui-135d-settings.png
-  :width: 800px
-  :align: center
-
-.. image:: pydm-gui-135d-restoration.png
-  :width: 800px
-  :align: center
-
-.. image:: pydm-gui-135d-diagnostic.png
-  :width: 800px
-  :align: center
 
 Restrictions
 ------------
