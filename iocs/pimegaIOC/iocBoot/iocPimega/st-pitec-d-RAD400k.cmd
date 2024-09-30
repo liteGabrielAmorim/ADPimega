@@ -25,7 +25,7 @@ epicsEnvSet("NCHANS", "2048")
 # The maximum number of frames buffered in the NDPluginCircularBuff plugin
 epicsEnvSet("CBUFFS", "1000")
 # The IP address of the Pimega system
-epicsEnvSet("PIMEGA_MODULE01_IP", "127.0.0.1")
+epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.2")
 epicsEnvSet("PIMEGA_MODULE02_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE03_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE04_IP", "127.0.0.1")
@@ -35,7 +35,7 @@ epicsEnvSet("PIMEGA_MODULE07_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE08_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE09_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE10_IP", "127.0.0.1")
-epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.2")
+
 # The IP port for the command socket
 epicsEnvSet("PIMEGA_PORT", "60000")
 # The search path for database files
@@ -67,7 +67,7 @@ epicsEnvSet("PIMEGA_NUM_MODULES_Y", "1")
 #              BackendPortFrame    # select the backend port for frame receiving
 #              IntAcqResetRDMA     # Reset the RDMA buffer before the acquisition (true -> 1 or false - > 0)
 
-pimegaDetectorConfig("$(PORT)",$(PIMEGA_MODULE01_IP),$(PIMEGA_MODULE02_IP),$(PIMEGA_MODULE03_IP),$(PIMEGA_MODULE04_IP),$(PIMEGA_MODULE05_IP),$(PIMEGA_MODULE06_IP),$(PIMEGA_MODULE07_IP),$(PIMEGA_MODULE08_IP),$(PIMEGA_MODULE09_IP),$(PIMEGA_MODULE10_IP),$(PIMEGA_PORT), $(XSIZE), $(YSIZE), $(DMODEL), 0, 0, 0, 0, 0, 1, 1, 5418, 6467, 1, $(PIMEGA_NUM_MODULES_X), $(PIMEGA_NUM_MODULES_Y))
+pimegaDetectorConfig("$(PORT)",$(PIMEGA_MODULE01_IP),$(PIMEGA_MODULE02_IP),$(PIMEGA_MODULE03_IP),$(PIMEGA_MODULE04_IP),$(PIMEGA_MODULE05_IP),$(PIMEGA_MODULE06_IP),$(PIMEGA_MODULE07_IP),$(PIMEGA_MODULE08_IP),$(PIMEGA_MODULE09_IP),$(PIMEGA_MODULE10_IP),$(PIMEGA_PORT), $(XSIZE), $(YSIZE), $(DMODEL), 0, 0, 0, 0, 0, 1, 1, 5428, 6477, 1, $(PIMEGA_NUM_MODULES_X), $(PIMEGA_NUM_MODULES_Y))
 
 dbLoadRecords("$(ADPIMEGA)/db/pimega.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
 dbLoadRecords("$(ADPIMEGA)/db/NDFile.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
