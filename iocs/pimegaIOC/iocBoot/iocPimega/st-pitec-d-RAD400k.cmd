@@ -41,8 +41,9 @@ epicsEnvSet("PIMEGA_PORT", "60000")
 # The search path for database files
 epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db")
 
-#this need to be set also on the terminal used for monitoring the IOC
-epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "99999999") 
+# This need to be set also on the terminal used for monitoring the IOC
+# Calculated as 1536*256*4*100 = 157286400
+epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "157286400") 
 
 epicsEnvSet("PIMEGA_NUM_MODULES_X", "1")
 epicsEnvSet("PIMEGA_NUM_MODULES_Y", "1")
