@@ -7,26 +7,26 @@ dbLoadDatabase("$(TOP)/dbd/pimegaApp.dbd")
 pimegaApp_registerRecordDeviceDriver(pdbbase)
 
 # Prefix for all records
-epicsEnvSet("PREFIX", "PITEC:D:RAD400k:")
+epicsEnvSet("PREFIX", "PITEC:D:RAD800k:")
 # The port name for the detector
 epicsEnvSet("PORT",   "PIMEGA")
 # The detector model (0:mobipix; 1:pimega45D; 2:pimega135DL; 3:pimega135D; 4:pimega540D; 5:pimega450D; 6:pimega450DS, 7:RAD400k, 8:RAD800k)
-epicsEnvSet("DMODEL", "7");
+epicsEnvSet("DMODEL", "8");
 # The queue size for all plugins
 epicsEnvSet("QSIZE",  "20")
 # The maximim image width; used for row profiles in the NDPluginStats plugin
 epicsEnvSet("XSIZE",  "1536")
 # The maximim image height; used for column profiles in the NDPluginStats plugin
-epicsEnvSet("YSIZE",  "256")
+epicsEnvSet("YSIZE",  "512")
 # Number of Elements
-epicsEnvSet("NELEMENTS", "393216")
+epicsEnvSet("NELEMENTS", "786432")
 # The maximum number of time seried points in the NDPluginStats plugin
 epicsEnvSet("NCHANS", "2048")
 # The maximum number of frames buffered in the NDPluginCircularBuff plugin
-epicsEnvSet("CBUFFS", "1000")
+epicsEnvSet("CBUFFS", "10000")
 # The IP address of the Pimega system
 epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.2")
-epicsEnvSet("PIMEGA_MODULE02_IP", "127.0.0.1")
+epicsEnvSet("PIMEGA_MODULE02_IP", "10.255.255.6")
 epicsEnvSet("PIMEGA_MODULE03_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE04_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE05_IP", "127.0.0.1")
@@ -42,11 +42,11 @@ epicsEnvSet("PIMEGA_PORT", "60000")
 epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db")
 
 # This need to be set also on the terminal used for monitoring the IOC
-# Calculated as 1536*256*4*100 = 157286400
-epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "157286400") 
+# Calculated as 1536*512*4*100 = 314572800
+epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "314572800")
 
 epicsEnvSet("PIMEGA_NUM_MODULES_X", "1")
-epicsEnvSet("PIMEGA_NUM_MODULES_Y", "1")
+epicsEnvSet("PIMEGA_NUM_MODULES_Y", "2")
 
 # pimegaDetectorConfig(
 #              portName,           # The name of the asyn port to be created
@@ -92,7 +92,7 @@ iocInit()
 dbpf(${PREFIX}cam1:FilePath,"${PIMEGA_PSS}/database/acquisitions")
 dbpf(${PREFIX}cam1:FileName,"test")
 dbpf(${PREFIX}cam1:FileTemplate,"%s%s_%3.3d.hdf5")
-dbpf(${PREFIX}cam1:dac_defaults_files,"${PIMEGA_PSS}/ioc/epics/iocs/pimegaIOC/iocBoot/iocPimega/config/RAD400k.ini")
+# dbpf(${PREFIX}cam1:dac_defaults_files,"${PIMEGA_PSS}/ioc/epics/iocs/pimegaIOC/iocBoot/iocPimega/config/RAD800k.ini")
 dbpf(${PREFIX}cam1:ImgChipNumberID, 1)
 dbpf(${PREFIX}image1:EnableCallbacks, 1)
 dbpf(${PREFIX}Stats2:EnableCallbacks, 1)
