@@ -25,7 +25,7 @@ epicsEnvSet("NCHANS", "2048")
 # The maximum number of frames buffered in the NDPluginCircularBuff plugin
 epicsEnvSet("CBUFFS", "1000")
 # The IP address of the Pimega system
-epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.6")
+epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.2")
 epicsEnvSet("PIMEGA_MODULE02_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE03_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE04_IP", "127.0.0.1")
