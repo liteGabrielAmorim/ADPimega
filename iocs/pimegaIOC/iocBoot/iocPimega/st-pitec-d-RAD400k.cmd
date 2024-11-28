@@ -7,25 +7,25 @@ dbLoadDatabase("$(TOP)/dbd/pimegaApp.dbd")
 pimegaApp_registerRecordDeviceDriver(pdbbase)
 
 # Prefix for all records
-epicsEnvSet("PREFIX", "PITEC:D:PIMEGA135DL:")
+epicsEnvSet("PREFIX", "PITEC:D:RAD400k:")
 # The port name for the detector
 epicsEnvSet("PORT",   "PIMEGA")
-# The detector model (0:mobipix; 1:pimega45D; 2:pimega135DL; 3:pimega135D; 4:pimega540D; 5:pimega450D; 6:pimega450DS)
-epicsEnvSet("DMODEL", "2");
+# The detector model (0:mobipix; 1:pimega45D; 2:pimega135DL; 3:pimega135D; 4:pimega540D; 5:pimega450D; 6:pimega450DS, 7:RAD400k, 8:RAD800k)
+epicsEnvSet("DMODEL", "7");
 # The queue size for all plugins
 epicsEnvSet("QSIZE",  "20")
 # The maximim image width; used for row profiles in the NDPluginStats plugin
 epicsEnvSet("XSIZE",  "1536")
 # The maximim image height; used for column profiles in the NDPluginStats plugin
-epicsEnvSet("YSIZE",  "1536")
+epicsEnvSet("YSIZE",  "256")
 # Number of Elements
-epicsEnvSet("NELEMENTS", "2359296")
+epicsEnvSet("NELEMENTS", "393216")
 # The maximum number of time seried points in the NDPluginStats plugin
 epicsEnvSet("NCHANS", "2048")
 # The maximum number of frames buffered in the NDPluginCircularBuff plugin
-epicsEnvSet("CBUFFS", "500")
+epicsEnvSet("CBUFFS", "1000")
 # The IP address of the Pimega system
-epicsEnvSet("PIMEGA_MODULE01_IP", "127.0.0.1")
+epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.2")
 epicsEnvSet("PIMEGA_MODULE02_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE03_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE04_IP", "127.0.0.1")
@@ -35,13 +35,15 @@ epicsEnvSet("PIMEGA_MODULE07_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE08_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE09_IP", "127.0.0.1")
 epicsEnvSet("PIMEGA_MODULE10_IP", "127.0.0.1")
-epicsEnvSet("PIMEGA_MODULE01_IP", "10.255.255.2")
+
 # The IP port for the command socket
 epicsEnvSet("PIMEGA_PORT", "60000")
 # The search path for database files
 epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db")
 
-epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "99999999")
+# This need to be set also on the terminal used for monitoring the IOC
+# Calculated as 1536*256*4*100 = 157286400
+epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "157286400")
 
 epicsEnvSet("PIMEGA_NUM_MODULES_X", "1")
 epicsEnvSet("PIMEGA_NUM_MODULES_Y", "1")
@@ -66,7 +68,7 @@ epicsEnvSet("PIMEGA_NUM_MODULES_Y", "1")
 #              BackendPortFrame    # select the backend port for frame receiving
 #              IntAcqResetRDMA     # Reset the RDMA buffer before the acquisition (true -> 1 or false - > 0)
 
-pimegaDetectorConfig("$(PORT)",$(PIMEGA_MODULE01_IP),$(PIMEGA_MODULE02_IP),$(PIMEGA_MODULE03_IP),$(PIMEGA_MODULE04_IP),$(PIMEGA_MODULE05_IP),$(PIMEGA_MODULE06_IP),$(PIMEGA_MODULE07_IP),$(PIMEGA_MODULE08_IP),$(PIMEGA_MODULE09_IP),$(PIMEGA_MODULE10_IP),$(PIMEGA_PORT), $(XSIZE), $(YSIZE), $(DMODEL), 0, 0, 0, 0, 0, 1, 1, 5412, 6464, 1, $(PIMEGA_NUM_MODULES_X), $(PIMEGA_NUM_MODULES_Y))
+pimegaDetectorConfig("$(PORT)",$(PIMEGA_MODULE01_IP),$(PIMEGA_MODULE02_IP),$(PIMEGA_MODULE03_IP),$(PIMEGA_MODULE04_IP),$(PIMEGA_MODULE05_IP),$(PIMEGA_MODULE06_IP),$(PIMEGA_MODULE07_IP),$(PIMEGA_MODULE08_IP),$(PIMEGA_MODULE09_IP),$(PIMEGA_MODULE10_IP),$(PIMEGA_PORT), $(XSIZE), $(YSIZE), $(DMODEL), 0, 0, 0, 0, 0, 1, 1, 5418, 6467, 1, $(PIMEGA_NUM_MODULES_X), $(PIMEGA_NUM_MODULES_Y))
 
 dbLoadRecords("$(ADPIMEGA)/db/pimega.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
 dbLoadRecords("$(ADPIMEGA)/db/NDFile.template","P=$(PREFIX),R=cam1:,PORT=$(PORT),ADDR=0,TIMEOUT=1")
@@ -90,12 +92,10 @@ iocInit()
 dbpf(${PREFIX}cam1:FilePath,"${PIMEGA_PSS}/database/acquisitions")
 dbpf(${PREFIX}cam1:FileName,"test")
 dbpf(${PREFIX}cam1:FileTemplate,"%s%s_%3.3d.hdf5")
-dbpf(${PREFIX}cam1:dac_defaults_files,"$(ADPIMEGA)/iocs/pimegaIOC/iocBoot/iocPimega/config/pimega135dl.ini")
+dbpf(${PREFIX}cam1:dac_defaults_files,"${PIMEGA_PSS}/ioc/epics/iocs/pimegaIOC/iocBoot/iocPimega/config/RAD400k.ini")
 dbpf(${PREFIX}cam1:ImgChipNumberID, 1)
 dbpf(${PREFIX}image1:EnableCallbacks, 1)
-#dbpf(${PREFIX}Stats2:EnableCallbacks, 1)
-#dbpf(${PREFIX}cam1:LoadEqualization, 60)
+dbpf(${PREFIX}Stats2:EnableCallbacks, 1)
+
 # save things every thirty seconds
 #create_monitor_set("auto_settings.req", 30,"P=$(PREFIX)")
-# Enable temperature alarm after initial setup
-dbpf(${PREFIX}cam1:TemperatureMonitor_Enable, 1)

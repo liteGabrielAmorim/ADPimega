@@ -680,7 +680,6 @@ record(mbbi,"$(P)$(R)M1:Temperature_Status") {
     field(ONST, "Normal")	                      field(ONVL, "1")
     field(TWST, "Warning")   	                  field(TWVL, "2")
     field(FRST, "Critical")         		      field(FRVL, "4")
-	field(PREC, "0")
     field(SCAN, "I/O Intr")
 }
 
@@ -703,7 +702,6 @@ record(mbbi,"$(P)$(R)M2:Temperature_Status") {
     field(ONST, "Normal")	                      field(ONVL, "1")
     field(TWST, "Warning")   	                  field(TWVL, "2")
     field(FRST, "Critical")         		      field(FRVL, "4")
-	field(PREC, "0")
     field(SCAN, "I/O Intr")
 }
 
@@ -718,7 +716,7 @@ record(ai, "$(P)$(R)M2:Highest_Temperature") {
 
 #Module 3
 #each status controls a bit, thus using values 0, 1, 2, 4
-record(ai,"$(P)$(R)M3:Temperature_Status") {
+record(mbbi,"$(P)$(R)M3:Temperature_Status") {
     field(DESC, "Medipix Board Temperature Status Mod 3")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))TEMP_STATUS_M3")
@@ -726,7 +724,6 @@ record(ai,"$(P)$(R)M3:Temperature_Status") {
     field(ONST, "Normal")	                      field(ONVL, "1")
     field(TWST, "Warning")   	                  field(TWVL, "2")
     field(FRST, "Critical")         		      field(FRVL, "4")
-	field(PREC, "0")
     field(SCAN, "I/O Intr")
 }
 
@@ -741,7 +738,7 @@ record(ai, "$(P)$(R)M3:Highest_Temperature") {
 
 #Module 4
 #each status controls a bit, thus using values 0, 1, 2, 4
-record(ai,"$(P)$(R)M4:Temperature_Status") {
+record(mbbi,"$(P)$(R)M4:Temperature_Status") {
     field(DESC, "Medipix Board Temperature Status Mod 4")
     field(DTYP, "asynInt32")
     field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))TEMP_STATUS_M4")
@@ -749,7 +746,6 @@ record(ai,"$(P)$(R)M4:Temperature_Status") {
     field(ONST, "Normal")	                      field(ONVL, "1")
     field(TWST, "Warning")   	                  field(TWVL, "2")
     field(FRST, "Critical")         		      field(FRVL, "4")
-	field(PREC, "0")
     field(SCAN, "I/O Intr")
 }
 
@@ -2035,15 +2031,6 @@ record(waveform, "$(P)$(R)DAC_Count_Scan:Chips")
    	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN_CHIPS")
     field(FTVL, "LONG")
     field(NELM, "36")
-}
-
-record(waveform, "$(P)$(R)DAC_Count_Scan:Modules")
-{
-	field(DESC, "Modules to perform DAC Count Scan")
-   	field(DTYP, "asynInt32ArrayOut")
-   	field(INP,  "@asyn($(PORT),$(ADDR),$(TIMEOUT))DAC_COUNT_SCAN_MODULES")
-    field(FTVL, "LONG")
-    field(NELM, "10")
 }
 
 record(calcout, "$(P)$(R)DAC_Count_Scan:ResultSize")

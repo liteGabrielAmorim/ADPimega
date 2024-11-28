@@ -318,12 +318,12 @@ void pimegaDetector::finishAcq(int trigger, int *acquire, int *acquireStatus,
                    __func__);
       UPDATEIOCSTATUS("Acquisition finished");
       *recievedBackendCountOffset += numExposuresVar;
-      break;
 
       *acquire = 0;
       setIntegerParam(ADAcquire, 0);
       *acquireStatus = 0;
       setIntegerParam(ADStatus, ADStatusIdle);
+      break;
   }
 }
 
@@ -856,18 +856,6 @@ asynStatus pimegaDetector::writeInt32Array(asynUser *pasynUser,
 
     for (int index = 0; index < nElements && value[index] > 0; index++) {
       PimegaDacCountScanSelectedChips_.push_back(value[index]);
-    }
-  } else if (function == PimegaDacCountScanModules) {
-    if (nElements > MAX_NUM_MODULES) {
-      PIMEGA_PRINT(pimega, TRACE_MASK_ERROR,
-                   "writeInt32Array: %s(%d) Array larger than expected. "
-                   "Expected nElements < %d but got %d\n",
-                   paramName, function, MAX_NUM_MODULES, nElements);
-      return asynError;
-    }
-
-    for (int index = 0; index < nElements && value[index] > 0; index++) {
-      PimegaDacCountScanSelectedModules_.push_back(value[index]);
     }
   } else if (function < FIRST_PIMEGA_PARAM) {
     status = ADDriver::writeInt32Array(pasynUser, value, nElements);
@@ -1719,8 +1707,6 @@ void pimegaDetector::createParameters(void) {
               &PimegaDacCountScanStep);
   createParam(pimegaDacCountScanChipsString, asynParamInt8Array,
               &PimegaDacCountScanChips);
-  createParam(pimegaDacCountScanModulesString, asynParamInt8Array,
-              &PimegaDacCountScanModules);
   createParam(pimegaDacCountScanData, asynParamGenericPointer,
               &PimegaDacCountScanData);
 
@@ -1847,6 +1833,9 @@ asynStatus pimegaDetector::setDefaults(void) {
                GetModuleBiasVoltage(pimega, PIMEGA_THREAD_MAIN));
 
   setParameter(PimegaLogFile, this->log_file_path);
+
+  SetAcqParamCameraNumCapture(pimega, 1);
+
   callParamCallbacks();
   return asynSuccess;
 }
@@ -2044,6 +2033,7 @@ asynStatus pimegaDetector::dac_scan_tmp(pimega_dac_t dac) {
 asynStatus pimegaDetector::dacCountScan() {
   int rc = PIMEGA_SUCCESS;
   int start = 0, stop = 100, step = 1;
+  uint8_t current_module = 1;
   pimega_dac_t dac;
 
   int sizex, sizey;
@@ -2054,6 +2044,7 @@ asynStatus pimegaDetector::dacCountScan() {
   getParameter(PimegaDacCountScanStop, &stop);
   getParameter(PimegaDacCountScanStep, &step);
   getParameter(PimegaDacCountScanDac, (int *)&dac);
+  getParameter(PimegaModule, (int *)&current_module);
 
   char fullFileName[PIMEGA_MAX_FILENAME_LEN];
   createFileName(sizeof(fullFileName), fullFileName);
@@ -2065,30 +2056,20 @@ asynStatus pimegaDetector::dacCountScan() {
     sensors = PimegaDacCountScanSelectedChips_.data();
   }
 
-  uint8_t *modules = NULL;
-  size_t mlen = PimegaDacCountScanSelectedModules_.size();
-  if (mlen > 0) {
-    modules = PimegaDacCountScanSelectedModules_.data();
-  }
-
   uint32_t *counts =
       DACCountScan(pimega, dac, sensors, slen, start, stop, step, sizex, sizey,
-                   numModulesX_, numModulesY_, modules, mlen, fullFileName);
+                   numModulesX_, numModulesY_, current_module, fullFileName);
   if (counts == NULL) {
     return asynError;
   }
 
-  int maxModules = GetMaxModules(pimega);
   int maxChips = GetMaxChipsPerModule(pimega);
   int steps = (stop - start) / step + 1;
 
-  size_t shape[3] = {mlen, steps, maxChips};
-  if (modules == NULL) {
-    shape[0] = maxModules;
-  }
+  size_t shape[2] = {steps, maxChips};
 
   PimegaDacCountScanResult =
-      this->pNDArrayPool->alloc(3, shape, NDUInt32, 0, NULL);
+      this->pNDArrayPool->alloc(2, shape, NDUInt32, 0, NULL);
   memcpy(PimegaDacCountScanResult->pData, counts,
          PimegaDacCountScanResult->dataSize);
 
@@ -2355,6 +2336,7 @@ asynStatus pimegaDetector::numExposures(unsigned number) {
     return asynError;
   }
   setParameter(ADNumExposures, (int)number);
+  SetAcqParamCameraNumCapture(pimega, number);
   return asynSuccess;
 }
 
