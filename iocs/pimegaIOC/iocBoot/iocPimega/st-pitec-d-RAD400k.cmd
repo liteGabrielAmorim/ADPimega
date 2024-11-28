@@ -43,7 +43,7 @@ epicsEnvSet("EPICS_DB_INCLUDE_PATH", "$(ADCORE)/db")
 
 # This need to be set also on the terminal used for monitoring the IOC
 # Calculated as 1536*256*4*100 = 157286400
-epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "157286400") 
+epicsEnvSet("EPICS_CA_MAX_ARRAY_BYTES", "157286400")
 
 epicsEnvSet("PIMEGA_NUM_MODULES_X", "1")
 epicsEnvSet("PIMEGA_NUM_MODULES_Y", "1")
@@ -99,5 +99,3 @@ dbpf(${PREFIX}Stats2:EnableCallbacks, 1)
 
 # save things every thirty seconds
 #create_monitor_set("auto_settings.req", 30,"P=$(PREFIX)")
-
-
