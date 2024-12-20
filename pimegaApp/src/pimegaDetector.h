@@ -262,7 +262,10 @@ class pimegaDetector : public ADDriver {
   virtual void alarmTask(void);
   virtual void acqTask(void);
   virtual void captureTask(void);
-  virtual void updateEpicsFrame(vis_dtype *data);
+  virtual void initializeBufferPool(int numBuffers);
+  virtual void clearBufferPool();
+  virtual void updateEpicsFrame(uint16_t *data);
+  virtual void updateEpicsFrame(uint32_t *data);
   void updateIOCStatus(const char *message, int size);
   void updateServerStatus(const char *message, int size);
   void newImageTask();
