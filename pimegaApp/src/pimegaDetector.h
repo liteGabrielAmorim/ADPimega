@@ -56,6 +56,8 @@
 
 #include <lib/zmq_message_broker.hpp>
 
+#include "CircularBuffer.h"
+
 #define PIMEGA_MAX_FILENAME_LEN 300
 #define MAX_BAD_PIXELS 100
 /** Time to poll when reading from Labview */
@@ -431,6 +433,7 @@ class pimegaDetector : public ADDriver {
   int PimegaDiagnostic;
   int PimegaDiagnosticDir;
   int PimegaDiagnosticSysInfoID;
+  std::unique_ptr<CircularBuffer> ndArrayBuffer;
 #define LAST_PIMEGA_PARAM PimegaLogFile
 
  private:

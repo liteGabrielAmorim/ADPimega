@@ -37,76 +37,43 @@ static void acquisitionTaskC(void *drvPvt) {
   pPvt->acqTask();
 }
 
-std::vector<NDArray *> ndArrayBuffer;
-int currentBufferIndex = 0;
-
 void pimegaDetector::initializeBufferPool(int numBuffers,
                                           NDDataType_t ndarray_dtype) {
   int sizex, sizey;
   getIntegerParam(ADMaxSizeX, &sizex);
   getIntegerParam(ADMaxSizeY, &sizey);
 
-  size_t array_dims[2] = {sizex, sizey};
-  for (int i = 0; i < numBuffers; ++i) {
-    NDArray *array =
-        this->pNDArrayPool->alloc(2, array_dims, ndarray_dtype, 0, NULL);
-    ndArrayBuffer.push_back(array);
-  }
+  ndArrayBuffer = std::make_unique<CircularBuffer>(
+      numBuffers, sizex, sizey, ndarray_dtype, this->pNDArrayPool);
 }
 
 void pimegaDetector::clearBufferPool() {
-  // Free each NDArray in the buffer
-  for (auto array : ndArrayBuffer) {
-    if (array) {
-      array->release();
-    }
+  if (ndArrayBuffer) {
+    ndArrayBuffer->clear();
   }
-
-  // Clear the vector
-  ndArrayBuffer.clear();
 }
 
 void pimegaDetector::updateEpicsFrame(uint16_t *data) {
   int sizex, sizey;
   getIntegerParam(ADMaxSizeX, &sizex);
   getIntegerParam(ADMaxSizeY, &sizey);
-  std::cout << "uint16_t" << std::endl;
 
-  size_t array_dims[2] = {sizex, sizey};
-
-  PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "updateEpicsFrame\n");
-
-  // Reuse a pre-allocated buffer from the pool
-  NDArray *PimegaNDArray = ndArrayBuffer[currentBufferIndex];
-  currentBufferIndex =
-      (currentBufferIndex + 1) % ndArrayBuffer.size();  // Circular buffer
-
+  NDArray *PimegaNDArray = ndArrayBuffer->getNext();
   memcpy(PimegaNDArray->pData, data, PimegaNDArray->dataSize);
   updateTimeStamp(&PimegaNDArray->epicsTS);
   this->getAttributes(PimegaNDArray->pAttributeList);
   doCallbacksGenericPointer(PimegaNDArray, NDArrayData, 0);
-  // No need to release since we are reusing buffers
 }
 
 void pimegaDetector::updateEpicsFrame(uint32_t *data) {
   int sizex, sizey;
   getIntegerParam(ADMaxSizeX, &sizex);
-  std::cout << "uint32_t" << std::endl;
 
-  size_t array_dims[2] = {sizex, sizey};
-
-  PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "updateEpicsFrame\n");
-
-  // Reuse a pre-allocated buffer from the pool
-  NDArray *PimegaNDArray = ndArrayBuffer[currentBufferIndex];
-  currentBufferIndex =
-      (currentBufferIndex + 1) % ndArrayBuffer.size();  // Circular buffer
-
+  NDArray *PimegaNDArray = ndArrayBuffer->getNext();
   memcpy(PimegaNDArray->pData, data, PimegaNDArray->dataSize);
   updateTimeStamp(&PimegaNDArray->epicsTS);
   this->getAttributes(PimegaNDArray->pAttributeList);
   doCallbacksGenericPointer(PimegaNDArray, NDArrayData, 0);
-  // No need to release since we are reusing buffers
 }
 
 /** This thread controls acquisition, reads image files to get the image data,

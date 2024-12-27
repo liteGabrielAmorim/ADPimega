@@ -12,6 +12,7 @@ USR_INCLUDES +=-I$(LIBPIMEGA_INCLUDE_PATH)
 LIBRARY_IOC_Linux += pimegaDetector
 
 LIB_SRCS += pimegaDetector.cpp
+LIB_SRCS += CircularBuffer.cpp
 
 # ------------------------
 # Build the Area Detector Derived Library
