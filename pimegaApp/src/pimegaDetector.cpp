@@ -12,7 +12,7 @@
 #include <cstring>
 #include <lib/zmq_message_broker.hpp>
 
-const NDDataType_t vis_ndarray_dtype = NDUInt32;
+NDDataType_t ndarray_dtype = NDUInt16;
 
 static pimega_t *pimega_global;
 
@@ -37,22 +37,43 @@ static void acquisitionTaskC(void *drvPvt) {
   pPvt->acqTask();
 }
 
-void pimegaDetector::updateEpicsFrame(vis_dtype *data) {
+void pimegaDetector::initializeBufferPool(int numBuffers,
+                                          NDDataType_t ndarray_dtype) {
   int sizex, sizey;
   getIntegerParam(ADMaxSizeX, &sizex);
   getIntegerParam(ADMaxSizeY, &sizey);
 
-  PIMEGA_PRINT(pimega, TRACE_MASK_FLOW, "updateEpicsFrame\n");
+  ndArrayBuffer = std::make_unique<CircularBuffer>(
+      numBuffers, sizex, sizey, ndarray_dtype, this->pNDArrayPool);
+}
 
-  size_t array_dims[2] = {sizex, sizey};
+void pimegaDetector::clearBufferPool() {
+  if (ndArrayBuffer) {
+    ndArrayBuffer->clear();
+  }
+}
 
-  PimegaNDArray =
-      this->pNDArrayPool->alloc(2, array_dims, vis_ndarray_dtype, 0, NULL);
+void pimegaDetector::updateEpicsFrame(uint16_t *data) {
+  int sizex, sizey;
+  getIntegerParam(ADMaxSizeX, &sizex);
+  getIntegerParam(ADMaxSizeY, &sizey);
+
+  NDArray *PimegaNDArray = ndArrayBuffer->getNext();
   memcpy(PimegaNDArray->pData, data, PimegaNDArray->dataSize);
   updateTimeStamp(&PimegaNDArray->epicsTS);
   this->getAttributes(PimegaNDArray->pAttributeList);
   doCallbacksGenericPointer(PimegaNDArray, NDArrayData, 0);
-  PimegaNDArray->release();
+}
+
+void pimegaDetector::updateEpicsFrame(uint32_t *data) {
+  int sizex, sizey;
+  getIntegerParam(ADMaxSizeX, &sizex);
+
+  NDArray *PimegaNDArray = ndArrayBuffer->getNext();
+  memcpy(PimegaNDArray->pData, data, PimegaNDArray->dataSize);
+  updateTimeStamp(&PimegaNDArray->epicsTS);
+  this->getAttributes(PimegaNDArray->pAttributeList);
+  doCallbacksGenericPointer(PimegaNDArray, NDArrayData, 0);
 }
 
 /** This thread controls acquisition, reads image files to get the image data,
@@ -684,6 +705,11 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     strcat(ok_str, "Test pulse set");
   } else if (function == PimegaCounterDepth) {
     status |= setOMRValue(OMR_CountL, value, function);
+    clearBufferPool();
+    int counter_depth;
+    getParameter(PimegaCounterDepth, &counter_depth);
+    ndarray_dtype = (counter_depth == 3) ? NDUInt32 : NDUInt16;
+    initializeBufferPool(20, ndarray_dtype);
     strcat(ok_str, "Counter depth set");
   } else if (function == PimegaEqualization) {
     status |= setOMRValue(OMR_Equalization, value, function);
@@ -1435,6 +1461,7 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
                              unsigned short backend_port,
                              unsigned short vis_frame_port) {
   int rc = 0;
+  int counter_depth;
   unsigned short ports[10] = {10000, 10001, 10002, 10003, 10004,
                               10005, 10006, 10007, 10008, 10010};
 
@@ -1444,14 +1471,22 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
 
   char connection_address[1024];
   sprintf(connection_address, "tcp://127.0.0.1:%d", vis_frame_port);
-  const std::string visualizer_topic = "pimega_frame_visualizer";
-  const size_t max_frame_size = maxSizeX * maxSizeY * sizeof(vis_dtype);
+  const std::string visualizer_topic = "pimega_high_perf";
+  const size_t max_frame_size = maxSizeX * maxSizeY * sizeof(uint32_t);
   message_consumer = new ZmqMessageConsumer(connection_address,
                                             visualizer_topic, max_frame_size);
 
+  initializeBufferPool(20, ndarray_dtype);
+
   message_consumer->subscribe(
       "ioc_frame_visualizer_callback", [this](void *data) {
-        this->updateEpicsFrame(reinterpret_cast<vis_dtype *>(data));
+        int counter_depth;
+        getParameter(PimegaCounterDepth, &counter_depth);
+        if (counter_depth == 3) {
+          this->updateEpicsFrame(reinterpret_cast<uint32_t *>(data));
+        } else {
+          this->updateEpicsFrame(reinterpret_cast<uint16_t *>(data));
+        }
       });
 
   rc =
@@ -1729,7 +1764,7 @@ asynStatus pimegaDetector::setDefaults(void) {
   setParameter(NDArraySizeX, maxSizeX);
   setParameter(NDArraySizeY, maxSizeY);
   setParameter(NDArraySize, 0);
-  setParameter(NDDataType, NDUInt32);
+  setParameter(NDDataType, NDUInt16);
   setParameter(NDArrayCallbacks, 1);
   setParameter(NDArrayCounter, 0);
   setParameter(NDPoolMaxMemory, 0.1);
@@ -2069,7 +2104,7 @@ asynStatus pimegaDetector::dacCountScan() {
   size_t shape[2] = {steps, maxChips};
 
   PimegaDacCountScanResult =
-      this->pNDArrayPool->alloc(2, shape, NDUInt32, 0, NULL);
+      this->pNDArrayPool->alloc(2, shape, NDUInt16, 0, NULL);
   memcpy(PimegaDacCountScanResult->pData, counts,
          PimegaDacCountScanResult->dataSize);
 
