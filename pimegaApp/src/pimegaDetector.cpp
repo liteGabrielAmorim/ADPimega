@@ -12,9 +12,7 @@
 #include <cstring>
 #include <lib/zmq_message_broker.hpp>
 
-NDDataType_t ndarray_dtype = NDUInt32;
-
-uint16_t counter_depth = 1;
+NDDataType_t ndarray_dtype = NDUInt16;
 
 static pimega_t *pimega_global;
 
@@ -42,7 +40,8 @@ static void acquisitionTaskC(void *drvPvt) {
 std::vector<NDArray *> ndArrayBuffer;
 int currentBufferIndex = 0;
 
-void pimegaDetector::initializeBufferPool(int numBuffers) {
+void pimegaDetector::initializeBufferPool(int numBuffers,
+                                          NDDataType_t ndarray_dtype) {
   int sizex, sizey;
   getIntegerParam(ADMaxSizeX, &sizex);
   getIntegerParam(ADMaxSizeY, &sizey);
@@ -739,10 +738,11 @@ asynStatus pimegaDetector::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     strcat(ok_str, "Test pulse set");
   } else if (function == PimegaCounterDepth) {
     status |= setOMRValue(OMR_CountL, value, function);
-    counter_depth = value;
-    ndarray_dtype = (counter_depth == 3) ? NDInt32 : NDInt16;
     clearBufferPool();
-    initializeBufferPool(20);
+    int counter_depth;
+    getParameter(PimegaCounterDepth, &counter_depth);
+    ndarray_dtype = (counter_depth == 3) ? NDUInt32 : NDUInt16;
+    initializeBufferPool(20, ndarray_dtype);
     strcat(ok_str, "Counter depth set");
   } else if (function == PimegaEqualization) {
     status |= setOMRValue(OMR_Equalization, value, function);
@@ -1494,6 +1494,7 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
                              unsigned short backend_port,
                              unsigned short vis_frame_port) {
   int rc = 0;
+  int counter_depth;
   unsigned short ports[10] = {10000, 10001, 10002, 10003, 10004,
                               10005, 10006, 10007, 10008, 10010};
 
@@ -1508,10 +1509,12 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
   message_consumer = new ZmqMessageConsumer(connection_address,
                                             visualizer_topic, max_frame_size);
 
-  initializeBufferPool(20);
+  initializeBufferPool(20, ndarray_dtype);
 
   message_consumer->subscribe(
       "ioc_frame_visualizer_callback", [this](void *data) {
+        int counter_depth;
+        getParameter(PimegaCounterDepth, &counter_depth);
         if (counter_depth == 3) {
           this->updateEpicsFrame(reinterpret_cast<uint32_t *>(data));
         } else {
