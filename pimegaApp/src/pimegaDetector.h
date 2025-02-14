@@ -58,6 +58,10 @@
 
 #include "CircularBuffer.h"
 
+#define DRIVER_VERSION_MAJOR 3
+#define DRIVER_VERSION_MINOR 4
+#define DRIVER_VERSION_PATCH 0
+
 #define PIMEGA_MAX_FILENAME_LEN 300
 #define MAX_BAD_PIXELS 100
 /** Time to poll when reading from Labview */

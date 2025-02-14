@@ -1852,6 +1852,18 @@ asynStatus pimegaDetector::setDefaults(void) {
 
   setParameter(PimegaDiagnosticDir, "EPICSDiagnostic");
   setParameter(PimegaDiagnosticSysInfoID, "EPICS-Diagnostic");
+  setParameter(ADManufacturer, "Pitec");
+
+  char version[PIMEGA_SMALL_STRING];
+  snprintf(version, sizeof(version), "%d.%d.%d", DRIVER_VERSION_MAJOR,
+           DRIVER_VERSION_MINOR, DRIVER_VERSION_PATCH);
+
+  setParameter(NDDriverVersion, version);
+  setParameter(ADSDKVersion, version);
+  setParameter(ADModel, GetModelName(pimega));
+
+  GetFirmwareVersion(pimega, version, sizeof(version));
+  setParameter(ADFirmwareVersion, version);
 
   setParameter(PimegaModule, 10);
   setParameter(PimegaMedipixBoard, 2);
