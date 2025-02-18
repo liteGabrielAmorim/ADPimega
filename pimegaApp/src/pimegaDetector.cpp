@@ -1419,6 +1419,7 @@ pimegaDetector::pimegaDetector(
   createParameters();
 
   setDefaults();
+  initializeBufferPool(20, ndarray_dtype);
 
   /* get the MB Hardware version and store it */
   get_MbHwVersion(pimega);
@@ -1476,7 +1477,6 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
   message_consumer = new ZmqMessageConsumer(connection_address,
                                             visualizer_topic, max_frame_size);
 
-  initializeBufferPool(20, ndarray_dtype);
 
   message_consumer->subscribe(
       "ioc_frame_visualizer_callback", [this](void *data) {
