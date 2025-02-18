@@ -1477,7 +1477,6 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
   message_consumer = new ZmqMessageConsumer(connection_address,
                                             visualizer_topic, max_frame_size);
 
-
   message_consumer->subscribe(
       "ioc_frame_visualizer_callback", [this](void *data) {
         int counter_depth;
