@@ -2735,15 +2735,22 @@ asynStatus pimegaDetector::configureAlignment(bool alignment_mode) {
   int numExposuresVar;
   int numCaptureVar;
   int max_num_capture = 2147483647;
+  int rc = 0;
+  int rc_NumCapture = 0;
   if (alignment_mode) {
-    set_numberExposures(pimega, max_num_capture);
+    rc = set_numberExposures(pimega, max_num_capture);
     SetAcqParamCameraNumCapture(pimega, max_num_capture);
   } else {
     numCaptureVar = GetAcqParamCameraNumCapture(pimega);
     getIntegerParam(ADNumExposures, &numExposuresVar);
-    set_numberExposures(pimega, numExposuresVar);
     getParameter(NDFileNumCapture, &numCaptureVar);
+    rc = set_numberExposures(pimega, numExposuresVar);
   }
+  if (rc != PIMEGA_SUCCESS) {
+    error("Invalid number of exposures: %s\n", pimega_error_string(rc));
+    return asynError;
+  }
+  return asynSuccess;
 }
 
 asynStatus pimegaDetector::diagnostic() {
