@@ -1419,6 +1419,7 @@ pimegaDetector::pimegaDetector(
   createParameters();
 
   setDefaults();
+  initializeBufferPool(20, ndarray_dtype);
 
   /* get the MB Hardware version and store it */
   get_MbHwVersion(pimega);
@@ -1475,8 +1476,6 @@ void pimegaDetector::connect(const char *address[10], unsigned short port,
   const size_t max_frame_size = maxSizeX * maxSizeY * sizeof(uint32_t);
   message_consumer = new ZmqMessageConsumer(connection_address,
                                             visualizer_topic, max_frame_size);
-
-  initializeBufferPool(20, ndarray_dtype);
 
   message_consumer->subscribe(
       "ioc_frame_visualizer_callback", [this](void *data) {
@@ -1852,6 +1851,18 @@ asynStatus pimegaDetector::setDefaults(void) {
 
   setParameter(PimegaDiagnosticDir, "EPICSDiagnostic");
   setParameter(PimegaDiagnosticSysInfoID, "EPICS-Diagnostic");
+  setParameter(ADManufacturer, "Pitec");
+
+  char version[PIMEGA_SMALL_STRING];
+  snprintf(version, sizeof(version), "%d.%d.%d", DRIVER_VERSION_MAJOR,
+           DRIVER_VERSION_MINOR, DRIVER_VERSION_PATCH);
+
+  setParameter(NDDriverVersion, version);
+  setParameter(ADSDKVersion, version);
+  setParameter(ADModel, GetModelName(pimega));
+
+  GetFirmwareVersion(pimega, version, sizeof(version));
+  setParameter(ADFirmwareVersion, version);
 
   setParameter(PimegaModule, 10);
   setParameter(PimegaMedipixBoard, 2);
@@ -2724,15 +2735,22 @@ asynStatus pimegaDetector::configureAlignment(bool alignment_mode) {
   int numExposuresVar;
   int numCaptureVar;
   int max_num_capture = 2147483647;
+  int rc = 0;
+  int rc_NumCapture = 0;
   if (alignment_mode) {
-    set_numberExposures(pimega, max_num_capture);
+    rc = set_numberExposures(pimega, max_num_capture);
     SetAcqParamCameraNumCapture(pimega, max_num_capture);
   } else {
     numCaptureVar = GetAcqParamCameraNumCapture(pimega);
     getIntegerParam(ADNumExposures, &numExposuresVar);
-    set_numberExposures(pimega, numExposuresVar);
     getParameter(NDFileNumCapture, &numCaptureVar);
+    rc = set_numberExposures(pimega, numExposuresVar);
   }
+  if (rc != PIMEGA_SUCCESS) {
+    error("Invalid number of exposures: %s\n", pimega_error_string(rc));
+    return asynError;
+  }
+  return asynSuccess;
 }
 
 asynStatus pimegaDetector::diagnostic() {
